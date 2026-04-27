@@ -1,298 +1,241 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 type Project = {
-  id: string;
+  id: number;
   name: string;
-  district: string | null;
+  area: string | null;
 };
 
 type Garden = {
-  id: string;
-  project_id: string;
+  id: number;
+  project_id: number;
   name: string;
 };
 
-type Report = {
-  id: string;
-  garden_id: string;
-  report_date: string;
-  insufficient_watering: boolean | null;
-};
-
-function today() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-export default function AdminHome() {
+export default function HomePage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [gardens, setGardens] = useState<Garden[]>([]);
-  const [reports, setReports] = useState<Report[]>([]);
-  const [selectedDate, setSelectedDate] = useState(today());
   const [loading, setLoading] = useState(true);
-  const [openProjectId, setOpenProjectId] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadData();
-  }, [selectedDate]);
+  const [newProject, setNewProject] = useState("");
+  const [newArea, setNewArea] = useState("");
+
+  const [selectedProject, setSelectedProject] = useState<number | null>(null);
+  const [newGarden, setNewGarden] = useState("");
 
   async function loadData() {
     setLoading(true);
 
-    const { data: projectsData } = await supabase
-      .from('projects')
-      .select('id, name, district')
-      .order('created_at', { ascending: true });
+    const { data: p } = await supabase
+      .from("projects")
+      .select("*")
+      .order("id");
 
-    const { data: gardensData } = await supabase
-      .from('gardens')
-      .select('id, project_id, name')
-      .eq('active', true)
-      .order('created_at', { ascending: true });
+    const { data: g } = await supabase
+      .from("gardens")
+      .select("*")
+      .order("id");
 
-    const { data: reportsData } = await supabase
-      .from('reports')
-      .select('id, garden_id, report_date, insufficient_watering')
-      .eq('report_date', selectedDate);
-
-    setProjects(projectsData || []);
-    setGardens(gardensData || []);
-    setReports(reportsData || []);
+    setProjects(p || []);
+    setGardens(g || []);
     setLoading(false);
   }
 
-  async function deleteReport(reportId: string, gardenName: string) {
-    const ok = confirm(`هل تريد حذف تسجيل الري للحديقة: ${gardenName}؟`);
-    if (!ok) return;
+  useEffect(() => {
+    loadData();
+  }, []);
 
-    await supabase.from('photos').delete().eq('report_id', reportId);
-    await supabase.from('reports').delete().eq('id', reportId);
+  async function addProject() {
+    if (!newProject.trim()) return;
 
-    await loadData();
+    await supabase.from("projects").insert({
+      name: newProject,
+      area: newArea,
+    });
+
+    setNewProject("");
+    setNewArea("");
+    loadData();
   }
 
-  async function toggleInsufficient(reportId: string, currentValue: boolean | null) {
-    await supabase
-      .from('reports')
-      .update({
-        insufficient_watering: !currentValue,
-        reviewed_by: 'admin',
-        reviewed_at: new Date().toISOString(),
-      })
-      .eq('id', reportId);
+  async function deleteProject(id: number) {
+    if (!confirm("حذف المشروع وكل حدائقه؟")) return;
 
-    await loadData();
+    await supabase.from("gardens").delete().eq("project_id", id);
+    await supabase.from("projects").delete().eq("id", id);
+
+    loadData();
   }
 
-  const reportByGardenId = useMemo(() => {
-    const map = new Map<string, Report>();
-    reports.forEach((report) => map.set(report.garden_id, report));
-    return map;
-  }, [reports]);
+  async function addGarden() {
+    if (!selectedProject || !newGarden.trim()) return;
 
-  const wateredGardenIds = useMemo(
-    () => new Set(reports.map((report) => report.garden_id)),
-    [reports]
-  );
+    await supabase.from("gardens").insert({
+      project_id: selectedProject,
+      name: newGarden,
+    });
 
-  const totals = useMemo(() => {
-    const totalGardens = gardens.length;
-    const watered = gardens.filter((garden) => wateredGardenIds.has(garden.id)).length;
-    const notWatered = totalGardens - watered;
-    const insufficient = reports.filter((r) => r.insufficient_watering).length;
+    setNewGarden("");
+    loadData();
+  }
 
-    return { totalGardens, watered, notWatered, insufficient };
-  }, [gardens, wateredGardenIds, reports]);
+  async function deleteGarden(id: number) {
+    if (!confirm("حذف الحديقة؟")) return;
+
+    await supabase.from("gardens").delete().eq("id", id);
+    loadData();
+  }
 
   return (
-    <main dir="rtl" className="admin-page">
-      <section className="admin-hero professional">
-        <div>
-          <span className="admin-badge">لوحة مراقبة يومية</span>
-          <h1>لوحة إدارة ري الحدائق</h1>
-          <p>استعراض المشاريع والحدائق غير المروية وعدم كفاية الري حسب التاريخ المحدد</p>
+    <main className="min-h-screen bg-[#eef6f0] p-8" dir="rtl">
+      <div className="max-w-7xl mx-auto space-y-8">
+
+        <div className="bg-emerald-700 text-white rounded-3xl p-8 shadow">
+          <h1 className="text-4xl font-bold mb-2">لوحة إدارة الحدائق</h1>
+          <p className="text-lg opacity-90">
+            إدارة المشاريع والحدائق من داخل لوحة الأدمن
+          </p>
         </div>
 
-        <div className="hero-controls">
-          <label>
-            <span>تحديد التاريخ</span>
+        {/* إضافة مشروع */}
+        <div className="bg-white rounded-3xl p-6 shadow space-y-4">
+          <h2 className="text-2xl font-bold text-emerald-800">
+            إضافة مشروع جديد
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-4">
             <input
-              type="date"
-              value={selectedDate}
-              onChange={(event) => setSelectedDate(event.target.value)}
+              value={newProject}
+              onChange={(e) => setNewProject(e.target.value)}
+              placeholder="اسم المشروع"
+              className="border rounded-xl p-3"
             />
-          </label>
 
-          <button onClick={loadData}>تحديث البيانات</button>
+            <input
+              value={newArea}
+              onChange={(e) => setNewArea(e.target.value)}
+              placeholder="النطاق / المنطقة"
+              className="border rounded-xl p-3"
+            />
+
+            <button
+              onClick={addProject}
+              className="bg-emerald-700 text-white rounded-xl px-4 py-3"
+            >
+              إضافة مشروع
+            </button>
+          </div>
         </div>
-      </section>
 
-      <section className="admin-overview">
-        <div>
-          <span>إجمالي الحدائق</span>
-          <strong>{totals.totalGardens}</strong>
+        {/* إضافة حديقة */}
+        <div className="bg-white rounded-3xl p-6 shadow space-y-4">
+          <h2 className="text-2xl font-bold text-emerald-800">
+            إضافة حديقة
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-4">
+            <select
+              value={selectedProject || ""}
+              onChange={(e) =>
+                setSelectedProject(Number(e.target.value))
+              }
+              className="border rounded-xl p-3"
+            >
+              <option value="">اختر المشروع</option>
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+
+            <input
+              value={newGarden}
+              onChange={(e) => setNewGarden(e.target.value)}
+              placeholder="اسم الحديقة"
+              className="border rounded-xl p-3"
+            />
+
+            <button
+              onClick={addGarden}
+              className="bg-emerald-700 text-white rounded-xl px-4 py-3"
+            >
+              إضافة حديقة
+            </button>
+          </div>
         </div>
-        <div>
-          <span>تم ريها</span>
-          <strong>{totals.watered}</strong>
-        </div>
-        <div>
-          <span>لم يتم ريها</span>
-          <strong>{totals.notWatered}</strong>
-        </div>
-        <div>
-          <span>عدم كفاية ري</span>
-          <strong>{totals.insufficient}</strong>
-        </div>
-      </section>
 
-      {loading ? (
-        <div className="loading">جاري تحميل البيانات...</div>
-      ) : (
-        <section className="projects-admin-grid">
-          {projects.map((project) => {
-            const projectGardens = gardens.filter(
-              (garden) => garden.project_id === project.id
-            );
+        {/* المشاريع */}
+        {loading ? (
+          <div className="text-center text-xl">جارٍ التحميل...</div>
+        ) : (
+          <div className="grid lg:grid-cols-2 gap-6">
+            {projects.map((project) => {
+              const projectGardens = gardens.filter(
+                (g) => g.project_id === project.id
+              );
 
-            const wateredGardens = projectGardens.filter((garden) =>
-              wateredGardenIds.has(garden.id)
-            );
-
-            const notWateredGardens = projectGardens.filter(
-              (garden) => !wateredGardenIds.has(garden.id)
-            );
-
-            const insufficientGardens = wateredGardens.filter((garden) => {
-              const report = reportByGardenId.get(garden.id);
-              return report?.insufficient_watering;
-            });
-
-            const isOpen = openProjectId === project.id;
-
-            return (
-              <article key={project.id} className="admin-project-card">
-                <div className="project-header">
-                  <div>
-                    <h2>{project.name}</h2>
-                    <p>{project.district || 'بدون نطاق'}</p>
-                  </div>
-
-                  <div className="completion-badge warning-badge">
-                    {insufficientGardens.length}
-                  </div>
-                </div>
-
-                <div className="project-stats">
-                  <div>
-                    <span>إجمالي الحدائق</span>
-                    <strong>{projectGardens.length}</strong>
-                  </div>
-                  <div>
-                    <span>تم ريها</span>
-                    <strong>{wateredGardens.length}</strong>
-                  </div>
-                  <div>
-                    <span>لم يتم ريها</span>
-                    <strong>{notWateredGardens.length}</strong>
-                  </div>
-                  <div>
-                    <span>عدم كفاية ري</span>
-                    <strong>{insufficientGardens.length}</strong>
-                  </div>
-                </div>
-
-                <div className="not-watered-card">
-                  <h3>الحدائق التي لم يتم ريها</h3>
-
-                  {notWateredGardens.length ? (
-                    <ul>
-                      {notWateredGardens.map((garden) => (
-                        <li key={garden.id}>{garden.name}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="all-done">تم ري جميع حدائق المشروع في هذا اليوم</p>
-                  )}
-                </div>
-
-                <div className="not-watered-card insufficient-box">
-                  <h3>الحدائق عليها عدم كفاية ري</h3>
-
-                  {insufficientGardens.length ? (
-                    <ul>
-                      {insufficientGardens.map((garden) => (
-                        <li key={garden.id}>{garden.name}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="empty-list">لا توجد حدائق عليها عدم كفاية ري</p>
-                  )}
-                </div>
-
-                <button
-                  className="show-records-btn"
-                  onClick={() => setOpenProjectId(isOpen ? null : project.id)}
+              return (
+                <div
+                  key={project.id}
+                  className="bg-white rounded-3xl p-6 shadow space-y-4"
                 >
-                  {isOpen ? 'إخفاء تسجيلات اليوم' : 'عرض تسجيلات اليوم'}
-                </button>
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <h2 className="text-3xl font-bold text-emerald-900">
+                        {project.name}
+                      </h2>
+                      <p className="text-gray-500">
+                        {project.area || "بدون نطاق"}
+                      </p>
+                    </div>
 
-                {isOpen && (
-                  <div className="daily-records-box">
-                    <h3>تسجيلات اليوم</h3>
+                    <button
+                      onClick={() => deleteProject(project.id)}
+                      className="bg-red-600 text-white px-4 py-2 rounded-xl"
+                    >
+                      حذف المشروع
+                    </button>
+                  </div>
 
-                    {wateredGardens.length ? (
-                      <ul>
-                        {wateredGardens.map((garden) => {
-                          const report = reportByGardenId.get(garden.id);
-                          if (!report) return null;
+                  <div className="bg-[#f6faf7] rounded-2xl p-4">
+                    <h3 className="font-bold text-xl mb-3">
+                      الحدائق ({projectGardens.length})
+                    </h3>
 
-                          return (
-                            <li key={garden.id} className="admin-garden-row">
-                              <span>{garden.name}</span>
-
-                              <div className="row-actions">
-                                <button
-                                  className={
-                                    report.insufficient_watering
-                                      ? 'flag-btn active'
-                                      : 'flag-btn'
-                                  }
-                                  onClick={() =>
-                                    toggleInsufficient(
-                                      report.id,
-                                      report.insufficient_watering
-                                    )
-                                  }
-                                >
-                                  {report.insufficient_watering
-                                    ? 'إزالة عدم الكفاية'
-                                    : 'عدم كفاية ري'}
-                                </button>
-
-                                <button
-                                  className="delete-report-btn"
-                                  onClick={() => deleteReport(report.id, garden.name)}
-                                >
-                                  حذف التسجيل
-                                </button>
-                              </div>
-                            </li>
-                          );
-                        })}
-                      </ul>
+                    {projectGardens.length === 0 ? (
+                      <p className="text-gray-500">لا توجد حدائق</p>
                     ) : (
-                      <p className="empty-list">لا توجد تسجيلات ري لهذا المشروع في هذا اليوم</p>
+                      <div className="space-y-2">
+                        {projectGardens.map((garden) => (
+                          <div
+                            key={garden.id}
+                            className="flex justify-between items-center bg-white border rounded-xl px-4 py-3"
+                          >
+                            <span>{garden.name}</span>
+
+                            <button
+                              onClick={() =>
+                                deleteGarden(garden.id)
+                              }
+                              className="text-red-600 font-bold"
+                            >
+                              حذف
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
-                )}
-              </article>
-            );
-          })}
-        </section>
-      )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </main>
   );
 }
