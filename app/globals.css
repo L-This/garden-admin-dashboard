@@ -1510,3 +1510,34 @@ button:hover {
 .password-management-card {
   border-radius: 28px;
 }
+.report-actions-4 button {
+  border-radius: 18px;
+  border: 1px solid rgba(216, 180, 92, 0.32);
+  color: #fff7d6;
+  font-weight: 800;
+  box-shadow:
+    0 12px 24px rgba(6, 43, 36, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.report-actions-4 button:nth-child(1) {
+  background: linear-gradient(135deg, #063b33, #0b8f63);
+}
+
+.report-actions-4 button:nth-child(2) {
+  background: linear-gradient(135deg, #7f1d1d, #dc2626);
+}
+
+.report-actions-4 button:nth-child(3) {
+  background: linear-gradient(135deg, #92400e, #d8b45c);
+  color: #062b24;
+}
+
+.report-actions-4 button:nth-child(4) {
+  background: linear-gradient(135deg, #0f3f3a, #2563eb);
+}
+
+.report-actions-4 button:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.05);
+}
