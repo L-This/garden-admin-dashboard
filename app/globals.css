@@ -3025,3 +3025,24 @@ button[data-status="runoff"],
 .report-actions-4 button:nth-child(4) {
   background-image: url('/images/btn-runoff.png') !important;
 }
+/* إخفاء نصوص الأزرار والإبقاء على الخلفية فقط */
+.report-actions-4 button,
+.report-actions-4 button span,
+.report-actions-4 button p,
+.report-actions-4 button div {
+  color: transparent !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  text-shadow: none !important;
+}
+
+/* إخفاء أيقونات نصية داخل الزر */
+.report-actions-4 button svg,
+.report-actions-4 button i {
+  display: none !important;
+}
+
+/* تثبيت حجم الزر */
+.report-actions-4 button {
+  overflow: hidden;
+}
