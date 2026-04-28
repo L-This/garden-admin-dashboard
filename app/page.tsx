@@ -303,9 +303,9 @@ export default function AdminHome() {
           <button onClick={login}>{loginLoading ? 'جارٍ الدخول...' : 'دخول'}</button>
 
           <div className="login-help">
-            <p>مدير: manager / 123456</p>
-            <p>مشرف: supervisor / 123456</p>
-          </div>
+  <p>منصة إدارية مخصصة للمستخدمين المعتمدين فقط.</p>
+  <p>يُرجى تسجيل الدخول باستخدام بيانات الصلاحية الممنوحة لك.</p>
+</div>
         </div>
       </main>
     );
