@@ -830,14 +830,27 @@ body{
   overflow:hidden;
   border-radius:28px;
   padding:26px;
-  background:
-  linear-gradient(rgba(255,255,255,.05), rgba(255,255,255,.12)),
-  url("/backgrounds/project-bg.png") center/cover no-repeat;
-  border:1px solid rgba(212,175,55,.28);
-  box-shadow:0 14px 32px rgba(6,95,70,.08);
+  background:url("/backgrounds/project-bg.png") center center / cover no-repeat !important;
+  border:1px solid rgba(212,175,55,.35);
+  box-shadow:0 14px 32px rgba(6,95,70,.10);
   transition:.25s ease;
 }
+.project-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(
+    to top,
+    rgba(255,255,255,.15),
+    rgba(255,255,255,0)
+  );
+  pointer-events:none;
+}
 
+.project-card > *{
+  position:relative;
+  z-index:2;
+}
 .project-card:hover{
   transform:translateY(-4px) scale(1.01);
   box-shadow:0 24px 44px rgba(6,95,70,.12);
