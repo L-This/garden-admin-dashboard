@@ -281,7 +281,7 @@ export default function AdminHome() {
         >
           <div className="login-logo">♧</div>
           <h1>تسجيل دخول لوحة الإدارة</h1>
-          <p className="login-subtitle">المنصة الإدارية لري الحدائق</p>
+          
 
           <select
             value={username}
