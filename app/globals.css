@@ -2847,3 +2847,23 @@ html,body{
 .admin-project-card p {
   text-shadow: 0 2px 8px rgba(255,255,255,.9);
 }
+.admin-project-card .project-header {
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+.admin-project-card .project-header > div:not(.project-number-badge) {
+  width: 100%;
+  text-align: center !important;
+}
+
+.admin-project-card h2,
+.admin-project-card p {
+  text-align: center !important;
+}
+
+.project-number-badge {
+  position: absolute;
+  top: 28px;
+  left: 28px;
+}
