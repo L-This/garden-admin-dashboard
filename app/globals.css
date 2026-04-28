@@ -831,8 +831,8 @@ body{
   border-radius:28px;
   padding:26px;
   background:
-    linear-gradient(rgba(255,255,255,.35), rgba(255,255,255,.55)),
-    url("/backgrounds/project-bg.png") center/cover no-repeat;
+  linear-gradient(rgba(255,255,255,.05), rgba(255,255,255,.12)),
+  url("/backgrounds/project-bg.png") center/cover no-repeat;
   border:1px solid rgba(212,175,55,.28);
   box-shadow:0 14px 32px rgba(6,95,70,.08);
   transition:.25s ease;
