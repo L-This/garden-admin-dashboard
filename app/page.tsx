@@ -276,8 +276,8 @@ export default function AdminHome() {
                     <p>{project.district || 'بدون نطاق'}</p>
                   </div>
 
-                  <div className="completion-badge warning-badge">
-                    {insufficientGardens.length + sidewalkGardens.length}
+                  <div className="completion-badge success-badge">
+                       {wateredGardens.length}
                   </div>
                 </div>
 
