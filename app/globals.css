@@ -973,3 +973,411 @@ button:hover {
 .admin-hero h1 {
   text-shadow: 0 2px 8px rgba(0,0,0,.08);
 }
+/* =========================
+   Luxury Green & Gold Theme
+   ضع هذا في آخر globals.css
+========================= */
+
+:root {
+  --lux-green-950: #062b24;
+  --lux-green-900: #073b31;
+  --lux-green-800: #07543f;
+  --lux-green-700: #087553;
+  --lux-green-600: #0b8f63;
+  --lux-gold: #d8b45c;
+  --lux-gold-soft: #f6e7b8;
+  --lux-cream: #fffaf0;
+  --lux-card: rgba(255, 255, 255, 0.88);
+  --lux-border: rgba(216, 180, 92, 0.45);
+  --lux-shadow: 0 28px 70px rgba(6, 43, 36, 0.16);
+}
+
+body {
+  background:
+    radial-gradient(circle at 18% 12%, rgba(216, 180, 92, 0.16), transparent 28%),
+    radial-gradient(circle at 82% 5%, rgba(11, 143, 99, 0.18), transparent 30%),
+    linear-gradient(135deg, #f7fbf6 0%, #eef8f2 42%, #fffaf0 100%);
+  color: var(--lux-green-950);
+}
+
+/* Login Luxury */
+.login-page {
+  background:
+    linear-gradient(rgba(6, 43, 36, 0.78), rgba(6, 43, 36, 0.78)),
+    radial-gradient(circle at 30% 20%, rgba(216, 180, 92, 0.36), transparent 22%),
+    linear-gradient(135deg, #062b24, #0b5844 55%, #041f1a);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-page::before,
+.login-page::after {
+  content: "";
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  border: 1px solid rgba(216, 180, 92, 0.18);
+  border-radius: 50%;
+  filter: blur(0.2px);
+}
+
+.login-page::before {
+  right: -130px;
+  top: -110px;
+}
+
+.login-page::after {
+  left: -120px;
+  bottom: -130px;
+}
+
+.login-card {
+  position: relative;
+  z-index: 2;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,250,240,.92));
+  border: 1px solid var(--lux-border);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.55) inset,
+    0 30px 90px rgba(0,0,0,.22),
+    0 0 55px rgba(216,180,92,.18);
+  border-radius: 30px;
+  padding: 38px;
+  animation: luxEnter .65s ease both;
+}
+
+.login-card::before {
+  content: "♧";
+  display: block;
+  text-align: center;
+  color: var(--lux-gold);
+  font-size: 54px;
+  line-height: 1;
+  margin-bottom: 8px;
+  text-shadow: 0 8px 24px rgba(216,180,92,.35);
+}
+
+.login-card h1 {
+  font-size: 36px;
+  color: var(--lux-green-950);
+  text-shadow: 0 2px 8px rgba(0,0,0,.05);
+}
+
+.login-card input,
+.login-card select {
+  background: rgba(255,255,255,.72);
+  border: 1px solid rgba(216,180,92,.35);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+}
+
+.login-card input:focus,
+.login-card select:focus {
+  border-color: var(--lux-gold) !important;
+  box-shadow:
+    0 0 0 4px rgba(216,180,92,.14),
+    inset 0 1px 0 rgba(255,255,255,.9);
+}
+
+.login-card button {
+  background: linear-gradient(135deg, #063b33, #0b8f63);
+  color: #fff7d6;
+  border: 1px solid rgba(216,180,92,.55);
+  box-shadow:
+    0 18px 36px rgba(6,43,36,.28),
+    inset 0 1px 0 rgba(255,255,255,.18);
+}
+
+.login-card button:hover {
+  box-shadow:
+    0 24px 48px rgba(6,43,36,.34),
+    0 0 0 4px rgba(216,180,92,.10);
+}
+
+.login-help {
+  background: rgba(255,250,240,.64);
+  border: 1px dashed rgba(216,180,92,.45);
+}
+
+/* Dashboard Luxury Hero */
+.admin-page {
+  background:
+    radial-gradient(circle at 15% 5%, rgba(216,180,92,.12), transparent 24%),
+    radial-gradient(circle at 85% 8%, rgba(11,143,99,.14), transparent 28%),
+    linear-gradient(135deg, #eef8f2 0%, #f8fffc 52%, #fffaf0 100%);
+}
+
+.admin-hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 12% 25%, rgba(255,255,255,.18), transparent 24%),
+    linear-gradient(135deg, #062b24 0%, #07543f 52%, #0b8f63 100%);
+  border: 1px solid rgba(216,180,92,.32);
+  box-shadow:
+    0 30px 80px rgba(6,43,36,.22),
+    inset 0 1px 0 rgba(255,255,255,.12);
+}
+
+.admin-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(120deg, transparent 55%, rgba(216,180,92,.28) 56%, transparent 58%),
+    radial-gradient(circle at 70% 90%, rgba(216,180,92,.28), transparent 24%);
+  opacity: .75;
+  pointer-events: none;
+}
+
+.admin-hero::after {
+  content: "";
+  position: absolute;
+  width: 520px;
+  height: 140px;
+  left: -80px;
+  bottom: -70px;
+  border-top: 2px solid rgba(216,180,92,.38);
+  border-radius: 50%;
+  transform: rotate(-8deg);
+  pointer-events: none;
+}
+
+.admin-hero > * {
+  position: relative;
+  z-index: 2;
+}
+
+.admin-badge {
+  background: rgba(255,255,255,.14);
+  border: 1px solid rgba(216,180,92,.35);
+  color: #fff7d6;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+}
+
+.admin-hero h1 {
+  color: #fff;
+  text-shadow: 0 4px 18px rgba(0,0,0,.18);
+}
+
+.admin-hero p {
+  color: #fff7d6;
+}
+
+.hero-controls {
+  background: rgba(255,255,255,.10);
+  border: 1px solid rgba(216,180,92,.24);
+  backdrop-filter: blur(12px);
+}
+
+.hero-controls button,
+.hero-controls input {
+  border: 1px solid rgba(216,180,92,.35);
+  box-shadow: 0 10px 22px rgba(6,43,36,.10);
+}
+
+/* Overview Cards */
+.admin-overview div {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,250,240,.86));
+  border: 1px solid rgba(216,180,92,.24);
+  box-shadow:
+    0 18px 40px rgba(6,43,36,.08),
+    inset 0 1px 0 rgba(255,255,255,.9);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.admin-overview div::after {
+  content: "";
+  position: absolute;
+  width: 58px;
+  height: 58px;
+  left: 18px;
+  bottom: 18px;
+  border-radius: 50%;
+  border: 1px solid rgba(216,180,92,.22);
+  background: rgba(255,250,240,.55);
+}
+
+.admin-overview div:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 26px 58px rgba(6,43,36,.14);
+}
+
+.admin-overview strong {
+  color: var(--lux-green-700);
+  text-shadow: 0 8px 18px rgba(11,143,99,.12);
+}
+
+/* Password Management */
+.password-management-card {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,250,240,.88));
+  border: 1px solid rgba(216,180,92,.32);
+  box-shadow: var(--lux-shadow);
+}
+
+.password-management-card h2 {
+  color: var(--lux-green-950);
+}
+
+.password-management-form button {
+  background: linear-gradient(135deg, #063b33, #0b8f63);
+  color: #fff7d6;
+  border: 1px solid rgba(216,180,92,.42);
+}
+
+/* Project Cards */
+.admin-project-card {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,250,240,.88));
+  border: 1px solid rgba(216,180,92,.28);
+  box-shadow:
+    0 20px 50px rgba(6,43,36,.10),
+    inset 0 1px 0 rgba(255,255,255,.85);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.admin-project-card::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 84px;
+  background:
+    linear-gradient(to top, rgba(216,180,92,.12), transparent),
+    linear-gradient(90deg, rgba(6,43,36,.04), transparent);
+  pointer-events: none;
+}
+
+.admin-project-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 30px 70px rgba(6,43,36,.16);
+}
+
+.project-header h2 {
+  color: var(--lux-green-950);
+}
+
+.project-header p {
+  color: #6b7d75;
+}
+
+.success-badge {
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255,255,255,.35), transparent 28%),
+    linear-gradient(135deg, #063b33, #0b8f63);
+  color: #f8d980;
+  border: 3px solid rgba(216,180,92,.65);
+  box-shadow:
+    0 16px 34px rgba(6,43,36,.22),
+    0 0 0 8px rgba(216,180,92,.10),
+    inset 0 1px 0 rgba(255,255,255,.22);
+}
+
+/* Section Buttons */
+.stat-button {
+  background:
+    linear-gradient(180deg, #ecfdf5, #f8fffb);
+  border: 1px solid rgba(216,180,92,.18);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+}
+
+.stat-button:hover {
+  background:
+    linear-gradient(180deg, #ddf7ea, #fffaf0);
+  box-shadow: 0 14px 28px rgba(6,43,36,.10);
+}
+
+/* Report Cards */
+.details-section,
+.report-card {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,250,240,.88));
+  border: 1px solid rgba(216,180,92,.24);
+  box-shadow: 0 18px 42px rgba(6,43,36,.08);
+}
+
+.report-card {
+  position: relative;
+}
+
+.report-card-head h4 {
+  color: var(--lux-green-950);
+}
+
+.report-image-box {
+  border: 1px solid rgba(216,180,92,.25);
+  background: #f8fffb;
+}
+
+/* Buttons polish */
+button {
+  transition: transform .22s ease, box-shadow .22s ease, background .22s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+}
+
+/* Smooth entrance */
+.login-card,
+.admin-hero,
+.admin-overview div,
+.password-management-card,
+.admin-project-card,
+.report-card {
+  animation: luxEnter .55s ease both;
+}
+
+@keyframes luxEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Print Clean */
+@media print {
+  .login-page,
+  .hero-controls,
+  .password-management-card,
+  .report-actions-4,
+  .card-more-btn {
+    display: none !important;
+  }
+
+  body,
+  .admin-page {
+    background: white !important;
+  }
+
+  .admin-hero,
+  .admin-overview div,
+  .admin-project-card,
+  .details-section,
+  .report-card {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+}
+
+/* Mobile */
+@media (max-width: 900px) {
+  .login-card {
+    padding: 28px 22px;
+  }
+
+  .admin-hero,
+  .admin-project-card,
+  .password-management-card {
+    border-radius: 24px;
+  }
+}
