@@ -32,14 +32,29 @@ type Report = {
   created_at: string | null;
   insufficient_watering: boolean | null;
   sidewalk_runoff: boolean | null;
+  insufficient_note?: string | null;
+  sidewalk_runoff_note?: string | null;
   notes?: string | null;
 };
+
+type Photo = {
+  id: string;
+  report_id: string;
+  file_url: string;
+};
+
+type OpenSection = 'watered' | 'not_watered' | 'insufficient' | 'sidewalk' | null;
 
 function today() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export default function AdminPage() {
+function formatDateTime(value?: string | null) {
+  if (!value) return 'بدون وقت';
+  return new Date(value).toLocaleString('ar-SA');
+}
+
+export default function AdminHome() {
   const [user, setUser] = useState<AdminUser | null>(null);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -48,15 +63,18 @@ export default function AdminPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [gardens, setGardens] = useState<Garden[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
+  const [photos, setPhotos] = useState<Photo[]>([]);
   const [selectedDate, setSelectedDate] = useState(today());
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const [openProjectId, setOpenProjectId] = useState<string | null>(null);
+  const [openSection, setOpenSection] = useState<OpenSection>(null);
+
+  const isManager = user?.role === 'مدير';
 
   useEffect(() => {
     const saved = localStorage.getItem('adminUser');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      setUser(parsed);
-    }
+    if (saved) setUser(JSON.parse(saved));
   }, []);
 
   useEffect(() => {
@@ -100,62 +118,138 @@ export default function AdminPage() {
 
     const { data: projectsData } = await supabase
       .from('projects')
-      .select('id,name,district')
+      .select('id, name, district')
       .order('created_at', { ascending: true });
 
     const { data: gardensData } = await supabase
       .from('gardens')
-      .select('id,project_id,name')
-      .eq('active', true);
+      .select('id, project_id, name')
+      .eq('active', true)
+      .order('created_at', { ascending: true });
 
     const { data: reportsData } = await supabase
       .from('reports')
       .select(
-        'id,garden_id,report_date,created_at,insufficient_watering,sidewalk_runoff,notes'
+        'id, garden_id, report_date, created_at, insufficient_watering, sidewalk_runoff, insufficient_note, sidewalk_runoff_note, notes'
       )
       .eq('report_date', selectedDate);
+
+    const reportIds = (reportsData || []).map((r) => r.id);
+
+    let photosData: Photo[] = [];
+    if (reportIds.length) {
+      const { data } = await supabase
+        .from('photos')
+        .select('id, report_id, file_url')
+        .in('report_id', reportIds);
+
+      photosData = data || [];
+    }
 
     setProjects(projectsData || []);
     setGardens(gardensData || []);
     setReports(reportsData || []);
+    setPhotos(photosData);
     setLoading(false);
   }
 
-  async function deleteReport(id: string) {
-    if (user?.role !== 'مدير') return;
-
-    const ok = confirm('حذف التسجيل؟');
-    if (!ok) return;
-
-    await supabase.from('photos').delete().eq('report_id', id);
-    await supabase.from('reports').delete().eq('id', id);
-    loadData();
+  function openProject(projectId: string) {
+    if (openProjectId === projectId) {
+      setOpenProjectId(null);
+      setOpenSection(null);
+    } else {
+      setOpenProjectId(projectId);
+      setOpenSection(null);
+    }
   }
 
-  async function setStatus(
+  function toggleSection(section: OpenSection) {
+    setOpenSection(openSection === section ? null : section);
+  }
+
+  async function updateReportStatus(
     reportId: string,
-    type: 'watered' | 'insufficient' | 'sidewalk'
+    status: 'watered' | 'not_watered' | 'insufficient' | 'sidewalk'
   ) {
-    if (user?.role !== 'مدير') return;
+    if (!isManager) return;
 
-    const payload =
-      type === 'watered'
-        ? { insufficient_watering: false, sidewalk_runoff: false }
-        : type === 'insufficient'
-        ? { insufficient_watering: true, sidewalk_runoff: false }
-        : { insufficient_watering: false, sidewalk_runoff: true };
+    if (status === 'watered') {
+      await supabase
+        .from('reports')
+        .update({
+          insufficient_watering: false,
+          sidewalk_runoff: false,
+          reviewed_by: 'admin',
+          reviewed_at: new Date().toISOString(),
+        })
+        .eq('id', reportId);
+    }
 
-    await supabase.from('reports').update(payload).eq('id', reportId);
-    loadData();
+    if (status === 'insufficient') {
+      await supabase
+        .from('reports')
+        .update({
+          insufficient_watering: true,
+          sidewalk_runoff: false,
+          reviewed_by: 'admin',
+          reviewed_at: new Date().toISOString(),
+        })
+        .eq('id', reportId);
+    }
+
+    if (status === 'sidewalk') {
+      await supabase
+        .from('reports')
+        .update({
+          sidewalk_runoff: true,
+          insufficient_watering: false,
+          reviewed_by: 'admin',
+          reviewed_at: new Date().toISOString(),
+        })
+        .eq('id', reportId);
+    }
+
+    if (status === 'not_watered') {
+      const ok = confirm('نقل الحديقة إلى لم يتم الري يعني حذف تسجيل الري لهذا اليوم. هل أنت متأكد؟');
+      if (!ok) return;
+
+      await supabase.from('photos').delete().eq('report_id', reportId);
+      await supabase.from('reports').delete().eq('id', reportId);
+    }
+
+    await loadData();
   }
 
-  const reportByGarden = useMemo(() => {
+  const reportByGardenId = useMemo(() => {
     const map = new Map<string, Report>();
-    reports.forEach((r) => map.set(r.garden_id, r));
+    reports.forEach((report) => map.set(report.garden_id, report));
     return map;
   }, [reports]);
 
-  const wateredIds = new Set(reports.map((r) => r.garden_id));
+  const photosByReportId = useMemo(() => {
+    const map = new Map<string, Photo[]>();
+    photos.forEach((photo) => {
+      const existing = map.get(photo.report_id) || [];
+      existing.push(photo);
+      map.set(photo.report_id, existing);
+    });
+    return map;
+  }, [photos]);
+
+  const wateredGardenIds = useMemo(
+    () => new Set(reports.map((report) => report.garden_id)),
+    [reports]
+  );
+
+  const totals = useMemo(() => {
+    const totalGardens = gardens.length;
+    const watered = gardens.filter((garden) => wateredGardenIds.has(garden.id)).length;
+    const notWatered = totalGardens - watered;
+    const insufficient = reports.filter((r) => r.insufficient_watering).length;
+    const sidewalk = reports.filter((r) => r.sidewalk_runoff).length;
+
+    return { totalGardens, watered, notWatered, insufficient, sidewalk };
+  }, [gardens, wateredGardenIds, reports]);
 
   if (!user) {
     return (
@@ -176,9 +270,7 @@ export default function AdminPage() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          <button onClick={login}>
-            {loginLoading ? 'جارٍ الدخول...' : 'دخول'}
-          </button>
+          <button onClick={login}>{loginLoading ? 'جارٍ الدخول...' : 'دخول'}</button>
 
           <div className="login-help">
             <p>مدير: manager / 123456</p>
@@ -190,7 +282,7 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="admin-page" dir="rtl">
+    <main dir="rtl" className="admin-page">
       <section className="admin-hero professional">
         <div>
           <span className="admin-badge">مرحبًا {user.username}</span>
@@ -200,132 +292,226 @@ export default function AdminPage() {
 
         <div className="hero-controls">
           <label>
-            <span>التاريخ</span>
+            <span>تحديد التاريخ</span>
             <input
               type="date"
               value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
+              onChange={(event) => setSelectedDate(event.target.value)}
             />
           </label>
 
-          <button onClick={loadData}>تحديث</button>
+          <button onClick={loadData}>تحديث البيانات</button>
           <button onClick={() => window.print()}>طباعة التقرير</button>
           <button onClick={logout}>خروج</button>
         </div>
       </section>
 
+      <section className="admin-overview">
+        <div>
+          <span>إجمالي الحدائق</span>
+          <strong>{totals.totalGardens}</strong>
+        </div>
+        <div>
+          <span>تم ريها</span>
+          <strong>{totals.watered}</strong>
+        </div>
+        <div>
+          <span>لم يتم ريها</span>
+          <strong>{totals.notWatered}</strong>
+        </div>
+        <div>
+          <span>عدم كفاية ري</span>
+          <strong>{totals.insufficient}</strong>
+        </div>
+        <div>
+          <span>خروج الري للرصيف</span>
+          <strong>{totals.sidewalk}</strong>
+        </div>
+      </section>
+
       {loading ? (
-        <div className="loading">جاري التحميل...</div>
+        <div className="loading">جاري تحميل البيانات...</div>
       ) : (
         <section className="projects-admin-grid">
           {projects.map((project) => {
-            const projectGardens = gardens.filter(
-              (g) => g.project_id === project.id
+            const projectGardens = gardens.filter((garden) => garden.project_id === project.id);
+
+            const wateredGardens = projectGardens.filter((garden) =>
+              wateredGardenIds.has(garden.id)
             );
 
-            const watered = projectGardens.filter((g) =>
-              wateredIds.has(g.id)
+            const notWateredGardens = projectGardens.filter(
+              (garden) => !wateredGardenIds.has(garden.id)
             );
 
-            const notWatered = projectGardens.filter(
-              (g) => !wateredIds.has(g.id)
-            );
+            const insufficientGardens = wateredGardens.filter((garden) => {
+              const report = reportByGardenId.get(garden.id);
+              return report?.insufficient_watering;
+            });
+
+            const sidewalkGardens = wateredGardens.filter((garden) => {
+              const report = reportByGardenId.get(garden.id);
+              return report?.sidewalk_runoff;
+            });
+
+            const isOpen = openProjectId === project.id;
 
             return (
-              <article key={project.id} className="admin-project-card">
-                <div className="project-header">
+              <article key={project.id} className="admin-project-card project-click-card">
+                <div className="project-header" onClick={() => openProject(project.id)}>
                   <div>
                     <h2>{project.name}</h2>
                     <p>{project.district || 'بدون نطاق'}</p>
                   </div>
 
                   <div className="completion-badge success-badge">
-                    {watered.length}
+                    {wateredGardens.length}
                   </div>
                 </div>
 
-                <div className="project-stats">
-                  <div>
-                    <span>تم الري</span>
-                    <strong>{watered.length}</strong>
-                  </div>
+                {isOpen && (
+                  <>
+                    <div className="project-stats">
+                      <button className="stat-button" onClick={() => toggleSection('watered')}>
+                        <span>تم ريها</span>
+                        <strong>{wateredGardens.length}</strong>
+                      </button>
 
-                  <div>
-                    <span>لم يتم</span>
-                    <strong>{notWatered.length}</strong>
-                  </div>
-                </div>
+                      <button className="stat-button" onClick={() => toggleSection('not_watered')}>
+                        <span>لم يتم ريها</span>
+                        <strong>{notWateredGardens.length}</strong>
+                      </button>
 
-                <div className="details-section">
-                  <h3>تفاصيل اليوم</h3>
+                      <button className="stat-button" onClick={() => toggleSection('insufficient')}>
+                        <span>عدم كفاية ري</span>
+                        <strong>{insufficientGardens.length}</strong>
+                      </button>
 
-                  {watered.map((garden) => {
-                    const report = reportByGarden.get(garden.id);
-                    if (!report) return null;
+                      <button className="stat-button" onClick={() => toggleSection('sidewalk')}>
+                        <span>خروج الري للرصيف</span>
+                        <strong>{sidewalkGardens.length}</strong>
+                      </button>
+                    </div>
 
-                    return (
-                      <div
-                        key={garden.id}
-                        className="admin-garden-row"
-                      >
-                        <span>{garden.name}</span>
+                    {openSection === 'watered' && (
+                      <section className="details-section">
+                        <h3>تفاصيل الحدائق التي تم ريها</h3>
 
-                        <div className="row-actions">
-                          <span className="status-chip">
-                            {report.sidewalk_runoff
-                              ? 'خروج للرصيف'
-                              : report.insufficient_watering
-                              ? 'عدم كفاية'
-                              : 'تم الري'}
-                          </span>
+                        {wateredGardens.length ? (
+                          <div className="report-cards-grid">
+                            {wateredGardens.map((garden) => {
+                              const report = reportByGardenId.get(garden.id);
+                              if (!report) return null;
 
-                          {user.role === 'مدير' && (
-                            <>
-                              <button
-                                className="flag-btn"
-                                onClick={() =>
-                                  setStatus(report.id, 'watered')
-                                }
-                              >
-                                تم الري
-                              </button>
+                              const reportPhotos = photosByReportId.get(report.id) || [];
+                              const firstPhoto = reportPhotos[0];
 
-                              <button
-                                className="flag-btn"
-                                onClick={() =>
-                                  setStatus(
-                                    report.id,
-                                    'insufficient'
-                                  )
-                                }
-                              >
-                                عدم كفاية
-                              </button>
+                              return (
+                                <div key={garden.id} className="report-card">
+                                  <div className="report-card-head">
+                                    <h4>{garden.name}</h4>
+                                    <span>{project.name}</span>
+                                  </div>
 
-                              <button
-                                className="flag-btn"
-                                onClick={() =>
-                                  setStatus(report.id, 'sidewalk')
-                                }
-                              >
-                                للرصيف
-                              </button>
+                                  <div className="report-meta">
+                                    <p>التاريخ/الوقت: {formatDateTime(report.created_at)}</p>
+                                    <p>
+                                      حالة الري:{' '}
+                                      {report.sidewalk_runoff
+                                        ? 'خروج الري للرصيف'
+                                        : report.insufficient_watering
+                                        ? 'عدم كفاية ري'
+                                        : 'تم الري'}
+                                    </p>
+                                    <p>
+                                      الملاحظات:{' '}
+                                      {report.notes ||
+                                        report.insufficient_note ||
+                                        report.sidewalk_runoff_note ||
+                                        'لا توجد'}
+                                    </p>
+                                  </div>
 
-                              <button
-                                className="delete-report-btn"
-                                onClick={() =>
-                                  deleteReport(report.id)
-                                }
-                              >
-                                حذف
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                                  <div className="report-image-box">
+                                    {firstPhoto?.file_url ? (
+                                      <img src={firstPhoto.file_url} alt={garden.name} />
+                                    ) : (
+                                      <div className="no-image">لا توجد صورة</div>
+                                    )}
+                                  </div>
+
+                                  {isManager && (
+                                    <div className="report-actions-4">
+                                      <button onClick={() => updateReportStatus(report.id, 'watered')}>
+                                        تم الري
+                                      </button>
+                                      <button onClick={() => updateReportStatus(report.id, 'not_watered')}>
+                                        لم يتم الري
+                                      </button>
+                                      <button onClick={() => updateReportStatus(report.id, 'insufficient')}>
+                                        عدم كفاية ري
+                                      </button>
+                                      <button onClick={() => updateReportStatus(report.id, 'sidewalk')}>
+                                        خروج الري للرصيف
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <p className="empty-list">لا توجد تسجيلات ري لهذا اليوم</p>
+                        )}
+                      </section>
+                    )}
+
+                    {openSection === 'not_watered' && (
+                      <section className="details-section">
+                        <h3>الحدائق التي لم يتم ريها</h3>
+                        {notWateredGardens.length ? (
+                          <ul>
+                            {notWateredGardens.map((garden) => (
+                              <li key={garden.id}>{garden.name}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="all-done">تم ري جميع حدائق المشروع في هذا اليوم</p>
+                        )}
+                      </section>
+                    )}
+
+                    {openSection === 'insufficient' && (
+                      <section className="details-section insufficient-box">
+                        <h3>الحدائق عليها عدم كفاية ري</h3>
+                        {insufficientGardens.length ? (
+                          <ul>
+                            {insufficientGardens.map((garden) => (
+                              <li key={garden.id}>{garden.name}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="empty-list">لا توجد حدائق عليها عدم كفاية ري</p>
+                        )}
+                      </section>
+                    )}
+
+                    {openSection === 'sidewalk' && (
+                      <section className="details-section sidewalk-box">
+                        <h3>الحدائق عليها خروج ري للرصيف</h3>
+                        {sidewalkGardens.length ? (
+                          <ul>
+                            {sidewalkGardens.map((garden) => (
+                              <li key={garden.id}>{garden.name}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="empty-list">لا توجد حدائق عليها خروج ري للرصيف</p>
+                        )}
+                      </section>
+                    )}
+                  </>
+                )}
               </article>
             );
           })}
