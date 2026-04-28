@@ -112,7 +112,7 @@ export default function AdminHome() {
         <div>
           <span className="admin-badge">لوحة مراقبة يومية</span>
           <h1>لوحة إدارة ري الحدائق</h1>
-          <p>استعراض المشاريع والحدائق غير المروية وعدم كفاية الري حسب التاريخ المحدد</p>
+          <p>استعراض المشاريع والحدائق غير المروية وحسب التاريخ المحدد مع إدارة الحالات</p>
         </div>
 
         <div className="hero-controls">
@@ -145,6 +145,10 @@ export default function AdminHome() {
         <div>
           <span>عدم كفاية ري</span>
           <strong>{totals.insufficient}</strong>
+        </div>
+        <div>
+          <span>خروج الري للرصيف</span>
+          <strong>0</strong>
         </div>
       </section>
 
@@ -204,7 +208,9 @@ export default function AdminHome() {
                   </div>
                 </div>
 
-                <div className="not-watered-card">
+                <button className="show-records-btn" onClick={() => setOpenProjectId(isOpen ? null : project.id)}>{isOpen ? "إخفاء التفاصيل" : "عرض التفاصيل"}</button>
+
+                {isOpen && <div className="not-watered-card">
                   <h3>الحدائق التي لم يتم ريها</h3>
 
                   {notWateredGardens.length ? (
@@ -231,6 +237,8 @@ export default function AdminHome() {
                     <p className="empty-list">لا توجد حدائق عليها عدم كفاية ري</p>
                   )}
                 </div>
+
+                </div>}
 
                 <button
                   className="show-records-btn"
