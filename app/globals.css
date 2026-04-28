@@ -177,6 +177,11 @@ select {
   background: #fef3c7;
   color: #b45309;
 }
+.success-badge {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
 
 .project-stats {
   display: grid;
