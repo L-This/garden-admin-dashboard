@@ -412,7 +412,21 @@ export default function AdminHome() {
                                     <h4>{garden.name}</h4>
                                     <span>{project.name}</span>
                                   </div>
+                                {isManager && (
+  <button
+    className="card-more-btn"
+    onClick={() => {
+      const ok = confirm(
+        `هل تريد حذف سجل ${garden.name}؟\nسيتم حذف الصورة والبيانات لهذا اليوم.`
+      );
 
+      if (ok) updateReportStatus(report.id, 'not_watered');
+    }}
+    title="حذف السجل"
+  >
+    ⋮
+  </button>
+)}
                                   <div className="report-meta">
                                     <p>التاريخ/الوقت: {formatDateTime(report.created_at)}</p>
                                     <p>
