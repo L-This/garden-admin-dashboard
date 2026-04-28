@@ -1381,3 +1381,132 @@ button:hover {
     border-radius: 24px;
   }
 }
+/* Luxury botanical overlay refinement */
+
+.login-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  background:
+    radial-gradient(circle at 18% 70%, rgba(216,180,92,.16), transparent 18%),
+    radial-gradient(circle at 82% 22%, rgba(216,180,92,.14), transparent 20%),
+    linear-gradient(115deg, transparent 0 48%, rgba(216,180,92,.22) 49%, transparent 51%),
+    linear-gradient(150deg, transparent 0 58%, rgba(255,255,255,.08) 59%, transparent 61%);
+  pointer-events: none;
+}
+
+.login-page::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  background:
+    radial-gradient(ellipse at 10% 80%, rgba(216,180,92,.12), transparent 22%),
+    radial-gradient(ellipse at 92% 72%, rgba(216,180,92,.10), transparent 20%);
+  pointer-events: none;
+}
+
+.login-card::before {
+  content: "⌘";
+  color: #d8b45c;
+  font-size: 54px;
+  margin-bottom: 10px;
+}
+
+.login-card {
+  border: 2px solid rgba(216,180,92,.55);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.7) inset,
+    0 32px 100px rgba(0,0,0,.28),
+    0 0 80px rgba(216,180,92,.20);
+}
+
+.login-card h1::after {
+  content: "المنصة الإدارية لري الحدائق";
+  display: block;
+  margin-top: 10px;
+  font-size: 16px;
+  font-weight: 400;
+  color: #647d76;
+}
+
+.admin-hero {
+  min-height: 245px;
+  border-radius: 34px;
+}
+
+.admin-hero::before {
+  background:
+    radial-gradient(circle at 18% 25%, rgba(255,255,255,.18), transparent 22%),
+    linear-gradient(115deg, transparent 0 52%, rgba(216,180,92,.32) 53%, transparent 55%),
+    linear-gradient(150deg, transparent 0 62%, rgba(255,255,255,.09) 63%, transparent 65%);
+}
+
+.admin-hero::after {
+  width: 720px;
+  height: 190px;
+  left: -120px;
+  bottom: -100px;
+  border-top: 2px solid rgba(216,180,92,.45);
+}
+
+.admin-overview div {
+  min-height: 132px;
+}
+
+.admin-overview div::before {
+  content: "";
+  position: absolute;
+  left: 30px;
+  top: 48%;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(255,250,240,.82);
+  border: 1px solid rgba(216,180,92,.32);
+  transform: translateY(-50%);
+}
+
+.admin-project-card {
+  min-height: 175px;
+}
+
+.admin-project-card::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 95px;
+  background:
+    linear-gradient(to top, rgba(216,180,92,.16), transparent),
+    radial-gradient(ellipse at 20% 100%, rgba(6,43,36,.08), transparent 35%),
+    radial-gradient(ellipse at 80% 100%, rgba(11,143,99,.08), transparent 35%);
+  pointer-events: none;
+}
+
+.project-header,
+.project-stats,
+.details-section {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-controls button {
+  color: #063b33;
+}
+
+.hero-controls button:hover {
+  color: #fff7d6;
+  background: linear-gradient(135deg, #063b33, #0b8f63);
+}
+
+.password-management-card {
+  border-radius: 28px;
+}
