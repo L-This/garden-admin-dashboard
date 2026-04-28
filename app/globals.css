@@ -668,3 +668,57 @@ select {
   background: #fee2e2;
   color: #b91c1c;
 }
+.login-card select,
+.password-management-form select {
+  width: 100%;
+  height: 54px;
+  border: 1px solid #cfe9dd;
+  border-radius: 16px;
+  padding: 0 16px;
+  margin-bottom: 14px;
+  font-size: 16px;
+  background: #f8fffb;
+}
+
+.password-management-card {
+  background: white;
+  border: 1px solid #d8f3e7;
+  border-radius: 24px;
+  padding: 22px;
+  margin-bottom: 28px;
+  box-shadow: 0 18px 45px rgba(6, 95, 70, 0.1);
+}
+
+.password-management-card h2 {
+  margin: 0 0 16px;
+}
+
+.password-management-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 12px;
+}
+
+.password-management-form input {
+  height: 54px;
+  border: 1px solid #cfe9dd;
+  border-radius: 16px;
+  padding: 0 16px;
+  background: #f8fffb;
+}
+
+.password-management-form button {
+  border: 0;
+  border-radius: 16px;
+  padding: 0 20px;
+  background: #047857;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .password-management-form {
+    grid-template-columns: 1fr;
+  }
+}
