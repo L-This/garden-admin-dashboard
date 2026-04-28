@@ -276,8 +276,13 @@ export default function AdminHome() {
   if (!user) {
     return (
       <main className="login-page" dir="rtl">
-        <div className="login-card">
-          <h1>تسجيل دخول لوحة الإدارة</h1>
+  <form
+    className="login-card"
+    onSubmit={(e) => {
+      e.preventDefault();
+      login();
+    }}
+  >
 
           <select
   value={username}
@@ -300,13 +305,13 @@ export default function AdminHome() {
   />
 )}
 
-          <button onClick={login}>{loginLoading ? 'جارٍ الدخول...' : 'دخول'}</button>
+          <button type="submit">{loginLoading ? 'جارٍ الدخول...' : 'دخول'}</button>
 
           <div className="login-help">
   <p>منصة إدارية مخصصة للمستخدمين المعتمدين فقط.</p>
   <p>يُرجى تسجيل الدخول باستخدام بيانات الصلاحية الممنوحة لك.</p>
 </div>
-        </div>
+        </form>
       </main>
     );
   }
