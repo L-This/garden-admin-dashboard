@@ -2826,3 +2826,24 @@ html,body{
   border: 1px solid rgba(255,255,255,.22);
   backdrop-filter: blur(8px);
 }
+.admin-project-card {
+  background: url("/backgrounds/project-bg.png") center center / cover no-repeat !important;
+  background-color: transparent !important;
+}
+
+.admin-project-card::before,
+.admin-project-card::after {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+}
+
+.admin-project-card .project-header,
+.admin-project-card .project-stats,
+.admin-project-card .details-section {
+  background: transparent !important;
+}
+.admin-project-card h2,
+.admin-project-card p {
+  text-shadow: 0 2px 8px rgba(255,255,255,.9);
+}
