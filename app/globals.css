@@ -3001,3 +3001,27 @@ button[data-status="runoff"],
     gap: 8px;
   }
 }
+.report-actions-4 button {
+  background-size: 100% 100% !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  color: white !important;
+  border: 0 !important;
+  box-shadow: 0 10px 22px rgba(0,0,0,.18) !important;
+}
+
+.report-actions-4 button:nth-child(1) {
+  background-image: url('/images/btn-irrigated.png') !important;
+}
+
+.report-actions-4 button:nth-child(2) {
+  background-image: url('/images/btn-not-irrigated.png') !important;
+}
+
+.report-actions-4 button:nth-child(3) {
+  background-image: url('/images/btn-low-water.png') !important;
+}
+
+.report-actions-4 button:nth-child(4) {
+  background-image: url('/images/btn-runoff.png') !important;
+}
