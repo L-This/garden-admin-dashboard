@@ -890,3 +890,86 @@ input:focus,select:focus{
     border-radius:22px;
   }
 }
+/* لمسات فعلية حسب كلاسّات مشروعك */
+
+.admin-page {
+  background:
+    radial-gradient(circle at top right, #dff7ec 0%, transparent 35%),
+    linear-gradient(135deg, #ecfff7, #f8fffc);
+}
+
+.login-card,
+.admin-hero,
+.admin-overview div,
+.admin-project-card,
+.password-management-card,
+.report-card {
+  animation: softEnter 0.45s ease both;
+}
+
+@keyframes softEnter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-hero {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,.18), transparent 28%),
+    linear-gradient(135deg, #047857, #059669 55%, #065f46);
+  box-shadow: 0 28px 70px rgba(4, 120, 87, 0.25);
+}
+
+.admin-overview div,
+.admin-project-card,
+.password-management-card {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(209, 250, 229, 0.9);
+  box-shadow:
+    0 18px 45px rgba(6, 95, 70, 0.10),
+    inset 0 1px 0 rgba(255,255,255,.8);
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+
+.admin-overview div:hover,
+.admin-project-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 26px 60px rgba(6, 95, 70, 0.16);
+}
+
+.project-header {
+  transition: background .2s ease, transform .2s ease;
+}
+
+.project-header:hover {
+  background: #ecfdf5;
+  transform: translateY(-2px);
+}
+
+.hero-controls {
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16);
+}
+
+button {
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+}
+
+.login-card {
+  box-shadow: 0 30px 80px rgba(6, 95, 70, 0.16);
+}
+
+.login-card h1,
+.admin-hero h1 {
+  text-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
