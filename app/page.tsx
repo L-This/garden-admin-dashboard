@@ -59,6 +59,8 @@ export default function AdminHome() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
+  const [passwordTarget, setPasswordTarget] = useState<'manager' | 'supervisor'>('supervisor');
+  const [newAdminPassword, setNewAdminPassword] = useState('');
 
   const [projects, setProjects] = useState<Project[]>([]);
   const [gardens, setGardens] = useState<Garden[]>([]);
@@ -107,7 +109,27 @@ export default function AdminHome() {
     setUser(data);
     localStorage.setItem('adminUser', JSON.stringify(data));
   }
+  async function changeAdminPassword() {
+  if (!isManager) return;
 
+  if (!newAdminPassword.trim()) {
+    alert('اكتب كلمة المرور الجديدة');
+    return;
+  }
+
+  const { error } = await supabase
+    .from('admin_users')
+    .update({ password: newAdminPassword.trim() })
+    .eq('username', passwordTarget);
+
+  if (error) {
+    alert('تعذر تغيير كلمة المرور: ' + error.message);
+    return;
+  }
+
+  alert('تم تغيير كلمة المرور بنجاح');
+  setNewAdminPassword('');
+}
   function logout() {
     localStorage.removeItem('adminUser');
     setUser(null);
@@ -257,18 +279,26 @@ export default function AdminHome() {
         <div className="login-card">
           <h1>تسجيل دخول لوحة الإدارة</h1>
 
-          <input
-            placeholder="اسم المستخدم"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
+          <select
+  value={username}
+  onChange={(e) => {
+    setUsername(e.target.value);
+    setPassword('');
+  }}
+>
+  <option value="">اختر العضوية</option>
+  <option value="manager">مدير</option>
+  <option value="supervisor">مشرف</option>
+</select>
 
-          <input
-            type="password"
-            placeholder="كلمة المرور"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          {username && (
+  <input
+    type="password"
+    placeholder="كلمة المرور"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+  />
+)}
 
           <button onClick={login}>{loginLoading ? 'جارٍ الدخول...' : 'دخول'}</button>
 
@@ -328,7 +358,32 @@ export default function AdminHome() {
           <strong>{totals.sidewalk}</strong>
         </div>
       </section>
+      {isManager && (
+  <section className="password-management-card">
+    <h2>إدارة كلمات المرور</h2>
 
+    <div className="password-management-form">
+      <select
+        value={passwordTarget}
+        onChange={(e) =>
+          setPasswordTarget(e.target.value as 'manager' | 'supervisor')
+        }
+      >
+        <option value="manager">المدير</option>
+        <option value="supervisor">المشرف</option>
+      </select>
+
+      <input
+        type="password"
+        placeholder="كلمة المرور الجديدة"
+        value={newAdminPassword}
+        onChange={(e) => setNewAdminPassword(e.target.value)}
+      />
+
+      <button onClick={changeAdminPassword}>تغيير كلمة المرور</button>
+    </div>
+  </section>
+)}
       {loading ? (
         <div className="loading">جاري تحميل البيانات...</div>
       ) : (
