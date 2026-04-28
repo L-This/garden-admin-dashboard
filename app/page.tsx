@@ -59,6 +59,7 @@ export default function AdminHome() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
+
   const [passwordTarget, setPasswordTarget] = useState<'manager' | 'supervisor'>('supervisor');
   const [newAdminPassword, setNewAdminPassword] = useState('');
 
@@ -85,7 +86,7 @@ export default function AdminHome() {
 
   async function login() {
     if (!username || !password) {
-      alert('أدخل اسم المستخدم وكلمة المرور');
+      alert('اختر العضوية وأدخل كلمة المرور');
       return;
     }
 
@@ -109,30 +110,34 @@ export default function AdminHome() {
     setUser(data);
     localStorage.setItem('adminUser', JSON.stringify(data));
   }
-  async function changeAdminPassword() {
-  if (!isManager) return;
 
-  if (!newAdminPassword.trim()) {
-    alert('اكتب كلمة المرور الجديدة');
-    return;
-  }
-
-  const { error } = await supabase
-    .from('admin_users')
-    .update({ password: newAdminPassword.trim() })
-    .eq('username', passwordTarget);
-
-  if (error) {
-    alert('تعذر تغيير كلمة المرور: ' + error.message);
-    return;
-  }
-
-  alert('تم تغيير كلمة المرور بنجاح');
-  setNewAdminPassword('');
-}
   function logout() {
     localStorage.removeItem('adminUser');
     setUser(null);
+    setUsername('');
+    setPassword('');
+  }
+
+  async function changeAdminPassword() {
+    if (!isManager) return;
+
+    if (!newAdminPassword.trim()) {
+      alert('اكتب كلمة المرور الجديدة');
+      return;
+    }
+
+    const { error } = await supabase
+      .from('admin_users')
+      .update({ password: newAdminPassword.trim() })
+      .eq('username', passwordTarget);
+
+    if (error) {
+      alert('تعذر تغيير كلمة المرور: ' + error.message);
+      return;
+    }
+
+    alert('تم تغيير كلمة المرور بنجاح');
+    setNewAdminPassword('');
   }
 
   async function loadData() {
@@ -196,39 +201,30 @@ export default function AdminHome() {
     if (!isManager) return;
 
     if (status === 'watered') {
-      await supabase
-        .from('reports')
-        .update({
-          insufficient_watering: false,
-          sidewalk_runoff: false,
-          reviewed_by: 'admin',
-          reviewed_at: new Date().toISOString(),
-        })
-        .eq('id', reportId);
+      await supabase.from('reports').update({
+        insufficient_watering: false,
+        sidewalk_runoff: false,
+        reviewed_by: 'admin',
+        reviewed_at: new Date().toISOString(),
+      }).eq('id', reportId);
     }
 
     if (status === 'insufficient') {
-      await supabase
-        .from('reports')
-        .update({
-          insufficient_watering: true,
-          sidewalk_runoff: false,
-          reviewed_by: 'admin',
-          reviewed_at: new Date().toISOString(),
-        })
-        .eq('id', reportId);
+      await supabase.from('reports').update({
+        insufficient_watering: true,
+        sidewalk_runoff: false,
+        reviewed_by: 'admin',
+        reviewed_at: new Date().toISOString(),
+      }).eq('id', reportId);
     }
 
     if (status === 'sidewalk') {
-      await supabase
-        .from('reports')
-        .update({
-          sidewalk_runoff: true,
-          insufficient_watering: false,
-          reviewed_by: 'admin',
-          reviewed_at: new Date().toISOString(),
-        })
-        .eq('id', reportId);
+      await supabase.from('reports').update({
+        sidewalk_runoff: true,
+        insufficient_watering: false,
+        reviewed_by: 'admin',
+        reviewed_at: new Date().toISOString(),
+      }).eq('id', reportId);
     }
 
     if (status === 'not_watered') {
@@ -276,41 +272,44 @@ export default function AdminHome() {
   if (!user) {
     return (
       <main className="login-page" dir="rtl">
-  <form
-    className="login-card"
-    onSubmit={(e) => {
-      e.preventDefault();
-      login();
-    }}
-  >
+        <form
+          className="login-card"
+          onSubmit={(e) => {
+            e.preventDefault();
+            login();
+          }}
+        >
+          <div className="login-logo">♧</div>
+          <h1>تسجيل دخول لوحة الإدارة</h1>
+          <p className="login-subtitle">المنصة الإدارية لري الحدائق</p>
 
           <select
-  value={username}
-  onChange={(e) => {
-    setUsername(e.target.value);
-    setPassword('');
-  }}
->
-  <option value="">اختر العضوية</option>
-  <option value="manager">مدير</option>
-  <option value="supervisor">مشرف</option>
-</select>
+            value={username}
+            onChange={(e) => {
+              setUsername(e.target.value);
+              setPassword('');
+            }}
+          >
+            <option value="">اختر العضوية</option>
+            <option value="manager">مدير</option>
+            <option value="supervisor">مشرف</option>
+          </select>
 
           {username && (
-  <input
-    type="password"
-    placeholder="كلمة المرور"
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-  />
-)}
+            <input
+              type="password"
+              placeholder="كلمة المرور"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          )}
 
           <button type="submit">{loginLoading ? 'جارٍ الدخول...' : 'دخول'}</button>
 
           <div className="login-help">
-  <p>منصة إدارية مخصصة للمستخدمين المعتمدين فقط.</p>
-  <p>يُرجى تسجيل الدخول باستخدام بيانات الصلاحية الممنوحة لك.</p>
-</div>
+            <p>منصة إدارية مخصصة للمستخدمين المعتمدين فقط.</p>
+            <p>يُرجى تسجيل الدخول باستخدام بيانات الصلاحية الممنوحة لك.</p>
+          </div>
         </form>
       </main>
     );
@@ -319,8 +318,8 @@ export default function AdminHome() {
   return (
     <main dir="rtl" className="admin-page">
       <section className="admin-hero professional">
-        <div>
-          <span className="admin-badge">مرحبًا {user.username}</span>
+        <div className="hero-copy">
+          <span className="admin-badge">♛ مرحبًا {user.username}</span>
           <h1>لوحة إدارة ري الحدائق</h1>
           <p>الصلاحية الحالية: {user.role}</p>
         </div>
@@ -335,74 +334,52 @@ export default function AdminHome() {
             />
           </label>
 
-          <button onClick={loadData}>تحديث البيانات</button>
-          <button onClick={() => window.print()}>طباعة التقرير</button>
-          <button onClick={logout}>خروج</button>
+          <button onClick={loadData}>↻ تحديث البيانات</button>
+          <button onClick={() => window.print()}>▣ طباعة التقرير</button>
+          <button onClick={logout}>↩ خروج</button>
         </div>
       </section>
 
       <section className="admin-overview">
-        <div>
-          <span>إجمالي الحدائق</span>
-          <strong>{totals.totalGardens}</strong>
-        </div>
-        <div>
-          <span>تم ريها</span>
-          <strong>{totals.watered}</strong>
-        </div>
-        <div>
-          <span>لم يتم ريها</span>
-          <strong>{totals.notWatered}</strong>
-        </div>
-        <div>
-          <span>عدم كفاية ري</span>
-          <strong>{totals.insufficient}</strong>
-        </div>
-        <div>
-          <span>خروج الري للرصيف</span>
-          <strong>{totals.sidewalk}</strong>
-        </div>
+        <div><span>إجمالي الحدائق</span><strong>{totals.totalGardens}</strong><em>◌</em></div>
+        <div><span>تم ريها</span><strong>{totals.watered}</strong><em>♢</em></div>
+        <div><span>لم يتم ريها</span><strong>{totals.notWatered}</strong><em>⌁</em></div>
+        <div><span>عدم كفاية ري</span><strong>{totals.insufficient}</strong><em>−</em></div>
+        <div><span>خروج الري للرصيف</span><strong>{totals.sidewalk}</strong><em>↪</em></div>
       </section>
+
       {isManager && (
-  <section className="password-management-card">
-    <h2>إدارة كلمات المرور</h2>
+        <section className="password-management-card">
+          <h2>إدارة كلمات المرور</h2>
+          <div className="password-management-form">
+            <select
+              value={passwordTarget}
+              onChange={(e) => setPasswordTarget(e.target.value as 'manager' | 'supervisor')}
+            >
+              <option value="manager">المدير</option>
+              <option value="supervisor">المشرف</option>
+            </select>
 
-    <div className="password-management-form">
-      <select
-        value={passwordTarget}
-        onChange={(e) =>
-          setPasswordTarget(e.target.value as 'manager' | 'supervisor')
-        }
-      >
-        <option value="manager">المدير</option>
-        <option value="supervisor">المشرف</option>
-      </select>
+            <input
+              type="password"
+              placeholder="كلمة المرور الجديدة"
+              value={newAdminPassword}
+              onChange={(e) => setNewAdminPassword(e.target.value)}
+            />
 
-      <input
-        type="password"
-        placeholder="كلمة المرور الجديدة"
-        value={newAdminPassword}
-        onChange={(e) => setNewAdminPassword(e.target.value)}
-      />
+            <button onClick={changeAdminPassword}>تغيير كلمة المرور</button>
+          </div>
+        </section>
+      )}
 
-      <button onClick={changeAdminPassword}>تغيير كلمة المرور</button>
-    </div>
-  </section>
-)}
       {loading ? (
         <div className="loading">جاري تحميل البيانات...</div>
       ) : (
         <section className="projects-admin-grid">
           {projects.map((project) => {
             const projectGardens = gardens.filter((garden) => garden.project_id === project.id);
-
-            const wateredGardens = projectGardens.filter((garden) =>
-              wateredGardenIds.has(garden.id)
-            );
-
-            const notWateredGardens = projectGardens.filter(
-              (garden) => !wateredGardenIds.has(garden.id)
-            );
+            const wateredGardens = projectGardens.filter((garden) => wateredGardenIds.has(garden.id));
+            const notWateredGardens = projectGardens.filter((garden) => !wateredGardenIds.has(garden.id));
 
             const insufficientGardens = wateredGardens.filter((garden) => {
               const report = reportByGardenId.get(garden.id);
@@ -419,13 +396,10 @@ export default function AdminHome() {
             return (
               <article key={project.id} className="admin-project-card project-click-card">
                 <div className="project-header" onClick={() => openProject(project.id)}>
+                  <div className="project-number-badge">{wateredGardens.length}</div>
                   <div>
                     <h2>{project.name}</h2>
                     <p>{project.district || 'بدون نطاق'}</p>
-                  </div>
-
-                  <div className="completion-badge success-badge">
-                    {wateredGardens.length}
                   </div>
                 </div>
 
@@ -436,17 +410,14 @@ export default function AdminHome() {
                         <span>تم ريها</span>
                         <strong>{wateredGardens.length}</strong>
                       </button>
-
                       <button className="stat-button" onClick={() => toggleSection('not_watered')}>
                         <span>لم يتم ريها</span>
                         <strong>{notWateredGardens.length}</strong>
                       </button>
-
                       <button className="stat-button" onClick={() => toggleSection('insufficient')}>
                         <span>عدم كفاية ري</span>
                         <strong>{insufficientGardens.length}</strong>
                       </button>
-
                       <button className="stat-button" onClick={() => toggleSection('sidewalk')}>
                         <span>خروج الري للرصيف</span>
                         <strong>{sidewalkGardens.length}</strong>
@@ -468,25 +439,27 @@ export default function AdminHome() {
 
                               return (
                                 <div key={garden.id} className="report-card">
+                                  {isManager && (
+                                    <button
+                                      className="card-more-btn"
+                                      onClick={() => {
+                                        const ok = confirm(
+                                          `هل تريد حذف سجل ${garden.name}؟\nسيتم حذف الصورة والبيانات لهذا اليوم.`
+                                        );
+
+                                        if (ok) updateReportStatus(report.id, 'not_watered');
+                                      }}
+                                      title="حذف السجل"
+                                    >
+                                      ⋮
+                                    </button>
+                                  )}
+
                                   <div className="report-card-head">
                                     <h4>{garden.name}</h4>
                                     <span>{project.name}</span>
                                   </div>
-                                {isManager && (
-  <button
-    className="card-more-btn"
-    onClick={() => {
-      const ok = confirm(
-        `هل تريد حذف سجل ${garden.name}؟\nسيتم حذف الصورة والبيانات لهذا اليوم.`
-      );
 
-      if (ok) updateReportStatus(report.id, 'not_watered');
-    }}
-    title="حذف السجل"
-  >
-    ⋮
-  </button>
-)}
                                   <div className="report-meta">
                                     <p>التاريخ/الوقت: {formatDateTime(report.created_at)}</p>
                                     <p>
@@ -516,18 +489,10 @@ export default function AdminHome() {
 
                                   {isManager && (
                                     <div className="report-actions-4">
-                                      <button onClick={() => updateReportStatus(report.id, 'watered')}>
-                                        تم الري
-                                      </button>
-                                      <button onClick={() => updateReportStatus(report.id, 'not_watered')}>
-                                        لم يتم الري
-                                      </button>
-                                      <button onClick={() => updateReportStatus(report.id, 'insufficient')}>
-                                        عدم كفاية ري
-                                      </button>
-                                      <button onClick={() => updateReportStatus(report.id, 'sidewalk')}>
-                                        خروج الري للرصيف
-                                      </button>
+                                      <button onClick={() => updateReportStatus(report.id, 'watered')}>تم الري</button>
+                                      <button onClick={() => updateReportStatus(report.id, 'not_watered')}>لم يتم الري</button>
+                                      <button onClick={() => updateReportStatus(report.id, 'insufficient')}>عدم كفاية ري</button>
+                                      <button onClick={() => updateReportStatus(report.id, 'sidewalk')}>خروج الري للرصيف</button>
                                     </div>
                                   )}
                                 </div>
@@ -544,11 +509,7 @@ export default function AdminHome() {
                       <section className="details-section">
                         <h3>الحدائق التي لم يتم ريها</h3>
                         {notWateredGardens.length ? (
-                          <ul>
-                            {notWateredGardens.map((garden) => (
-                              <li key={garden.id}>{garden.name}</li>
-                            ))}
-                          </ul>
+                          <ul>{notWateredGardens.map((garden) => <li key={garden.id}>{garden.name}</li>)}</ul>
                         ) : (
                           <p className="all-done">تم ري جميع حدائق المشروع في هذا اليوم</p>
                         )}
@@ -556,14 +517,10 @@ export default function AdminHome() {
                     )}
 
                     {openSection === 'insufficient' && (
-                      <section className="details-section insufficient-box">
+                      <section className="details-section">
                         <h3>الحدائق عليها عدم كفاية ري</h3>
                         {insufficientGardens.length ? (
-                          <ul>
-                            {insufficientGardens.map((garden) => (
-                              <li key={garden.id}>{garden.name}</li>
-                            ))}
-                          </ul>
+                          <ul>{insufficientGardens.map((garden) => <li key={garden.id}>{garden.name}</li>)}</ul>
                         ) : (
                           <p className="empty-list">لا توجد حدائق عليها عدم كفاية ري</p>
                         )}
@@ -571,14 +528,10 @@ export default function AdminHome() {
                     )}
 
                     {openSection === 'sidewalk' && (
-                      <section className="details-section sidewalk-box">
+                      <section className="details-section">
                         <h3>الحدائق عليها خروج ري للرصيف</h3>
                         {sidewalkGardens.length ? (
-                          <ul>
-                            {sidewalkGardens.map((garden) => (
-                              <li key={garden.id}>{garden.name}</li>
-                            ))}
-                          </ul>
+                          <ul>{sidewalkGardens.map((garden) => <li key={garden.id}>{garden.name}</li>)}</ul>
                         ) : (
                           <p className="empty-list">لا توجد حدائق عليها خروج ري للرصيف</p>
                         )}
