@@ -668,13 +668,56 @@ export default function AdminHome() {
             </label>
 
             <label>
-              <span>رابط الصورة</span>
-              <input
-                value={editPhotoUrl}
-                onChange={(e) => setEditPhotoUrl(e.target.value)}
-                placeholder="ضع رابط الصورة هنا"
-              />
-            </label>
+  <span>رفع الصورة</span>
+
+  <input
+    type="file"
+    accept="image/*"
+    capture="environment"
+    onChange={async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      try {
+        const ext = file.name.split('.').pop();
+        const fileName = `report-${Date.now()}.${ext}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('garden-photos')
+          .upload(fileName, file, {
+            upsert: true,
+          });
+
+        if (uploadError) {
+          alert('فشل رفع الصورة');
+          return;
+        }
+
+        const { data } = supabase.storage
+          .from('garden-photos')
+          .getPublicUrl(fileName);
+
+        setEditPhotoUrl(data.publicUrl);
+      } catch {
+        alert('تعذر رفع الصورة');
+      }
+    }}
+  />
+
+  {editPhotoUrl && (
+    <img
+      src={editPhotoUrl}
+      alt="preview"
+      style={{
+        marginTop: '10px',
+        width: '100%',
+        maxHeight: '220px',
+        objectFit: 'cover',
+        borderRadius: '14px',
+      }}
+    />
+  )}
+</label>
 
             <div className="edit-modal-actions">
               <button onClick={saveEditedRecord} disabled={editSaving}>
