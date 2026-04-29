@@ -25,11 +25,15 @@ type Garden = {
   name: string;
 };
 
+type ReportStatus = 'watered' | 'not_watered' | 'insufficient' | 'sidewalk_runoff';
+
 type Report = {
   id: string;
   garden_id: string;
   report_date: string;
   created_at: string | null;
+  status?: ReportStatus | null;
+  admin_note?: string | null;
   insufficient_watering: boolean | null;
   sidewalk_runoff: boolean | null;
   insufficient_note?: string | null;
@@ -45,6 +49,12 @@ type Photo = {
 
 type OpenSection = 'watered' | 'not_watered' | 'insufficient' | 'sidewalk' | null;
 
+type EditState = {
+  garden: Garden;
+  project: Project;
+  report?: Report;
+};
+
 function today() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -52,6 +62,21 @@ function today() {
 function formatDateTime(value?: string | null) {
   if (!value) return 'بدون وقت';
   return new Date(value).toLocaleString('ar-SA');
+}
+
+function getReportStatus(report?: Report): ReportStatus | null {
+  if (!report) return null;
+  if (report.status) return report.status;
+  if (report.sidewalk_runoff) return 'sidewalk_runoff';
+  if (report.insufficient_watering) return 'insufficient';
+  return 'watered';
+}
+
+function statusLabel(status?: ReportStatus | null) {
+  if (status === 'not_watered') return 'لم يتم الري';
+  if (status === 'insufficient') return 'عدم كفاية ري';
+  if (status === 'sidewalk_runoff') return 'خروج الري للرصيف';
+  return 'تم الري';
 }
 
 export default function AdminHome() {
@@ -72,6 +97,12 @@ export default function AdminHome() {
 
   const [openProjectId, setOpenProjectId] = useState<string | null>(null);
   const [openSection, setOpenSection] = useState<OpenSection>(null);
+
+  const [editState, setEditState] = useState<EditState | null>(null);
+  const [editStatus, setEditStatus] = useState<ReportStatus>('watered');
+  const [editNote, setEditNote] = useState('');
+  const [editPhotoUrl, setEditPhotoUrl] = useState('');
+  const [editSaving, setEditSaving] = useState(false);
 
   const isManager = user?.role === 'مدير';
 
@@ -157,7 +188,7 @@ export default function AdminHome() {
     const { data: reportsData } = await supabase
       .from('reports')
       .select(
-        'id, garden_id, report_date, created_at, insufficient_watering, sidewalk_runoff, insufficient_note, sidewalk_runoff_note, notes'
+        'id, garden_id, report_date, created_at, status, admin_note, insufficient_watering, sidewalk_runoff, insufficient_note, sidewalk_runoff_note, notes'
       )
       .eq('report_date', selectedDate);
 
@@ -175,7 +206,7 @@ export default function AdminHome() {
 
     setProjects(projectsData || []);
     setGardens(gardensData || []);
-    setReports(reportsData || []);
+    setReports((reportsData || []) as Report[]);
     setPhotos(photosData);
     setLoading(false);
   }
@@ -194,45 +225,102 @@ export default function AdminHome() {
     setOpenSection(openSection === section ? null : section);
   }
 
+  function openEditRecord(garden: Garden, project: Project, report?: Report) {
+    if (!isManager) return;
+
+    const currentStatus = getReportStatus(report) || 'not_watered';
+    const currentPhoto = report ? photosByReportId.get(report.id)?.[0]?.file_url || '' : '';
+
+    setEditState({ garden, project, report });
+    setEditStatus(currentStatus);
+    setEditNote(report?.admin_note || report?.notes || report?.insufficient_note || report?.sidewalk_runoff_note || '');
+    setEditPhotoUrl(currentPhoto);
+  }
+
+  async function saveEditedRecord() {
+    if (!isManager || !editState) return;
+
+    setEditSaving(true);
+
+    const updatePayload = {
+      garden_id: editState.garden.id,
+      report_date: selectedDate,
+      status: editStatus,
+      admin_note: editNote.trim() || null,
+      notes: editNote.trim() || null,
+      insufficient_watering: editStatus === 'insufficient',
+      sidewalk_runoff: editStatus === 'sidewalk_runoff',
+      reviewed_by: user?.username || 'admin',
+      reviewed_at: new Date().toISOString(),
+    };
+
+    let reportId = editState.report?.id;
+
+    if (reportId) {
+      const { error } = await supabase
+        .from('reports')
+        .update(updatePayload)
+        .eq('id', reportId);
+
+      if (error) {
+        setEditSaving(false);
+        alert('تعذر حفظ التعديل: ' + error.message);
+        return;
+      }
+    } else {
+      const { data, error } = await supabase
+        .from('reports')
+        .insert(updatePayload)
+        .select('id')
+        .single();
+
+      if (error || !data) {
+        setEditSaving(false);
+        alert('تعذر إنشاء السجل: ' + (error?.message || 'خطأ غير معروف'));
+        return;
+      }
+
+      reportId = data.id;
+    }
+
+    if (reportId && editPhotoUrl.trim()) {
+      await supabase.from('photos').delete().eq('report_id', reportId);
+      const { error } = await supabase
+        .from('photos')
+        .insert({ report_id: reportId, file_url: editPhotoUrl.trim() });
+
+      if (error) {
+        setEditSaving(false);
+        alert('تم حفظ السجل، لكن تعذر حفظ رابط الصورة: ' + error.message);
+        return;
+      }
+    }
+
+    setEditSaving(false);
+    setEditState(null);
+    await loadData();
+    alert('تم حفظ التعديل بنجاح');
+  }
+
   async function updateReportStatus(
     reportId: string,
     status: 'watered' | 'not_watered' | 'insufficient' | 'sidewalk'
   ) {
     if (!isManager) return;
 
-    if (status === 'watered') {
-      await supabase.from('reports').update({
-        insufficient_watering: false,
-        sidewalk_runoff: false,
-        reviewed_by: 'admin',
-        reviewed_at: new Date().toISOString(),
-      }).eq('id', reportId);
-    }
+    const normalizedStatus: ReportStatus = status === 'sidewalk' ? 'sidewalk_runoff' : status;
 
-    if (status === 'insufficient') {
-      await supabase.from('reports').update({
-        insufficient_watering: true,
-        sidewalk_runoff: false,
-        reviewed_by: 'admin',
-        reviewed_at: new Date().toISOString(),
-      }).eq('id', reportId);
-    }
+    const { error } = await supabase.from('reports').update({
+      status: normalizedStatus,
+      insufficient_watering: normalizedStatus === 'insufficient',
+      sidewalk_runoff: normalizedStatus === 'sidewalk_runoff',
+      reviewed_by: user?.username || 'admin',
+      reviewed_at: new Date().toISOString(),
+    }).eq('id', reportId);
 
-    if (status === 'sidewalk') {
-      await supabase.from('reports').update({
-        sidewalk_runoff: true,
-        insufficient_watering: false,
-        reviewed_by: 'admin',
-        reviewed_at: new Date().toISOString(),
-      }).eq('id', reportId);
-    }
-
-    if (status === 'not_watered') {
-      const ok = confirm('نقل الحديقة إلى لم يتم الري يعني حذف تسجيل الري لهذا اليوم. هل أنت متأكد؟');
-      if (!ok) return;
-
-      await supabase.from('photos').delete().eq('report_id', reportId);
-      await supabase.from('reports').delete().eq('id', reportId);
+    if (error) {
+      alert('تعذر تحديث الحالة: ' + error.message);
+      return;
     }
 
     await loadData();
@@ -255,7 +343,7 @@ export default function AdminHome() {
   }, [photos]);
 
   const wateredGardenIds = useMemo(
-    () => new Set(reports.map((report) => report.garden_id)),
+    () => new Set(reports.filter((report) => getReportStatus(report) !== 'not_watered').map((report) => report.garden_id)),
     [reports]
   );
 
@@ -263,8 +351,8 @@ export default function AdminHome() {
     const totalGardens = gardens.length;
     const watered = gardens.filter((garden) => wateredGardenIds.has(garden.id)).length;
     const notWatered = totalGardens - watered;
-    const insufficient = reports.filter((r) => r.insufficient_watering).length;
-    const sidewalk = reports.filter((r) => r.sidewalk_runoff).length;
+    const insufficient = reports.filter((r) => getReportStatus(r) === 'insufficient').length;
+    const sidewalk = reports.filter((r) => getReportStatus(r) === 'sidewalk_runoff').length;
 
     return { totalGardens, watered, notWatered, insufficient, sidewalk };
   }, [gardens, wateredGardenIds, reports]);
@@ -281,7 +369,6 @@ export default function AdminHome() {
         >
           <div className="login-logo">♧</div>
           <h1>تسجيل دخول لوحة الإدارة</h1>
-          
 
           <select
             value={username}
@@ -383,12 +470,12 @@ export default function AdminHome() {
 
             const insufficientGardens = wateredGardens.filter((garden) => {
               const report = reportByGardenId.get(garden.id);
-              return report?.insufficient_watering;
+              return getReportStatus(report) === 'insufficient';
             });
 
             const sidewalkGardens = wateredGardens.filter((garden) => {
               const report = reportByGardenId.get(garden.id);
-              return report?.sidewalk_runoff;
+              return getReportStatus(report) === 'sidewalk_runoff';
             });
 
             const isOpen = openProjectId === project.id;
@@ -436,20 +523,15 @@ export default function AdminHome() {
 
                               const reportPhotos = photosByReportId.get(report.id) || [];
                               const firstPhoto = reportPhotos[0];
+                              const currentStatus = getReportStatus(report);
 
                               return (
                                 <div key={garden.id} className="report-card">
                                   {isManager && (
                                     <button
                                       className="card-more-btn"
-                                      onClick={() => {
-                                        const ok = confirm(
-                                          `هل تريد حذف سجل ${garden.name}؟\nسيتم حذف الصورة والبيانات لهذا اليوم.`
-                                        );
-
-                                        if (ok) updateReportStatus(report.id, 'not_watered');
-                                      }}
-                                      title="حذف السجل"
+                                      onClick={() => openEditRecord(garden, project, report)}
+                                      title="تعديل السجل"
                                     >
                                       ⋮
                                     </button>
@@ -462,17 +544,11 @@ export default function AdminHome() {
 
                                   <div className="report-meta">
                                     <p>التاريخ/الوقت: {formatDateTime(report.created_at)}</p>
-                                    <p>
-                                      حالة الري:{' '}
-                                      {report.sidewalk_runoff
-                                        ? 'خروج الري للرصيف'
-                                        : report.insufficient_watering
-                                        ? 'عدم كفاية ري'
-                                        : 'تم الري'}
-                                    </p>
+                                    <p>حالة الري: {statusLabel(currentStatus)}</p>
                                     <p>
                                       الملاحظات:{' '}
-                                      {report.notes ||
+                                      {report.admin_note ||
+                                        report.notes ||
                                         report.insufficient_note ||
                                         report.sidewalk_runoff_note ||
                                         'لا توجد'}
@@ -509,7 +585,22 @@ export default function AdminHome() {
                       <section className="details-section">
                         <h3>الحدائق التي لم يتم ريها</h3>
                         {notWateredGardens.length ? (
-                          <ul>{notWateredGardens.map((garden) => <li key={garden.id}>{garden.name}</li>)}</ul>
+                          <div className="not-watered-grid">
+                            {notWateredGardens.map((garden) => {
+                              const report = reportByGardenId.get(garden.id);
+                              return (
+                                <div className="not-watered-card" key={garden.id}>
+                                  <strong>{garden.name}</strong>
+                                  <span>{report?.admin_note || report?.notes || 'لا توجد ملاحظات'}</span>
+                                  {isManager && (
+                                    <button onClick={() => openEditRecord(garden, project, report)}>
+                                      تعديل السجل
+                                    </button>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
                         ) : (
                           <p className="all-done">تم ري جميع حدائق المشروع في هذا اليوم</p>
                         )}
@@ -543,6 +634,56 @@ export default function AdminHome() {
             );
           })}
         </section>
+      )}
+
+      {editState && (
+        <div className="edit-modal-backdrop" onClick={() => setEditState(null)}>
+          <section className="edit-modal" onClick={(event) => event.stopPropagation()}>
+            <div className="edit-modal-head">
+              <h2>تعديل سجل الحديقة</h2>
+              <button onClick={() => setEditState(null)}>×</button>
+            </div>
+
+            <p className="edit-modal-subtitle">
+              {editState.project.name} / {editState.garden.name} / {selectedDate}
+            </p>
+
+            <label>
+              <span>الحالة</span>
+              <select value={editStatus} onChange={(e) => setEditStatus(e.target.value as ReportStatus)}>
+                <option value="watered">تم الري</option>
+                <option value="not_watered">لم يتم الري</option>
+                <option value="insufficient">عدم كفاية ري</option>
+                <option value="sidewalk_runoff">خروج الري للرصيف</option>
+              </select>
+            </label>
+
+            <label>
+              <span>الملاحظات</span>
+              <textarea
+                value={editNote}
+                onChange={(e) => setEditNote(e.target.value)}
+                placeholder="اكتب الملاحظات الرقابية هنا"
+              />
+            </label>
+
+            <label>
+              <span>رابط الصورة</span>
+              <input
+                value={editPhotoUrl}
+                onChange={(e) => setEditPhotoUrl(e.target.value)}
+                placeholder="ضع رابط الصورة هنا"
+              />
+            </label>
+
+            <div className="edit-modal-actions">
+              <button onClick={saveEditedRecord} disabled={editSaving}>
+                {editSaving ? 'جارٍ الحفظ...' : 'حفظ التعديل'}
+              </button>
+              <button onClick={() => setEditState(null)}>إلغاء</button>
+            </div>
+          </section>
+        </div>
       )}
     </main>
   );
