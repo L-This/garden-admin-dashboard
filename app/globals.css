@@ -3202,3 +3202,35 @@ button[data-status="runoff"],
   color: white;
   font-weight: 900;
 }
+.edit-upload-status {
+  margin: 8px 0 0;
+  color: #0b7d57;
+  font-weight: 900;
+}
+
+.edit-photo-preview {
+  margin-top: 14px;
+  border: 1px solid rgba(216, 180, 92, 0.35);
+  border-radius: 18px;
+  padding: 10px;
+  background: #fffaf0;
+}
+
+.edit-photo-preview img {
+  width: 100%;
+  max-height: 240px;
+  object-fit: cover;
+  border-radius: 14px;
+  display: block;
+}
+
+.edit-photo-preview button {
+  margin-top: 10px;
+  width: 100%;
+  border: 0;
+  border-radius: 14px;
+  padding: 12px;
+  background: #fee2e2;
+  color: #991b1b;
+  font-weight: 900;
+}
