@@ -15,8 +15,11 @@ type AdminUser = {
 
 type Project = {
   id: string;
+  slug: string;
   name: string;
   district: string | null;
+  manager_name?: string | null;
+  contractor_code?: string | null;
 };
 
 type Garden = {
@@ -53,6 +56,11 @@ type EditState = {
   garden: Garden;
   project: Project;
   report?: Report;
+};
+
+type ContractorDraft = {
+  manager_name: string;
+  contractor_code: string;
 };
 
 function today() {
@@ -102,6 +110,9 @@ export default function AdminHome() {
   const [editStatus, setEditStatus] = useState<ReportStatus>('watered');
   const [editNote, setEditNote] = useState('');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showContractorLinksModal, setShowContractorLinksModal] = useState(false);
+  const [contractorDrafts, setContractorDrafts] = useState<Record<string, ContractorDraft>>({});
+  const [savingContractorProjectId, setSavingContractorProjectId] = useState<string | null>(null);
   const [editPhotoUrls, setEditPhotoUrls] = useState<string[]>([]);
   const [editNewPhotoUrls, setEditNewPhotoUrls] = useState<string[]>([]);
   const [editUploading, setEditUploading] = useState(false);
@@ -119,6 +130,21 @@ export default function AdminHome() {
   useEffect(() => {
     if (user) loadData();
   }, [user, selectedDate]);
+
+  useEffect(() => {
+    setContractorDrafts((current) => {
+      const next = { ...current };
+      projects.forEach((project) => {
+        if (!next[project.id]) {
+          next[project.id] = {
+            manager_name: project.manager_name || '',
+            contractor_code: project.contractor_code || '',
+          };
+        }
+      });
+      return next;
+    });
+  }, [projects]);
 
   async function login() {
     if (!username || !password) {
@@ -176,12 +202,83 @@ export default function AdminHome() {
     setNewAdminPassword('');
   }
 
+
+  function getContractorLink(project: Project) {
+    if (typeof window === 'undefined') return `/project/${project.slug}`;
+    return `${window.location.origin}/project/${project.slug}`;
+  }
+
+  function updateContractorDraft(projectId: string, patch: Partial<ContractorDraft>) {
+    setContractorDrafts((current) => ({
+      ...current,
+      [projectId]: {
+        manager_name: current[projectId]?.manager_name || '',
+        contractor_code: current[projectId]?.contractor_code || '',
+        ...patch,
+      },
+    }));
+  }
+
+  async function saveContractorProject(project: Project) {
+    if (!isManager) return;
+
+    const draft = contractorDrafts[project.id];
+    if (!draft) return;
+
+    if (!draft.manager_name.trim()) {
+      alert('اكتب اسم المسؤول لهذا المشروع');
+      return;
+    }
+
+    if (!draft.contractor_code.trim()) {
+      alert('اكتب رمز دخول المقاول لهذا المشروع');
+      return;
+    }
+
+    setSavingContractorProjectId(project.id);
+
+    const { error } = await supabase
+      .from('projects')
+      .update({
+        manager_name: draft.manager_name.trim(),
+        contractor_code: draft.contractor_code.trim(),
+      })
+      .eq('id', project.id);
+
+    setSavingContractorProjectId(null);
+
+    if (error) {
+      alert('تعذر حفظ بيانات الرابط: ' + error.message);
+      return;
+    }
+
+    setProjects((current) =>
+      current.map((item) =>
+        item.id === project.id
+          ? { ...item, manager_name: draft.manager_name.trim(), contractor_code: draft.contractor_code.trim() }
+          : item
+      )
+    );
+
+    alert('تم حفظ بيانات رابط المقاول');
+  }
+
+  async function copyContractorLink(project: Project) {
+    const link = getContractorLink(project);
+    try {
+      await navigator.clipboard.writeText(link);
+      alert('تم نسخ رابط المشروع');
+    } catch {
+      alert(link);
+    }
+  }
+
   async function loadData() {
     setLoading(true);
 
     const { data: projectsData } = await supabase
       .from('projects')
-      .select('id, name, district')
+      .select('id, slug, name, district, manager_name, contractor_code')
       .order('created_at', { ascending: true });
 
     const { data: gardensData } = await supabase
@@ -482,6 +579,9 @@ export default function AdminHome() {
           {isManager && (
             <button onClick={() => setShowPasswordModal(true)}>⚿ إدارة كلمة المرور</button>
           )}
+          {isManager && (
+            <button onClick={() => setShowContractorLinksModal(true)}>🔗 روابط المقاولين</button>
+          )}
           <button onClick={logout}>↩ خروج</button>
         </div>
       </section>
@@ -708,6 +808,73 @@ export default function AdminHome() {
             );
           })}
         </section>
+      )}
+
+
+      {showContractorLinksModal && isManager && (
+        <div className="edit-modal-backdrop" onClick={() => setShowContractorLinksModal(false)}>
+          <section className="edit-modal contractor-links-modal" onClick={(event) => event.stopPropagation()}>
+            <div className="edit-modal-head">
+              <h2>إدارة روابط المقاولين</h2>
+              <button onClick={() => setShowContractorLinksModal(false)}>×</button>
+            </div>
+
+            <p className="edit-modal-subtitle">
+              عدّل اسم المسؤول ورمز الدخول لكل مشروع، ثم انسخ الرابط للمقاول.
+            </p>
+
+            <div className="contractor-links-list">
+              {projects.map((project) => {
+                const draft = contractorDrafts[project.id] || {
+                  manager_name: project.manager_name || '',
+                  contractor_code: project.contractor_code || '',
+                };
+
+                return (
+                  <div className="contractor-link-card" key={project.id}>
+                    <div className="contractor-link-head">
+                      <div>
+                        <h3>{project.name}</h3>
+                        <p>{project.district || 'بدون نطاق'}</p>
+                      </div>
+                      <span>{project.slug}</span>
+                    </div>
+
+                    <label>
+                      <span>اسم المسؤول الثابت</span>
+                      <input
+                        value={draft.manager_name}
+                        placeholder="مثال: مدير مشروع المخططات"
+                        onChange={(e) => updateContractorDraft(project.id, { manager_name: e.target.value })}
+                      />
+                    </label>
+
+                    <label>
+                      <span>رمز دخول المقاول</span>
+                      <input
+                        value={draft.contractor_code}
+                        placeholder="مثال: 1234"
+                        onChange={(e) => updateContractorDraft(project.id, { contractor_code: e.target.value })}
+                      />
+                    </label>
+
+                    <label>
+                      <span>رابط المشروع</span>
+                      <input value={getContractorLink(project)} readOnly />
+                    </label>
+
+                    <div className="contractor-link-actions">
+                      <button onClick={() => saveContractorProject(project)} disabled={savingContractorProjectId === project.id}>
+                        {savingContractorProjectId === project.id ? 'جارٍ الحفظ...' : 'حفظ البيانات'}
+                      </button>
+                      <button onClick={() => copyContractorLink(project)}>نسخ الرابط</button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        </div>
       )}
 
       {showPasswordModal && isManager && (
