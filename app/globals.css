@@ -3234,3 +3234,198 @@ button[data-status="runoff"],
   color: #991b1b;
   font-weight: 900;
 }
+/* ===== Dashboard V2: Header password modal + horizontal gardens + daily status meter ===== */
+
+/* إخفاء قسم إدارة كلمة المرور القديم لو بقي في CSS أو DOM */
+.password-management-card {
+  display: none !important;
+}
+
+/* مؤشر حالة الري تحت كل مشروع */
+.project-daily-meter {
+  position: relative;
+  z-index: 2;
+  margin: 22px auto 0;
+  width: min(92%, 720px);
+  padding: 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid rgba(216, 180, 92, 0.36);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 14px 34px rgba(6, 43, 36, 0.10);
+}
+
+.meter-track {
+  height: 16px;
+  overflow: hidden;
+  display: flex;
+  border-radius: 999px;
+  background: rgba(255,255,255,.65);
+  border: 1px solid rgba(216, 180, 92, 0.22);
+}
+
+.meter-segment {
+  display: block;
+  min-width: 0;
+  transition: width .35s ease;
+}
+
+.meter-watered { background: linear-gradient(135deg, #064e3b, #10b981); }
+.meter-not-watered { background: linear-gradient(135deg, #7f1d1d, #dc2626); }
+.meter-insufficient { background: linear-gradient(135deg, #92400e, #d8b45c); }
+.meter-sidewalk { background: linear-gradient(135deg, #0f3f3a, #2563eb); }
+
+.meter-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 900;
+  color: #062b24;
+}
+
+.meter-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.meter-legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.legend-watered { background: #10b981; }
+.legend-not-watered { background: #dc2626; }
+.legend-insufficient { background: #d8b45c; }
+.legend-sidewalk { background: #2563eb; }
+
+/* عرض الحدائق بشكل أفقي مناسب لصور متعددة */
+.report-cards-grid,
+.not-watered-grid {
+  display: flex !important;
+  gap: 18px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 8px 4px 18px;
+  scroll-snap-type: x mandatory;
+}
+
+.report-card,
+.not-watered-card {
+  flex: 0 0 min(360px, 86vw);
+  scroll-snap-align: start;
+}
+
+.report-cards-grid::-webkit-scrollbar,
+.not-watered-grid::-webkit-scrollbar,
+.report-photo-strip::-webkit-scrollbar {
+  height: 10px;
+}
+
+.report-cards-grid::-webkit-scrollbar-thumb,
+.not-watered-grid::-webkit-scrollbar-thumb,
+.report-photo-strip::-webkit-scrollbar-thumb {
+  background: rgba(216, 180, 92, .65);
+  border-radius: 999px;
+}
+
+.report-cards-grid::-webkit-scrollbar-track,
+.not-watered-grid::-webkit-scrollbar-track,
+.report-photo-strip::-webkit-scrollbar-track {
+  background: rgba(255,255,255,.45);
+  border-radius: 999px;
+}
+
+/* معرض صور مصغر أفقي داخل كل بطاقة */
+.report-photo-strip {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 6px 2px 12px;
+  margin-bottom: 14px;
+}
+
+.report-photo-strip img {
+  flex: 0 0 230px;
+  height: 190px;
+  object-fit: cover;
+  border-radius: 18px;
+  border: 1px solid rgba(216, 180, 92, 0.30);
+  box-shadow: 0 10px 24px rgba(6, 43, 36, 0.12);
+}
+
+.report-photo-strip .no-image {
+  width: 100%;
+  min-height: 150px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: rgba(255,255,255,.72);
+  border: 1px dashed rgba(216, 180, 92, 0.38);
+}
+
+/* نافذة إدارة كلمة المرور داخل الهيدر */
+.password-modal .edit-modal-actions button:first-child {
+  background: linear-gradient(135deg, #063b33, #0b8f63);
+  color: white;
+}
+
+/* معاينة عدة صور في نافذة تعديل السجل */
+.edit-photo-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.edit-photo-thumb {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(216, 180, 92, 0.30);
+  background: #fffaf0;
+}
+
+.edit-photo-thumb img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  display: block;
+}
+
+.edit-photo-thumb button {
+  width: 100%;
+  border: 0;
+  padding: 8px;
+  background: #fee2e2;
+  color: #991b1b;
+  font-weight: 900;
+}
+
+/* تحسين تفاصيل الأقسام فوق خلفية المشروع */
+.admin-project-card .details-section {
+  background: rgba(255, 255, 255, 0.88) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(216, 180, 92, 0.38) !important;
+  box-shadow: 0 18px 45px rgba(6, 43, 36, 0.16) !important;
+}
+
+@media (max-width: 768px) {
+  .project-daily-meter {
+    width: 100%;
+  }
+
+  .meter-legend {
+    justify-content: flex-start;
+  }
+
+  .report-card,
+  .not-watered-card {
+    flex-basis: 88vw;
+  }
+}
