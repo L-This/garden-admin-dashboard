@@ -42,6 +42,10 @@ type Report = {
   insufficient_note?: string | null;
   sidewalk_runoff_note?: string | null;
   notes?: string | null;
+  ai_review_status?: 'pending' | 'passed' | 'needs_review' | 'rejected' | string | null;
+  ai_review_score?: number | null;
+  ai_review_reason?: string | null;
+  ai_flags?: unknown;
 };
 
 type Photo = {
@@ -290,7 +294,7 @@ export default function AdminHome() {
     const { data: reportsData } = await supabase
       .from('reports')
       .select(
-        'id, garden_id, report_date, created_at, status, admin_note, insufficient_watering, sidewalk_runoff, insufficient_note, sidewalk_runoff_note, notes'
+        'id, garden_id, report_date, created_at, status, admin_note, insufficient_watering, sidewalk_runoff, insufficient_note, sidewalk_runoff_note, notes, ai_review_status, ai_review_score, ai_review_reason, ai_flags'
       )
       .eq('report_date', selectedDate);
 
@@ -479,6 +483,58 @@ export default function AdminHome() {
     await loadData();
   }
 
+
+  async function approveAiReview(reportId: string) {
+    if (!isManager) return;
+
+    const { error } = await supabase
+      .from('reports')
+      .update({
+        ai_review_status: 'passed',
+        ai_review_reason: 'تم اعتماد الصورة يدويًا من لوحة الإدارة',
+        reviewed_by: user?.username || 'admin',
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq('id', reportId);
+
+    if (error) {
+      alert('تعذر اعتماد التنبيه: ' + error.message);
+      return;
+    }
+
+    await loadData();
+  }
+
+  async function escalateAiReview(report: Report) {
+    if (!isManager) return;
+
+    const ok = confirm('سيتم اعتبار هذا السجل مخالفة وتحويل الحالة إلى لم يتم الري. هل أنت متأكد؟');
+    if (!ok) return;
+
+    const reason = report.ai_review_reason || 'اشتباه تحقق ذكي في الصورة';
+
+    const { error } = await supabase
+      .from('reports')
+      .update({
+        ai_review_status: 'rejected',
+        status: 'not_watered',
+        insufficient_watering: false,
+        sidewalk_runoff: false,
+        admin_note: `مخالفة تحقق ذكي: ${reason}`,
+        notes: `مخالفة تحقق ذكي: ${reason}`,
+        reviewed_by: user?.username || 'admin',
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq('id', report.id);
+
+    if (error) {
+      alert('تعذر تصعيد المخالفة: ' + error.message);
+      return;
+    }
+
+    await loadData();
+  }
+
   const reportByGardenId = useMemo(() => {
     const map = new Map<string, Report>();
     reports.forEach((report) => map.set(report.garden_id, report));
@@ -494,6 +550,21 @@ export default function AdminHome() {
     });
     return map;
   }, [photos]);
+
+
+  const aiAlertReports = useMemo(() => {
+    return reports.filter((report) =>
+      report.ai_review_status === 'needs_review' || report.ai_review_status === 'rejected'
+    );
+  }, [reports]);
+
+  function getGardenById(gardenId: string) {
+    return gardens.find((garden) => garden.id === gardenId);
+  }
+
+  function getProjectById(projectId: string) {
+    return projects.find((project) => project.id === projectId);
+  }
 
   const wateredGardenIds = useMemo(
     () => new Set(reports.filter((report) => getReportStatus(report) !== 'not_watered').map((report) => report.garden_id)),
@@ -592,9 +663,71 @@ export default function AdminHome() {
         <div><span>لم يتم ريها</span><strong>{totals.notWatered}</strong><em>⌁</em></div>
         <div><span>عدم كفاية ري</span><strong>{totals.insufficient}</strong><em>−</em></div>
         <div><span>خروج الري للرصيف</span><strong>{totals.sidewalk}</strong><em>↪</em></div>
+        <div className="ai-overview-card"><span>تنبيهات التحقق الذكي</span><strong>{aiAlertReports.length}</strong><em>⚠</em></div>
       </section>
 
 
+
+
+      {aiAlertReports.length > 0 && (
+        <section className="ai-alerts-panel">
+          <div className="ai-alerts-head">
+            <div>
+              <span>مركز التحقق الذكي</span>
+              <h2>تنبيهات الصور المشكوك فيها</h2>
+              <p>يعرض السجلات التي تحتاج مراجعة أو تم رفضها آليًا حسب نتيجة التحقق الذكي.</p>
+            </div>
+            <strong>{aiAlertReports.length}</strong>
+          </div>
+
+          <div className="ai-alerts-grid">
+            {aiAlertReports.map((report) => {
+              const garden = getGardenById(report.garden_id);
+              const project = garden ? getProjectById(garden.project_id) : undefined;
+              const reportPhotos = photosByReportId.get(report.id) || [];
+              const firstPhoto = reportPhotos[0];
+              const score = typeof report.ai_review_score === 'number'
+                ? `${Math.round(report.ai_review_score * 100)}%`
+                : 'غير محدد';
+
+              return (
+                <article key={report.id} className={`ai-alert-card ${report.ai_review_status === 'rejected' ? 'rejected' : 'review'}`}>
+                  <div className="ai-alert-image">
+                    {firstPhoto?.file_url ? (
+                      <button type="button" onClick={() => setPreviewImageUrl(firstPhoto.file_url)}>
+                        <img src={firstPhoto.file_url} alt={garden?.name || 'صورة التحقق'} />
+                        <span>معاينة</span>
+                      </button>
+                    ) : (
+                      <div>لا توجد صورة</div>
+                    )}
+                  </div>
+
+                  <div className="ai-alert-content">
+                    <div className="ai-alert-title-row">
+                      <h3>{garden?.name || 'حديقة غير معروفة'}</h3>
+                      <span>{report.ai_review_status === 'rejected' ? 'مرفوض' : 'يحتاج مراجعة'}</span>
+                    </div>
+                    <p>{project?.name || 'مشروع غير معروف'}</p>
+                    <ul>
+                      <li>درجة الثقة: <strong>{score}</strong></li>
+                      <li>الوقت: <strong>{formatDateTime(report.created_at)}</strong></li>
+                      <li>السبب: <strong>{report.ai_review_reason || 'لم يتم تسجيل سبب تفصيلي'}</strong></li>
+                    </ul>
+
+                    {isManager && (
+                      <div className="ai-alert-actions">
+                        <button onClick={() => approveAiReview(report.id)}>اعتماد الصورة</button>
+                        <button onClick={() => escalateAiReview(report)}>تسجيل مخالفة</button>
+                      </div>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {loading ? (
         <div className="loading">جاري تحميل البيانات...</div>
