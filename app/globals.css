@@ -3429,3 +3429,160 @@ button[data-status="runoff"],
     flex-basis: 88vw;
   }
 }
+
+/* Dashboard V3 layout fixes */
+
+/* كل مشروع في صف مستقل */
+.projects-admin-grid {
+  grid-template-columns: 1fr !important;
+}
+
+/* بطاقة المشروع بكامل العرض */
+.admin-project-card {
+  width: 100% !important;
+}
+
+/* تفاصيل المشروع لا تستخدم سكرول أفقي عام */
+.admin-project-card .details-section {
+  overflow: visible !important;
+}
+
+/* كل حديقة في صف مستقل بدل العرض الأفقي */
+.report-cards-grid {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 22px !important;
+  overflow: visible !important;
+}
+
+/* بطاقة الحديقة في صف واضح */
+.report-card {
+  display: grid !important;
+  grid-template-columns: minmax(260px, 360px) 1fr;
+  gap: 18px;
+  align-items: start;
+  padding: 20px !important;
+}
+
+/* الرأس والمعلومات في العمود الأول */
+.report-card-head,
+.report-meta,
+.report-actions-4 {
+  grid-column: 1;
+}
+
+/* الصور في العمود الثاني */
+.report-photo-strip {
+  grid-column: 2;
+  grid-row: 1 / span 4;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px !important;
+  overflow: visible !important;
+  padding: 0 !important;
+}
+
+/* زر معاينة الصورة */
+.report-photo-preview-btn {
+  position: relative;
+  min-height: 210px;
+  border: 1px solid rgba(216,180,92,.32) !important;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #fffaf0 !important;
+  padding: 0 !important;
+  box-shadow: 0 10px 24px rgba(6,43,36,.12);
+  cursor: zoom-in;
+}
+
+.report-photo-preview-btn img {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 210px;
+  object-fit: cover;
+  display: block;
+}
+
+.report-photo-preview-btn span {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  background: rgba(6,43,36,.78);
+  color: #fff7d6 !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+  padding: 8px 10px;
+  border-radius: 999px;
+}
+
+/* أزرار الحالات تبقى مرتبة */
+.report-actions-4 {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+/* نافذة معاينة الصورة بالحجم الكامل */
+.image-preview-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(6,43,36,.82);
+  backdrop-filter: blur(8px);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.image-preview-modal {
+  position: relative;
+  width: min(1100px, 96vw);
+  max-height: 92vh;
+  background: rgba(255,250,240,.96);
+  border: 1px solid rgba(216,180,92,.5);
+  border-radius: 24px;
+  padding: 16px;
+  box-shadow: 0 30px 90px rgba(0,0,0,.35);
+}
+
+.image-preview-modal img {
+  width: 100%;
+  max-height: 84vh;
+  object-fit: contain;
+  display: block;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.image-preview-close {
+  position: absolute;
+  top: -16px;
+  left: -16px;
+  width: 44px;
+  height: 44px;
+  border: 0 !important;
+  border-radius: 50%;
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+  font-size: 28px !important;
+  font-weight: 900;
+  box-shadow: 0 12px 28px rgba(0,0,0,.25);
+}
+
+/* صور نافذة التعديل قابلة للضغط */
+.edit-photo-thumb img {
+  cursor: zoom-in;
+}
+
+/* للموبايل */
+@media (max-width: 900px) {
+  .report-card {
+    grid-template-columns: 1fr !important;
+  }
+
+  .report-photo-strip {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+    grid-template-columns: 1fr !important;
+  }
+}
