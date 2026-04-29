@@ -101,7 +101,9 @@ export default function AdminHome() {
   const [editState, setEditState] = useState<EditState | null>(null);
   const [editStatus, setEditStatus] = useState<ReportStatus>('watered');
   const [editNote, setEditNote] = useState('');
-  const [editPhotoUrl, setEditPhotoUrl] = useState('');
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [editPhotoUrls, setEditPhotoUrls] = useState<string[]>([]);
+  const [editNewPhotoUrls, setEditNewPhotoUrls] = useState<string[]>([]);
   const [editUploading, setEditUploading] = useState(false);
   const [editUploadFileName, setEditUploadFileName] = useState('');
   const [editSaving, setEditSaving] = useState(false);
@@ -231,12 +233,13 @@ export default function AdminHome() {
     if (!isManager) return;
 
     const currentStatus = getReportStatus(report) || 'not_watered';
-    const currentPhoto = report ? photosByReportId.get(report.id)?.[0]?.file_url || '' : '';
+    const currentPhotos = report ? (photosByReportId.get(report.id) || []).map((photo) => photo.file_url) : [];
 
     setEditState({ garden, project, report });
     setEditStatus(currentStatus);
     setEditNote(report?.admin_note || report?.notes || report?.insufficient_note || report?.sidewalk_runoff_note || '');
-    setEditPhotoUrl(currentPhoto);
+    setEditPhotoUrls(currentPhotos);
+    setEditNewPhotoUrls([]);
     setEditUploadFileName('');
   }
 
@@ -248,35 +251,45 @@ export default function AdminHome() {
       .slice(0, 80) || 'garden';
   }
 
-  async function uploadEditPhoto(file: File) {
+  async function uploadEditPhotos(files: FileList | File[]) {
     if (!editState) return;
 
+    const selectedFiles = Array.from(files);
+    if (!selectedFiles.length) return;
+
     setEditUploading(true);
-    setEditUploadFileName(file.name);
+    setEditUploadFileName(selectedFiles.map((file) => file.name).join('، '));
 
-    const ext = file.name.split('.').pop() || 'jpg';
-    const projectName = safeFileName(editState.project.name);
-    const gardenName = safeFileName(editState.garden.name);
-    const path = `${selectedDate}/${projectName}/${gardenName}-${Date.now()}.${ext}`;
+    const uploadedUrls: string[] = [];
 
-    const { error: uploadError } = await supabase.storage
-      .from('garden-photos')
-      .upload(path, file, {
-        cacheControl: '3600',
-        upsert: true,
-      });
+    for (const file of selectedFiles) {
+      const ext = file.name.split('.').pop() || 'jpg';
+      const projectName = safeFileName(editState.project.name);
+      const gardenName = safeFileName(editState.garden.name);
+      const path = `${selectedDate}/${projectName}/${gardenName}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
-    if (uploadError) {
-      setEditUploading(false);
-      alert('تعذر رفع الصورة: ' + uploadError.message);
-      return;
+      const { error: uploadError } = await supabase.storage
+        .from('garden-photos')
+        .upload(path, file, {
+          cacheControl: '3600',
+          upsert: true,
+        });
+
+      if (uploadError) {
+        setEditUploading(false);
+        alert('تعذر رفع الصورة: ' + uploadError.message);
+        return;
+      }
+
+      const { data } = supabase.storage
+        .from('garden-photos')
+        .getPublicUrl(path);
+
+      uploadedUrls.push(data.publicUrl);
     }
 
-    const { data } = supabase.storage
-      .from('garden-photos')
-      .getPublicUrl(path);
-
-    setEditPhotoUrl(data.publicUrl);
+    setEditPhotoUrls((prev) => [...prev, ...uploadedUrls]);
+    setEditNewPhotoUrls((prev) => [...prev, ...uploadedUrls]);
     setEditUploading(false);
   }
 
@@ -326,15 +339,14 @@ export default function AdminHome() {
       reportId = data.id;
     }
 
-    if (reportId && editPhotoUrl.trim()) {
-      await supabase.from('photos').delete().eq('report_id', reportId);
+    if (reportId && editNewPhotoUrls.length) {
       const { error } = await supabase
         .from('photos')
-        .insert({ report_id: reportId, file_url: editPhotoUrl.trim() });
+        .insert(editNewPhotoUrls.map((url) => ({ report_id: reportId, file_url: url })));
 
       if (error) {
         setEditSaving(false);
-        alert('تم حفظ السجل، لكن تعذر حفظ رابط الصورة: ' + error.message);
+        alert('تم حفظ السجل، لكن تعذر حفظ الصور: ' + error.message);
         return;
       }
     }
@@ -466,6 +478,9 @@ export default function AdminHome() {
 
           <button onClick={loadData}>↻ تحديث البيانات</button>
           <button onClick={() => window.print()}>▣ طباعة التقرير</button>
+          {isManager && (
+            <button onClick={() => setShowPasswordModal(true)}>⚿ إدارة كلمة المرور</button>
+          )}
           <button onClick={logout}>↩ خروج</button>
         </div>
       </section>
@@ -478,29 +493,7 @@ export default function AdminHome() {
         <div><span>خروج الري للرصيف</span><strong>{totals.sidewalk}</strong><em>↪</em></div>
       </section>
 
-      {isManager && (
-        <section className="password-management-card">
-          <h2>إدارة كلمات المرور</h2>
-          <div className="password-management-form">
-            <select
-              value={passwordTarget}
-              onChange={(e) => setPasswordTarget(e.target.value as 'manager' | 'supervisor')}
-            >
-              <option value="manager">المدير</option>
-              <option value="supervisor">المشرف</option>
-            </select>
 
-            <input
-              type="password"
-              placeholder="كلمة المرور الجديدة"
-              value={newAdminPassword}
-              onChange={(e) => setNewAdminPassword(e.target.value)}
-            />
-
-            <button onClick={changeAdminPassword}>تغيير كلمة المرور</button>
-          </div>
-        </section>
-      )}
 
       {loading ? (
         <div className="loading">جاري تحميل البيانات...</div>
@@ -530,6 +523,33 @@ export default function AdminHome() {
                   <div>
                     <h2>{project.name}</h2>
                     <p>{project.district || 'بدون نطاق'}</p>
+                  </div>
+                </div>
+
+                <div className="project-daily-meter" aria-label="مؤشر حالة الري اليومي">
+                  <div className="meter-track">
+                    <span
+                      className="meter-segment meter-watered"
+                      style={{ width: `${projectGardens.length ? (wateredGardens.length / projectGardens.length) * 100 : 0}%` }}
+                    />
+                    <span
+                      className="meter-segment meter-not-watered"
+                      style={{ width: `${projectGardens.length ? (notWateredGardens.length / projectGardens.length) * 100 : 0}%` }}
+                    />
+                    <span
+                      className="meter-segment meter-insufficient"
+                      style={{ width: `${projectGardens.length ? (insufficientGardens.length / projectGardens.length) * 100 : 0}%` }}
+                    />
+                    <span
+                      className="meter-segment meter-sidewalk"
+                      style={{ width: `${projectGardens.length ? (sidewalkGardens.length / projectGardens.length) * 100 : 0}%` }}
+                    />
+                  </div>
+                  <div className="meter-legend">
+                    <span><i className="legend-watered" />تم الري {wateredGardens.length}</span>
+                    <span><i className="legend-not-watered" />لم يتم {notWateredGardens.length}</span>
+                    <span><i className="legend-insufficient" />عدم كفاية {insufficientGardens.length}</span>
+                    <span><i className="legend-sidewalk" />خروج للرصيف {sidewalkGardens.length}</span>
                   </div>
                 </div>
 
@@ -565,7 +585,6 @@ export default function AdminHome() {
                               if (!report) return null;
 
                               const reportPhotos = photosByReportId.get(report.id) || [];
-                              const firstPhoto = reportPhotos[0];
                               const currentStatus = getReportStatus(report);
 
                               return (
@@ -598,9 +617,11 @@ export default function AdminHome() {
                                     </p>
                                   </div>
 
-                                  <div className="report-image-box">
-                                    {firstPhoto?.file_url ? (
-                                      <img src={firstPhoto.file_url} alt={garden.name} />
+                                  <div className="report-photo-strip">
+                                    {reportPhotos.length ? (
+                                      reportPhotos.map((photo, index) => (
+                                        <img key={photo.id || `${photo.file_url}-${index}`} src={photo.file_url} alt={`${garden.name} ${index + 1}`} />
+                                      ))
                                     ) : (
                                       <div className="no-image">لا توجد صورة</div>
                                     )}
@@ -679,6 +700,45 @@ export default function AdminHome() {
         </section>
       )}
 
+      {showPasswordModal && isManager && (
+        <div className="edit-modal-backdrop" onClick={() => setShowPasswordModal(false)}>
+          <section className="edit-modal password-modal" onClick={(event) => event.stopPropagation()}>
+            <div className="edit-modal-head">
+              <h2>إدارة كلمات المرور</h2>
+              <button onClick={() => setShowPasswordModal(false)}>×</button>
+            </div>
+
+            <p className="edit-modal-subtitle">تغيير كلمة مرور المدير أو المشرف</p>
+
+            <label>
+              <span>العضوية</span>
+              <select
+                value={passwordTarget}
+                onChange={(e) => setPasswordTarget(e.target.value as 'manager' | 'supervisor')}
+              >
+                <option value="manager">المدير</option>
+                <option value="supervisor">المشرف</option>
+              </select>
+            </label>
+
+            <label>
+              <span>كلمة المرور الجديدة</span>
+              <input
+                type="password"
+                placeholder="كلمة المرور الجديدة"
+                value={newAdminPassword}
+                onChange={(e) => setNewAdminPassword(e.target.value)}
+              />
+            </label>
+
+            <div className="edit-modal-actions">
+              <button onClick={changeAdminPassword}>تغيير كلمة المرور</button>
+              <button onClick={() => setShowPasswordModal(false)}>إلغاء</button>
+            </div>
+          </section>
+        </div>
+      )}
+
       {editState && (
         <div className="edit-modal-backdrop" onClick={() => setEditState(null)}>
           <section className="edit-modal" onClick={(event) => event.stopPropagation()}>
@@ -711,15 +771,16 @@ export default function AdminHome() {
             </label>
 
             <label>
-              <span>رفع صورة من الكاميرا أو المعرض أو الملفات</span>
+              <span>رفع صور من الكاميرا أو المعرض أو الملفات</span>
               <input
                 type="file"
                 accept="image/*"
                 capture="environment"
+                multiple
                 disabled={editUploading}
                 onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) uploadEditPhoto(file);
+                  const files = e.target.files;
+                  if (files?.length) uploadEditPhotos(files);
                 }}
               />
             </label>
@@ -732,18 +793,24 @@ export default function AdminHome() {
               <p className="edit-upload-status">تم اختيار: {editUploadFileName}</p>
             )}
 
-            {editPhotoUrl && (
-              <div className="edit-photo-preview">
-                <img src={editPhotoUrl} alt="معاينة الصورة" />
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditPhotoUrl('');
-                    setEditUploadFileName('');
-                  }}
-                >
-                  إزالة الصورة
-                </button>
+            {editPhotoUrls.length > 0 && (
+              <div className="edit-photo-preview edit-photo-preview-grid">
+                {editPhotoUrls.map((url, index) => (
+                  <div className="edit-photo-thumb" key={`${url}-${index}`}>
+                    <img src={url} alt={`معاينة الصورة ${index + 1}`} />
+                    {editNewPhotoUrls.includes(url) && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditPhotoUrls((prev) => prev.filter((item) => item !== url));
+                          setEditNewPhotoUrls((prev) => prev.filter((item) => item !== url));
+                        }}
+                      >
+                        إزالة
+                      </button>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
 
