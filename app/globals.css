@@ -3586,3 +3586,124 @@ button[data-status="runoff"],
     grid-template-columns: 1fr !important;
   }
 }
+/* ================================
+   إدارة روابط المقاولين
+================================ */
+.contractor-links-modal {
+  width: min(980px, 94vw);
+  max-height: 86vh;
+  overflow: auto;
+}
+
+.contractor-links-list {
+  display: grid;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.contractor-link-card {
+  background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,250,240,.88));
+  border: 1px solid rgba(216, 180, 92, 0.34);
+  border-radius: 22px;
+  padding: 18px;
+  box-shadow: 0 14px 32px rgba(6,43,36,.08);
+}
+
+.contractor-link-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.contractor-link-head h3 {
+  margin: 0 0 6px;
+  color: #062b24;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.contractor-link-head p {
+  margin: 0;
+  color: #647d76;
+  font-weight: 800;
+}
+
+.contractor-link-head span {
+  background: rgba(11, 125, 87, 0.10);
+  color: #07543f;
+  border: 1px solid rgba(11, 125, 87, 0.16);
+  border-radius: 999px;
+  padding: 8px 12px;
+  direction: ltr;
+  font-weight: 900;
+  font-size: 13px;
+}
+
+.contractor-link-card label {
+  display: block;
+  margin-top: 12px;
+}
+
+.contractor-link-card label span {
+  display: block;
+  margin-bottom: 7px;
+  color: #062b24;
+  font-weight: 900;
+}
+
+.contractor-link-card input {
+  width: 100%;
+  border: 1px solid rgba(216, 180, 92, 0.35);
+  border-radius: 15px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,.88);
+  color: #062b24;
+  font-weight: 800;
+}
+
+.contractor-link-card input[readonly] {
+  direction: ltr;
+  text-align: left;
+  background: rgba(236, 253, 245, 0.75);
+}
+
+.contractor-link-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.contractor-link-actions button {
+  border: 0;
+  border-radius: 15px;
+  padding: 13px;
+  font-weight: 900;
+}
+
+.contractor-link-actions button:first-child {
+  background: linear-gradient(135deg, #063b33, #0b8f63);
+  color: #fff7d6;
+}
+
+.contractor-link-actions button:last-child {
+  background: rgba(216,180,92,.18);
+  color: #062b24;
+  border: 1px solid rgba(216,180,92,.28);
+}
+
+.contractor-link-actions button:disabled {
+  opacity: .65;
+  cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+  .contractor-link-head,
+  .contractor-link-actions {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+}
+
