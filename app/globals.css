@@ -3046,3 +3046,34 @@ button[data-status="runoff"],
 .report-actions-4 button {
   overflow: hidden;
 }
+/* تحسين وضوح تفاصيل المشروع فوق خلفية الصورة */
+.admin-project-card .details-section {
+  background: rgba(255, 255, 255, 0.88) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(216, 180, 92, 0.38) !important;
+  box-shadow: 0 18px 45px rgba(6, 43, 36, 0.16) !important;
+  border-radius: 22px;
+  padding: 22px;
+}
+
+.admin-project-card .details-section h3 {
+  color: #062b24 !important;
+  font-size: 24px;
+  font-weight: 900;
+  text-shadow: none !important;
+}
+
+.admin-project-card .details-section ul {
+  background: rgba(255, 250, 240, 0.78);
+  border: 1px solid rgba(216, 180, 92, 0.28);
+  border-radius: 18px;
+  padding: 16px 30px 16px 16px;
+}
+
+.admin-project-card .details-section li {
+  color: #062b24 !important;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 2.1;
+  text-shadow: none !important;
+}
