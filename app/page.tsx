@@ -107,6 +107,7 @@ export default function AdminHome() {
   const [editUploading, setEditUploading] = useState(false);
   const [editUploadFileName, setEditUploadFileName] = useState('');
   const [editSaving, setEditSaving] = useState(false);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
 
   const isManager = user?.role === 'مدير';
 
@@ -620,7 +621,16 @@ export default function AdminHome() {
                                   <div className="report-photo-strip">
                                     {reportPhotos.length ? (
                                       reportPhotos.map((photo, index) => (
-                                        <img key={photo.id || `${photo.file_url}-${index}`} src={photo.file_url} alt={`${garden.name} ${index + 1}`} />
+                                        <button
+                                          type="button"
+                                          className="report-photo-preview-btn"
+                                          key={photo.id || `${photo.file_url}-${index}`}
+                                          onClick={() => setPreviewImageUrl(photo.file_url)}
+                                          title="معاينة الصورة بالحجم الكامل"
+                                        >
+                                          <img src={photo.file_url} alt={`${garden.name} ${index + 1}`} />
+                                          <span>تكبير الصورة</span>
+                                        </button>
                                       ))
                                     ) : (
                                       <div className="no-image">لا توجد صورة</div>
@@ -797,7 +807,7 @@ export default function AdminHome() {
               <div className="edit-photo-preview edit-photo-preview-grid">
                 {editPhotoUrls.map((url, index) => (
                   <div className="edit-photo-thumb" key={`${url}-${index}`}>
-                    <img src={url} alt={`معاينة الصورة ${index + 1}`} />
+                    <img src={url} alt={`معاينة الصورة ${index + 1}`} onClick={() => setPreviewImageUrl(url)} />
                     {editNewPhotoUrls.includes(url) && (
                       <button
                         type="button"
@@ -823,6 +833,16 @@ export default function AdminHome() {
           </section>
         </div>
       )}
+
+      {previewImageUrl && (
+        <div className="image-preview-backdrop" onClick={() => setPreviewImageUrl(null)}>
+          <section className="image-preview-modal" onClick={(event) => event.stopPropagation()}>
+            <button className="image-preview-close" onClick={() => setPreviewImageUrl(null)}>×</button>
+            <img src={previewImageUrl} alt="معاينة الصورة بالحجم الكامل" />
+          </section>
+        </div>
+      )}
+
     </main>
   );
 }
