@@ -102,6 +102,8 @@ export default function AdminHome() {
   const [editStatus, setEditStatus] = useState<ReportStatus>('watered');
   const [editNote, setEditNote] = useState('');
   const [editPhotoUrl, setEditPhotoUrl] = useState('');
+  const [editUploading, setEditUploading] = useState(false);
+  const [editUploadFileName, setEditUploadFileName] = useState('');
   const [editSaving, setEditSaving] = useState(false);
 
   const isManager = user?.role === 'مدير';
@@ -235,6 +237,47 @@ export default function AdminHome() {
     setEditStatus(currentStatus);
     setEditNote(report?.admin_note || report?.notes || report?.insufficient_note || report?.sidewalk_runoff_note || '');
     setEditPhotoUrl(currentPhoto);
+    setEditUploadFileName('');
+  }
+
+  function safeFileName(value: string) {
+    return value
+      .trim()
+      .replace(/[\\/:*?"<>|#%&{}$!'@+`=]/g, '-')
+      .replace(/\s+/g, '-')
+      .slice(0, 80) || 'garden';
+  }
+
+  async function uploadEditPhoto(file: File) {
+    if (!editState) return;
+
+    setEditUploading(true);
+    setEditUploadFileName(file.name);
+
+    const ext = file.name.split('.').pop() || 'jpg';
+    const projectName = safeFileName(editState.project.name);
+    const gardenName = safeFileName(editState.garden.name);
+    const path = `${selectedDate}/${projectName}/${gardenName}-${Date.now()}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('garden-photos')
+      .upload(path, file, {
+        cacheControl: '3600',
+        upsert: true,
+      });
+
+    if (uploadError) {
+      setEditUploading(false);
+      alert('تعذر رفع الصورة: ' + uploadError.message);
+      return;
+    }
+
+    const { data } = supabase.storage
+      .from('garden-photos')
+      .getPublicUrl(path);
+
+    setEditPhotoUrl(data.publicUrl);
+    setEditUploading(false);
   }
 
   async function saveEditedRecord() {
@@ -668,60 +711,45 @@ export default function AdminHome() {
             </label>
 
             <label>
-  <span>رفع الصورة</span>
+              <span>رفع صورة من الكاميرا أو المعرض أو الملفات</span>
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                disabled={editUploading}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) uploadEditPhoto(file);
+                }}
+              />
+            </label>
 
-  <input
-    type="file"
-    accept="image/*"
-    capture="environment"
-    onChange={async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
+            {editUploading && (
+              <p className="edit-upload-status">جارٍ رفع الصورة...</p>
+            )}
 
-      try {
-        const ext = file.name.split('.').pop();
-        const fileName = `report-${Date.now()}.${ext}`;
+            {editUploadFileName && !editUploading && (
+              <p className="edit-upload-status">تم اختيار: {editUploadFileName}</p>
+            )}
 
-        const { error: uploadError } = await supabase.storage
-          .from('garden-photos')
-          .upload(fileName, file, {
-            upsert: true,
-          });
-
-        if (uploadError) {
-          alert('فشل رفع الصورة');
-          return;
-        }
-
-        const { data } = supabase.storage
-          .from('garden-photos')
-          .getPublicUrl(fileName);
-
-        setEditPhotoUrl(data.publicUrl);
-      } catch {
-        alert('تعذر رفع الصورة');
-      }
-    }}
-  />
-
-  {editPhotoUrl && (
-    <img
-      src={editPhotoUrl}
-      alt="preview"
-      style={{
-        marginTop: '10px',
-        width: '100%',
-        maxHeight: '220px',
-        objectFit: 'cover',
-        borderRadius: '14px',
-      }}
-    />
-  )}
-</label>
+            {editPhotoUrl && (
+              <div className="edit-photo-preview">
+                <img src={editPhotoUrl} alt="معاينة الصورة" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditPhotoUrl('');
+                    setEditUploadFileName('');
+                  }}
+                >
+                  إزالة الصورة
+                </button>
+              </div>
+            )}
 
             <div className="edit-modal-actions">
-              <button onClick={saveEditedRecord} disabled={editSaving}>
-                {editSaving ? 'جارٍ الحفظ...' : 'حفظ التعديل'}
+              <button onClick={saveEditedRecord} disabled={editSaving || editUploading}>
+                {editSaving ? 'جارٍ الحفظ...' : editUploading ? 'انتظر رفع الصورة...' : 'حفظ التعديل'}
               </button>
               <button onClick={() => setEditState(null)}>إلغاء</button>
             </div>
