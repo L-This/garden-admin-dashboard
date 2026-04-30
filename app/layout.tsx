@@ -13,7 +13,42 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ar" dir="rtl">
-      <body>{children}</body>
+      <body>
+
+  {/* تحديث إجباري عند وجود إصدار جديد */}
+  <script
+    dangerouslySetInnerHTML={{
+      __html: `
+        (function () {
+          const KEY = "admin_dashboard_build_version";
+
+          async function checkVersion() {
+            try {
+              const res = await fetch('/api/version', { cache: 'no-store' });
+              const data = await res.json();
+              const current = localStorage.getItem(KEY);
+
+              if (current && current !== data.version) {
+                localStorage.setItem(KEY, data.version);
+                window.location.reload();
+                return;
+              }
+
+              if (!current) {
+                localStorage.setItem(KEY, data.version);
+              }
+            } catch (e) {}
+          }
+
+          checkVersion();
+        })();
+      `,
+    }}
+  />
+
+  {children}
+
+</body>
     </html>
   );
 }
