@@ -67,6 +67,23 @@ type ContractorDraft = {
   contractor_code: string;
 };
 
+type ReportSummaryRow = {
+  gardenId: string;
+  gardenName: string;
+  watered: number;
+  notWatered: number;
+  insufficient: number;
+  sidewalk: number;
+};
+
+type FineRow = {
+  gardenName: string;
+  violationType: string;
+  count: number;
+  fineAmount: number;
+  total: number;
+};
+
 function today() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -89,6 +106,17 @@ function statusLabel(status?: ReportStatus | null) {
   if (status === 'insufficient') return 'عدم كفاية ري';
   if (status === 'sidewalk_runoff') return 'خروج الري للرصيف';
   return 'تم الري';
+}
+
+function daysBetweenInclusive(from: string, to: string) {
+  const start = new Date(`${from}T00:00:00`);
+  const end = new Date(`${to}T00:00:00`);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end < start) return 0;
+  return Math.floor((end.getTime() - start.getTime()) / 86400000) + 1;
+}
+
+function formatMoney(value: number) {
+  return new Intl.NumberFormat('ar-SA').format(value);
 }
 
 export default function AdminHome() {
@@ -124,6 +152,16 @@ export default function AdminHome() {
   const [editSaving, setEditSaving] = useState(false);
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
 
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportFromDate, setReportFromDate] = useState(today());
+  const [reportToDate, setReportToDate] = useState(today());
+  const [reportProjectId, setReportProjectId] = useState('');
+  const [reportLoading, setReportLoading] = useState(false);
+  const [reportError, setReportError] = useState('');
+  const [reportRows, setReportRows] = useState<ReportSummaryRow[]>([]);
+  const [fineRows, setFineRows] = useState<FineRow[]>([]);
+  const [reportTitle, setReportTitle] = useState('');
+
   const isManager = user?.role === 'مدير';
 
   useEffect(() => {
@@ -149,6 +187,12 @@ export default function AdminHome() {
       return next;
     });
   }, [projects]);
+
+  useEffect(() => {
+    if (!reportProjectId && projects.length) {
+      setReportProjectId(projects[0].id);
+    }
+  }, [projects, reportProjectId]);
 
   async function login() {
     if (!username || !password) {
@@ -275,6 +319,102 @@ export default function AdminHome() {
     } catch {
       alert(link);
     }
+  }
+
+
+  async function generatePeriodReport() {
+    setReportError('');
+    setReportRows([]);
+    setFineRows([]);
+
+    if (!reportFromDate || !reportToDate || !reportProjectId) {
+      setReportError('اختر الفترة والمشروع أولًا.');
+      return;
+    }
+
+    const numberOfDays = daysBetweenInclusive(reportFromDate, reportToDate);
+    if (!numberOfDays) {
+      setReportError('تأكد أن تاريخ النهاية بعد تاريخ البداية.');
+      return;
+    }
+
+    const selectedProject = projects.find((project) => project.id === reportProjectId);
+    const projectGardens = gardens.filter((garden) => garden.project_id === reportProjectId);
+
+    if (!selectedProject || !projectGardens.length) {
+      setReportError('لا توجد حدائق لهذا المشروع.');
+      return;
+    }
+
+    setReportLoading(true);
+
+    const gardenIds = projectGardens.map((garden) => garden.id);
+
+    const { data, error } = await supabase
+      .from('reports')
+      .select('id, garden_id, report_date, status, insufficient_watering, sidewalk_runoff')
+      .gte('report_date', reportFromDate)
+      .lte('report_date', reportToDate)
+      .in('garden_id', gardenIds);
+
+    setReportLoading(false);
+
+    if (error) {
+      setReportError('تعذر إنشاء التقرير: ' + error.message);
+      return;
+    }
+
+    const reportsInPeriod = (data || []) as Pick<Report, 'id' | 'garden_id' | 'report_date' | 'status' | 'insufficient_watering' | 'sidewalk_runoff'>[];
+
+    const rows: ReportSummaryRow[] = projectGardens.map((garden) => {
+      const gardenReports = reportsInPeriod.filter((report) => report.garden_id === garden.id);
+      const reportedDates = new Set(gardenReports.map((report) => report.report_date));
+
+      let watered = 0;
+      let notWateredExplicit = 0;
+      let insufficient = 0;
+      let sidewalk = 0;
+
+      gardenReports.forEach((report) => {
+        const status = getReportStatus(report as Report);
+        if (status === 'not_watered') notWateredExplicit += 1;
+        else if (status === 'insufficient') insufficient += 1;
+        else if (status === 'sidewalk_runoff') sidewalk += 1;
+        else watered += 1;
+      });
+
+      const missingDays = Math.max(0, numberOfDays - reportedDates.size);
+
+      return {
+        gardenId: garden.id,
+        gardenName: garden.name,
+        watered,
+        notWatered: notWateredExplicit + missingDays,
+        insufficient,
+        sidewalk,
+      };
+    });
+
+    const fines: FineRow[] = [];
+    rows.forEach((row) => {
+      if (row.notWatered > 0) {
+        fines.push({ gardenName: row.gardenName, violationType: 'لم يتم الري', count: row.notWatered, fineAmount: 1000, total: row.notWatered * 1000 });
+      }
+      if (row.insufficient > 0) {
+        fines.push({ gardenName: row.gardenName, violationType: 'عدم كفاية ري', count: row.insufficient, fineAmount: 500, total: row.insufficient * 500 });
+      }
+      if (row.sidewalk > 0) {
+        fines.push({ gardenName: row.gardenName, violationType: 'خروج الري للرصيف', count: row.sidewalk, fineAmount: 300, total: row.sidewalk * 300 });
+      }
+    });
+
+    setReportRows(rows);
+    setFineRows(fines);
+    setReportTitle(`${selectedProject.name} من ${reportFromDate} إلى ${reportToDate}`);
+  }
+
+  function printReportOnly() {
+    window.print();
   }
 
   async function loadData() {
@@ -647,6 +787,7 @@ export default function AdminHome() {
 
           <button onClick={loadData}>↻ تحديث البيانات</button>
           <button onClick={() => window.print()}>▣ طباعة التقرير</button>
+          <button onClick={() => setShowReportModal(true)}>📊 إعداد تقرير</button>
           {isManager && (
             <button onClick={() => setShowPasswordModal(true)}>⚿ إدارة كلمة المرور</button>
           )}
@@ -943,6 +1084,125 @@ export default function AdminHome() {
         </section>
       )}
 
+
+
+      {showReportModal && (
+        <div className="edit-modal-backdrop" onClick={() => setShowReportModal(false)}>
+          <section className="edit-modal report-modal" onClick={(event) => event.stopPropagation()}>
+            <div className="edit-modal-head">
+              <h2>إعداد تقرير الفترة</h2>
+              <button onClick={() => setShowReportModal(false)}>×</button>
+            </div>
+
+            <p className="edit-modal-subtitle">
+              حدد الفترة والمشروع لاحتساب حالات الري والغرامات تلقائيًا.
+            </p>
+
+            <div className="report-filters-grid">
+              <label>
+                <span>من تاريخ</span>
+                <input type="date" value={reportFromDate} onChange={(e) => setReportFromDate(e.target.value)} />
+              </label>
+
+              <label>
+                <span>إلى تاريخ</span>
+                <input type="date" value={reportToDate} onChange={(e) => setReportToDate(e.target.value)} />
+              </label>
+
+              <label>
+                <span>المشروع</span>
+                <select value={reportProjectId} onChange={(e) => setReportProjectId(e.target.value)}>
+                  {projects.map((project) => (
+                    <option key={project.id} value={project.id}>{project.name}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <div className="edit-modal-actions">
+              <button onClick={generatePeriodReport} disabled={reportLoading}>
+                {reportLoading ? 'جارٍ إنشاء التقرير...' : 'إنشاء التقرير'}
+              </button>
+              <button onClick={printReportOnly} disabled={!reportRows.length}>طباعة التقرير</button>
+            </div>
+
+            {reportError && <p className="report-error">{reportError}</p>}
+
+            {reportRows.length > 0 && (
+              <div className="period-report-print-area">
+                <div className="period-report-head">
+                  <h3>تقرير ري الحدائق</h3>
+                  <p>{reportTitle}</p>
+                </div>
+
+                <div className="report-table-wrap">
+                  <table className="period-report-table">
+                    <thead>
+                      <tr>
+                        <th>الحديقة</th>
+                        <th>تم الري</th>
+                        <th>لم يتم الري</th>
+                        <th>عدم كفاية ري</th>
+                        <th>خروج الري</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {reportRows.map((row) => (
+                        <tr key={row.gardenId}>
+                          <td>{row.gardenName}</td>
+                          <td>{row.watered}</td>
+                          <td>{row.notWatered}</td>
+                          <td>{row.insufficient}</td>
+                          <td>{row.sidewalk}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="fines-report-box">
+                  <h3>الغرامات</h3>
+                  <div className="report-table-wrap">
+                    <table className="period-report-table fines-table">
+                      <thead>
+                        <tr>
+                          <th>الحديقة</th>
+                          <th>نوع المخالفة</th>
+                          <th>عدد المرات</th>
+                          <th>قيمة الغرامة</th>
+                          <th>الإجمالي</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {fineRows.length ? (
+                          fineRows.map((row, index) => (
+                            <tr key={`${row.gardenName}-${row.violationType}-${index}`}>
+                              <td>{row.gardenName}</td>
+                              <td>{row.violationType}</td>
+                              <td>{row.count}</td>
+                              <td>{formatMoney(row.fineAmount)} ريال</td>
+                              <td>{formatMoney(row.total)} ريال</td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={5}>لا توجد غرامات خلال الفترة المحددة</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="total-fines-card">
+                    <span>إجمالي الغرامات لكافة الحدائق</span>
+                    <strong>{formatMoney(fineRows.reduce((sum, row) => sum + row.total, 0))} ريال</strong>
+                  </div>
+                </div>
+              </div>
+            )}
+          </section>
+        </div>
+      )}
 
       {showContractorLinksModal && isManager && (
         <div className="edit-modal-backdrop" onClick={() => setShowContractorLinksModal(false)}>
