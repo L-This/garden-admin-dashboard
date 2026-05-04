@@ -786,7 +786,6 @@ export default function AdminHome() {
           </label>
 
           <button onClick={loadData}>↻ تحديث البيانات</button>
-          <button onClick={() => window.print()}>▣ طباعة التقرير</button>
           <button onClick={() => setShowReportModal(true)}>📊 إعداد تقرير</button>
           {isManager && (
             <button onClick={() => setShowPasswordModal(true)}>⚿ إدارة كلمة المرور</button>
