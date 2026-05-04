@@ -884,24 +884,6 @@ input:focus,select:focus{
   box-shadow:0 0 0 4px rgba(24,160,110,.10);
 }
 
-/* الطباعة */
-@media print{
-  body{
-    background:#fff !important;
-  }
-
-  .dashboard-header,
-  .admin-header{
-    box-shadow:none !important;
-  }
-
-  .project-card,
-  .stat-card{
-    box-shadow:none !important;
-    border:1px solid #ddd !important;
-  }
-}
-
 /* موبايل */
 @media (max-width:768px){
   .login-card,
@@ -1360,31 +1342,6 @@ button:hover {
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
-  }
-}
-
-/* Print Clean */
-@media print {
-  .login-page,
-  .hero-controls,
-  .password-management-card,
-  .report-actions-4,
-  .card-more-btn {
-    display: none !important;
-  }
-
-  body,
-  .admin-page {
-    background: white !important;
-  }
-
-  .admin-hero,
-  .admin-overview div,
-  .admin-project-card,
-  .details-section,
-  .report-card {
-    box-shadow: none !important;
-    border: 1px solid #ddd !important;
   }
 }
 
@@ -2253,31 +2210,6 @@ select:focus {
   animation: luxEnter 0.55s ease both;
 }
 
-/* PRINT */
-
-@media print {
-  .login-page,
-  .hero-controls,
-  .password-management-card,
-  .report-actions-4,
-  .card-more-btn {
-    display: none !important;
-  }
-
-  body,
-  .admin-page {
-    background: white !important;
-  }
-
-  .admin-hero,
-  .admin-overview div,
-  .admin-project-card,
-  .details-section,
-  .report-card {
-    box-shadow: none !important;
-    border: 1px solid #ddd !important;
-  }
-}
 
 /* RESPONSIVE */
 
@@ -4031,37 +3963,6 @@ button[data-status="runoff"],
   font-weight: 1000;
 }
 
-@media print {
-  body * {
-    visibility: hidden !important;
-  }
-
-  .period-report-print-area,
-  .period-report-print-area * {
-    visibility: visible !important;
-  }
-
-  .period-report-print-area {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 18px !important;
-    border: 0 !important;
-    box-shadow: none !important;
-    background: white !important;
-  }
-
-  .period-report-table {
-    box-shadow: none !important;
-  }
-
-  .period-report-table th {
-    background: #eeeeee !important;
-    color: #000 !important;
-  }
-}
-
 @media (max-width: 900px) {
   .report-filters-grid {
     grid-template-columns: 1fr;
@@ -4073,4 +3974,95 @@ button[data-status="runoff"],
     font-size: 13px;
   }
 }
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
 
+  .period-report-print,
+  .period-report-print * {
+    visibility: visible !important;
+  }
+
+  .period-report-print {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    background: #fff !important;
+    color: #062b24 !important;
+    padding: 18px !important;
+    direction: rtl !important;
+  }
+
+  .period-report-actions,
+  .edit-modal-head button,
+  .hero-controls,
+  .admin-hero,
+  .admin-overview,
+  .projects-admin-grid,
+  .ai-alerts-panel {
+    display: none !important;
+  }
+
+  .period-report-print h1,
+  .period-report-print h2,
+  .period-report-print h3,
+  .period-report-print p {
+    margin: 0 0 8px !important;
+    text-align: center !important;
+    line-height: 1.4 !important;
+  }
+
+  .period-report-print table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+    margin: 14px 0 22px !important;
+    font-size: 10px !important;
+    page-break-inside: auto !important;
+  }
+
+  .period-report-print thead {
+    display: table-header-group !important;
+  }
+
+  .period-report-print tr {
+    page-break-inside: avoid !important;
+    page-break-after: auto !important;
+  }
+
+  .period-report-print th,
+  .period-report-print td {
+    border: 1px solid #d8c58b !important;
+    padding: 6px 4px !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    line-height: 1.5 !important;
+    font-weight: 700 !important;
+  }
+
+  .period-report-print th {
+    background: #f8f1dc !important;
+    color: #062b24 !important;
+    font-size: 10px !important;
+  }
+
+  .period-report-print td {
+    font-size: 10px !important;
+  }
+
+  .period-report-print .report-total-fines {
+    text-align: center !important;
+    color: #b91c1c !important;
+    font-size: 18px !important;
+    font-weight: 900 !important;
+    margin: 12px 0 !important;
+  }
+
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+}
