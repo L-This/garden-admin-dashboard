@@ -3975,94 +3975,79 @@ button[data-status="runoff"],
   }
 }
 @media print {
-  body * {
-    visibility: hidden !important;
-  }
-
-  .period-report-print,
-  .period-report-print * {
-    visibility: visible !important;
-  }
-
-  .period-report-print {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    background: #fff !important;
-    color: #062b24 !important;
-    padding: 18px !important;
-    direction: rtl !important;
-  }
-
-  .period-report-actions,
-  .edit-modal-head button,
-  .hero-controls,
-  .admin-hero,
-  .admin-overview,
-  .projects-admin-grid,
-  .ai-alerts-panel {
-    display: none !important;
-  }
-
-  .period-report-print h1,
-  .period-report-print h2,
-  .period-report-print h3,
-  .period-report-print p {
-    margin: 0 0 8px !important;
-    text-align: center !important;
-    line-height: 1.4 !important;
-  }
-
-  .period-report-print table {
-    width: 100% !important;
-    border-collapse: collapse !important;
-    table-layout: fixed !important;
-    margin: 14px 0 22px !important;
-    font-size: 10px !important;
-    page-break-inside: auto !important;
-  }
-
-  .period-report-print thead {
-    display: table-header-group !important;
-  }
-
-  .period-report-print tr {
-    page-break-inside: avoid !important;
-    page-break-after: auto !important;
-  }
-
-  .period-report-print th,
-  .period-report-print td {
-    border: 1px solid #d8c58b !important;
-    padding: 6px 4px !important;
-    text-align: center !important;
-    vertical-align: middle !important;
-    white-space: normal !important;
-    word-break: break-word !important;
-    line-height: 1.5 !important;
-    font-weight: 700 !important;
-  }
-
-  .period-report-print th {
-    background: #f8f1dc !important;
-    color: #062b24 !important;
-    font-size: 10px !important;
-  }
-
-  .period-report-print td {
-    font-size: 10px !important;
-  }
-
-  .period-report-print .report-total-fines {
-    text-align: center !important;
-    color: #b91c1c !important;
-    font-size: 18px !important;
-    font-weight: 900 !important;
-    margin: 12px 0 !important;
-  }
-
   @page {
     size: A4 landscape;
     margin: 10mm;
+  }
+
+  body {
+    background: #fff !important;
+  }
+
+  .admin-hero,
+  .admin-overview,
+  .projects-admin-grid,
+  .ai-alerts-panel,
+  .hero-controls,
+  .edit-modal-head button,
+  .period-report-actions {
+    display: none !important;
+  }
+
+  .edit-modal-backdrop {
+    position: static !important;
+    inset: auto !important;
+    background: #fff !important;
+    display: block !important;
+    padding: 0 !important;
+  }
+
+  .edit-modal {
+    position: static !important;
+    width: 100% !important;
+    max-width: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: #fff !important;
+    padding: 0 !important;
+  }
+
+  .period-report-modal,
+  .period-report-content,
+  .period-report-print {
+    display: block !important;
+    width: 100% !important;
+    background: #fff !important;
+    color: #062b24 !important;
+  }
+
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+    font-size: 10px !important;
+  }
+
+  th,
+  td {
+    border: 1px solid #d8c58b !important;
+    padding: 5px !important;
+    text-align: center !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    line-height: 1.4 !important;
+  }
+
+  th {
+    background: #f8f1dc !important;
+    font-weight: 900 !important;
+  }
+
+  h1,
+  h2,
+  h3,
+  p {
+    text-align: center !important;
+    margin: 6px 0 !important;
   }
 }
