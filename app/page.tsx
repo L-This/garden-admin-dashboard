@@ -126,6 +126,11 @@ function workingDaysBetweenInclusive(from: string, to: string) {
   return count;
 }
 
+
+function isFridayDate(dateValue: string) {
+  return new Date(`${dateValue}T00:00:00`).getDay() === 5;
+}
+
 function formatMoney(value: number) {
   return new Intl.NumberFormat('ar-SA').format(value);
 }
@@ -842,14 +847,15 @@ export default function AdminHome() {
   );
 
   const totals = useMemo(() => {
+    const friday = isFridayDate(selectedDate);
     const totalGardens = gardens.length;
-    const watered = gardens.filter((garden) => wateredGardenIds.has(garden.id)).length;
-    const notWatered = totalGardens - watered;
-    const insufficient = reports.filter((r) => getReportStatus(r) === 'insufficient').length;
-    const sidewalk = reports.filter((r) => getReportStatus(r) === 'sidewalk_runoff').length;
+    const watered = friday ? 0 : gardens.filter((garden) => wateredGardenIds.has(garden.id)).length;
+    const notWatered = friday ? 0 : totalGardens - watered;
+    const insufficient = friday ? 0 : reports.filter((r) => getReportStatus(r) === 'insufficient').length;
+    const sidewalk = friday ? 0 : reports.filter((r) => getReportStatus(r) === 'sidewalk_runoff').length;
 
     return { totalGardens, watered, notWatered, insufficient, sidewalk };
-  }, [gardens, wateredGardenIds, reports]);
+  }, [gardens, wateredGardenIds, reports, selectedDate]);
 
   if (!user) {
     return (
@@ -936,7 +942,12 @@ export default function AdminHome() {
         <div className="ai-overview-card"><span>تنبيهات التحقق الذكي</span><strong>{aiAlertReports.length}</strong><em>⚠</em></div>
       </section>
 
-
+      {isFridayDate(selectedDate) && (
+        <section className="friday-off-notice">
+          <strong>يوم الجمعة إجازة</strong>
+          <span>لا يتم احتساب الحدائق كـ "لم يتم الري" في هذا اليوم.</span>
+        </section>
+      )}
 
 
       {aiAlertReports.length > 0 && (
@@ -1005,8 +1016,9 @@ export default function AdminHome() {
         <section className="projects-admin-grid">
           {projects.map((project) => {
             const projectGardens = gardens.filter((garden) => garden.project_id === project.id);
-            const wateredGardens = projectGardens.filter((garden) => wateredGardenIds.has(garden.id));
-            const notWateredGardens = projectGardens.filter((garden) => !wateredGardenIds.has(garden.id));
+            const friday = isFridayDate(selectedDate);
+            const wateredGardens = friday ? [] : projectGardens.filter((garden) => wateredGardenIds.has(garden.id));
+            const notWateredGardens = friday ? [] : projectGardens.filter((garden) => !wateredGardenIds.has(garden.id));
 
             const insufficientGardens = wateredGardens.filter((garden) => {
               const report = reportByGardenId.get(garden.id);
