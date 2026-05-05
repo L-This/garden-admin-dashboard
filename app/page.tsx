@@ -1122,13 +1122,15 @@ export default function AdminHome() {
               <button onClick={generatePeriodReport} disabled={reportLoading}>
                 {reportLoading ? 'جارٍ إنشاء التقرير...' : 'إنشاء التقرير'}
               </button>
-              <button onClick={printReportOnly} disabled={!reportRows.length}>طباعة التقرير</button>
+              <button onClick={printReportOnly} disabled={!reportRows.length}>
+  📄 تحميل التقرير الرسمي PDF
+</button>
             </div>
 
             {reportError && <p className="report-error">{reportError}</p>}
 
             {reportRows.length > 0 && (
-              <div className="period-report-print-area">
+              <div id="report-print" className="period-report-print-area">
                 <div className="period-report-head">
                   <h3>تقرير ري الحدائق</h3>
                   <p>{reportTitle}</p>
