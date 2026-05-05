@@ -4014,3 +4014,43 @@ button[data-status="runoff"],
     text-align: center;
   }
 }
+@media print {
+  .period-report-head {
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  .report-table-wrap,
+  .fines-report-box,
+  .total-fines-card,
+  .official-footer {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .fines-report-box {
+    margin-top: 18px !important;
+    padding-top: 16px !important;
+    break-before: page !important;
+    page-break-before: always !important;
+  }
+
+  .fines-report-box h3 {
+    margin: 0 0 12px !important;
+    text-align: center !important;
+    position: static !important;
+  }
+
+  .period-report-table {
+    page-break-inside: auto !important;
+  }
+
+  .period-report-table thead {
+    display: table-header-group !important;
+  }
+
+  .period-report-table tr {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}
