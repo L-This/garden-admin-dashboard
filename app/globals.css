@@ -3980,74 +3980,37 @@ button[data-status="runoff"],
     margin: 10mm;
   }
 
-  body {
-    background: #fff !important;
+  body * {
+    visibility: hidden;
   }
 
-  .admin-hero,
-  .admin-overview,
-  .projects-admin-grid,
-  .ai-alerts-panel,
-  .hero-controls,
-  .edit-modal-head button,
-  .period-report-actions {
-    display: none !important;
+  #report-print,
+  #report-print * {
+    visibility: visible;
   }
 
-  .edit-modal-backdrop {
-    position: static !important;
-    inset: auto !important;
-    background: #fff !important;
-    display: block !important;
-    padding: 0 !important;
-  }
-
-  .edit-modal {
-    position: static !important;
-    width: 100% !important;
-    max-width: none !important;
-    box-shadow: none !important;
-    border: none !important;
-    background: #fff !important;
-    padding: 0 !important;
-  }
-
-  .period-report-modal,
-  .period-report-content,
-  .period-report-print {
-    display: block !important;
-    width: 100% !important;
-    background: #fff !important;
-    color: #062b24 !important;
+  #report-print {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    background: #fff;
+    padding: 20px;
+    direction: rtl;
   }
 
   table {
-    width: 100% !important;
-    border-collapse: collapse !important;
-    table-layout: fixed !important;
-    font-size: 10px !important;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
   }
 
-  th,
-  td {
-    border: 1px solid #d8c58b !important;
-    padding: 5px !important;
-    text-align: center !important;
-    white-space: normal !important;
-    word-break: break-word !important;
-    line-height: 1.4 !important;
+  th, td {
+    border: 1px solid #ccc;
+    padding: 6px;
+    text-align: center;
   }
 
-  th {
-    background: #f8f1dc !important;
-    font-weight: 900 !important;
-  }
-
-  h1,
-  h2,
-  h3,
-  p {
-    text-align: center !important;
-    margin: 6px 0 !important;
+  h2, h3, p {
+    text-align: center;
   }
 }
