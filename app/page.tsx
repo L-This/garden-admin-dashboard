@@ -414,8 +414,127 @@ export default function AdminHome() {
   }
 
   function printReportOnly() {
-    window.print();
+  const report = document.getElementById('report-print');
+
+  if (!report) {
+    alert('أنشئ التقرير أولًا');
+    return;
   }
+
+  const printWindow = window.open('', '_blank', 'width=1200,height=800');
+
+  if (!printWindow) {
+    alert('المتصفح منع فتح نافذة الطباعة');
+    return;
+  }
+
+  printWindow.document.write(`
+    <!doctype html>
+    <html lang="ar" dir="rtl">
+      <head>
+        <meta charset="utf-8" />
+        <title>تقرير ري الحدائق</title>
+        <style>
+          @page {
+            size: A4 landscape;
+            margin: 10mm;
+          }
+
+          body {
+            margin: 0;
+            padding: 0;
+            direction: rtl;
+            font-family: Arial, sans-serif;
+            color: #062b24;
+            background: white;
+          }
+
+          .period-report-print-area {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+          }
+
+          .period-report-head,
+          .fines-report-box h3 {
+            text-align: center;
+            margin-bottom: 14px;
+          }
+
+          .period-report-head h3 {
+            font-size: 24px;
+            margin: 0 0 6px;
+          }
+
+          .period-report-head p {
+            font-size: 14px;
+            margin: 0;
+            font-weight: 700;
+          }
+
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            margin: 12px 0 24px;
+            font-size: 11px;
+          }
+
+          th,
+          td {
+            border: 1px solid #d8c58b;
+            padding: 7px 5px;
+            text-align: center;
+            vertical-align: middle;
+            word-break: break-word;
+            line-height: 1.5;
+          }
+
+          th {
+            background: #f8f1dc;
+            font-weight: 900;
+          }
+
+          .fines-report-box {
+            page-break-before: always;
+            break-before: page;
+          }
+
+          .total-fines-card {
+            margin-top: 16px;
+            padding: 14px;
+            border: 2px solid #d8c58b;
+            text-align: center;
+            font-weight: 900;
+            font-size: 18px;
+          }
+
+          .total-fines-card strong {
+            color: #b91c1c;
+            display: block;
+            margin-top: 8px;
+            font-size: 24px;
+          }
+
+          .edit-modal-actions,
+          button {
+            display: none !important;
+          }
+        </style>
+      </head>
+      <body>
+        ${report.outerHTML}
+        <script>
+          window.onload = function () {
+            window.print();
+          };
+        </script>
+      </body>
+    </html>
+  `);
+
+  printWindow.document.close();
+}
 
   async function loadData() {
     setLoading(true);
