@@ -108,11 +108,22 @@ function statusLabel(status?: ReportStatus | null) {
   return 'تم الري';
 }
 
-function daysBetweenInclusive(from: string, to: string) {
+function workingDaysBetweenInclusive(from: string, to: string) {
   const start = new Date(`${from}T00:00:00`);
   const end = new Date(`${to}T00:00:00`);
+
   if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end < start) return 0;
-  return Math.floor((end.getTime() - start.getTime()) / 86400000) + 1;
+
+  let count = 0;
+  const current = new Date(start);
+
+  while (current <= end) {
+    const day = current.getDay(); // الجمعة = 5
+    if (day !== 5) count += 1;
+    current.setDate(current.getDate() + 1);
+  }
+
+  return count;
 }
 
 function formatMoney(value: number) {
@@ -332,7 +343,7 @@ export default function AdminHome() {
       return;
     }
 
-    const numberOfDays = daysBetweenInclusive(reportFromDate, reportToDate);
+    const numberOfDays = workingDaysBetweenInclusive(reportFromDate, reportToDate);
     if (!numberOfDays) {
       setReportError('تأكد أن تاريخ النهاية بعد تاريخ البداية.');
       return;
