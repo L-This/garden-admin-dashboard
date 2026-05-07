@@ -1436,7 +1436,7 @@ export default function AdminHome() {
 
                     {isManager && (
                       <div className="ai-alert-actions">
-                        {firstPhoto?.duplicate_of_photo_id && (
+                        {firstPhoto && String(report.ai_review_reason || report.ai_flags || '').includes('مكررة') && (
   <button onClick={() => openDuplicateViewer(firstPhoto)}>
     🔍 عرض الصورة المطابقة
   </button>
