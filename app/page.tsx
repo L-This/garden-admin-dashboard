@@ -1078,7 +1078,7 @@ export default function AdminHome() {
 
   const { data: oldPhoto } = await supabase
     .from("photos")
-    .select("id, report_id, file_url")
+    .select("id, report_id, file_url, duplicate_of_photo_id, duplicate_match_type, duplicate_match_score")
     .eq("id", photo.duplicate_of_photo_id)
     .single();
 
