@@ -1077,10 +1077,11 @@ export default function AdminHome() {
       .from("photos")
       .select("id")
       .eq("image_hash", photo.image_hash)
-      .neq("id", photo.id)
-      .order("created_at", { ascending: true })
-      .limit(1)
-      .single();
+.neq("id", photo.id)
+.neq("report_id", photo.report_id)
+.order("created_at", { ascending: true })
+.limit(1)
+.maybeSingle();
 
     duplicatePhotoId = matchedPhoto?.id || null;
   }
