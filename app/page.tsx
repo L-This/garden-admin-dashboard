@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
-type UserRole = 'مشرف' | 'مدير';
+type UserRole = "مشرف" | "مدير";
 
 type AdminUser = {
   id: string;
@@ -28,7 +28,11 @@ type Garden = {
   name: string;
 };
 
-type ReportStatus = 'watered' | 'not_watered' | 'insufficient' | 'sidewalk_runoff';
+type ReportStatus =
+  | "watered"
+  | "not_watered"
+  | "insufficient"
+  | "sidewalk_runoff";
 
 type Report = {
   id: string;
@@ -42,7 +46,13 @@ type Report = {
   insufficient_note?: string | null;
   sidewalk_runoff_note?: string | null;
   notes?: string | null;
-  ai_review_status?: 'pending' | 'passed' | 'needs_review' | 'rejected' | string | null;
+  ai_review_status?:
+    | "pending"
+    | "passed"
+    | "needs_review"
+    | "rejected"
+    | string
+    | null;
   ai_review_score?: number | null;
   ai_review_reason?: string | null;
   ai_flags?: unknown;
@@ -54,7 +64,12 @@ type Photo = {
   file_url: string;
 };
 
-type OpenSection = 'watered' | 'not_watered' | 'insufficient' | 'sidewalk' | null;
+type OpenSection =
+  | "watered"
+  | "not_watered"
+  | "insufficient"
+  | "sidewalk"
+  | null;
 
 type EditState = {
   garden: Garden;
@@ -65,6 +80,20 @@ type EditState = {
 type ContractorDraft = {
   manager_name: string;
   contractor_code: string;
+};
+
+type AuditLog = {
+  id: string;
+  report_id: string | null;
+  project_id: string | null;
+  garden_id: string | null;
+  action: string;
+  old_data: any;
+  new_data: any;
+  changed_by: string | null;
+  created_at: string;
+  undone: boolean | null;
+  undone_at: string | null;
 };
 
 type ReportSummaryRow = {
@@ -89,30 +118,35 @@ function today() {
 }
 
 function formatDateTime(value?: string | null) {
-  if (!value) return 'بدون وقت';
-  return new Date(value).toLocaleString('ar-SA');
+  if (!value) return "بدون وقت";
+  return new Date(value).toLocaleString("ar-SA");
 }
 
 function getReportStatus(report?: Report): ReportStatus | null {
   if (!report) return null;
   if (report.status) return report.status;
-  if (report.sidewalk_runoff) return 'sidewalk_runoff';
-  if (report.insufficient_watering) return 'insufficient';
-  return 'watered';
+  if (report.sidewalk_runoff) return "sidewalk_runoff";
+  if (report.insufficient_watering) return "insufficient";
+  return "watered";
 }
 
 function statusLabel(status?: ReportStatus | null) {
-  if (status === 'not_watered') return 'لم يتم الري';
-  if (status === 'insufficient') return 'عدم كفاية ري';
-  if (status === 'sidewalk_runoff') return 'خروج الري للرصيف';
-  return 'تم الري';
+  if (status === "not_watered") return "لم يتم الري";
+  if (status === "insufficient") return "عدم كفاية ري";
+  if (status === "sidewalk_runoff") return "خروج الري للرصيف";
+  return "تم الري";
 }
 
 function workingDaysBetweenInclusive(from: string, to: string) {
   const start = new Date(`${from}T00:00:00`);
   const end = new Date(`${to}T00:00:00`);
 
-  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end < start) return 0;
+  if (
+    Number.isNaN(start.getTime()) ||
+    Number.isNaN(end.getTime()) ||
+    end < start
+  )
+    return 0;
 
   let count = 0;
   const current = new Date(start);
@@ -126,23 +160,24 @@ function workingDaysBetweenInclusive(from: string, to: string) {
   return count;
 }
 
-
 function isFridayDate(dateValue: string) {
   return new Date(`${dateValue}T00:00:00`).getDay() === 5;
 }
 
 function formatMoney(value: number) {
-  return new Intl.NumberFormat('ar-SA').format(value);
+  return new Intl.NumberFormat("ar-SA").format(value);
 }
 
 export default function AdminHome() {
   const [user, setUser] = useState<AdminUser | null>(null);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [loginLoading, setLoginLoading] = useState(false);
 
-  const [passwordTarget, setPasswordTarget] = useState<'manager' | 'supervisor'>('supervisor');
-  const [newAdminPassword, setNewAdminPassword] = useState('');
+  const [passwordTarget, setPasswordTarget] = useState<
+    "manager" | "supervisor"
+  >("supervisor");
+  const [newAdminPassword, setNewAdminPassword] = useState("");
 
   const [projects, setProjects] = useState<Project[]>([]);
   const [gardens, setGardens] = useState<Garden[]>([]);
@@ -155,33 +190,45 @@ export default function AdminHome() {
   const [openSection, setOpenSection] = useState<OpenSection>(null);
 
   const [editState, setEditState] = useState<EditState | null>(null);
-  const [editStatus, setEditStatus] = useState<ReportStatus>('watered');
-  const [editNote, setEditNote] = useState('');
+  const [editStatus, setEditStatus] = useState<ReportStatus>("watered");
+  const [editNote, setEditNote] = useState("");
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [showContractorLinksModal, setShowContractorLinksModal] = useState(false);
-  const [contractorDrafts, setContractorDrafts] = useState<Record<string, ContractorDraft>>({});
-  const [savingContractorProjectId, setSavingContractorProjectId] = useState<string | null>(null);
+  const [showContractorLinksModal, setShowContractorLinksModal] =
+    useState(false);
+  const [contractorDrafts, setContractorDrafts] = useState<
+    Record<string, ContractorDraft>
+  >({});
+  const [savingContractorProjectId, setSavingContractorProjectId] = useState<
+    string | null
+  >(null);
   const [editPhotoUrls, setEditPhotoUrls] = useState<string[]>([]);
   const [editNewPhotoUrls, setEditNewPhotoUrls] = useState<string[]>([]);
   const [editUploading, setEditUploading] = useState(false);
-  const [editUploadFileName, setEditUploadFileName] = useState('');
+  const [editUploadFileName, setEditUploadFileName] = useState("");
   const [editSaving, setEditSaving] = useState(false);
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
 
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportFromDate, setReportFromDate] = useState(today());
   const [reportToDate, setReportToDate] = useState(today());
-  const [reportProjectId, setReportProjectId] = useState('');
+  const [reportProjectId, setReportProjectId] = useState("");
   const [reportLoading, setReportLoading] = useState(false);
-  const [reportError, setReportError] = useState('');
+  const [reportError, setReportError] = useState("");
   const [reportRows, setReportRows] = useState<ReportSummaryRow[]>([]);
   const [fineRows, setFineRows] = useState<FineRow[]>([]);
-  const [reportTitle, setReportTitle] = useState('');
+  const [reportTitle, setReportTitle] = useState("");
 
-  const isManager = user?.role === 'مدير';
+  const [showAuditModal, setShowAuditModal] = useState(false);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [auditLoading, setAuditLoading] = useState(false);
+  const [auditProjectFilter, setAuditProjectFilter] = useState("all");
+  const [auditDateFilter, setAuditDateFilter] = useState(today());
+  const [undoingAuditId, setUndoingAuditId] = useState<string | null>(null);
+
+  const isManager = user?.role === "مدير";
 
   useEffect(() => {
-    const saved = localStorage.getItem('adminUser');
+    const saved = localStorage.getItem("adminUser");
     if (saved) setUser(JSON.parse(saved));
   }, []);
 
@@ -195,8 +242,8 @@ export default function AdminHome() {
       projects.forEach((project) => {
         if (!next[project.id]) {
           next[project.id] = {
-            manager_name: project.manager_name || '',
-            contractor_code: project.contractor_code || '',
+            manager_name: project.manager_name || "",
+            contractor_code: project.contractor_code || "",
           };
         }
       });
@@ -212,72 +259,74 @@ export default function AdminHome() {
 
   async function login() {
     if (!username || !password) {
-      alert('اختر العضوية وأدخل كلمة المرور');
+      alert("اختر العضوية وأدخل كلمة المرور");
       return;
     }
 
     setLoginLoading(true);
 
     const { data, error } = await supabase
-      .from('admin_users')
-      .select('*')
-      .eq('username', username)
-      .eq('password', password)
-      .eq('active', true)
+      .from("admin_users")
+      .select("*")
+      .eq("username", username)
+      .eq("password", password)
+      .eq("active", true)
       .single();
 
     setLoginLoading(false);
 
     if (error || !data) {
-      alert('بيانات الدخول غير صحيحة');
+      alert("بيانات الدخول غير صحيحة");
       return;
     }
 
     setUser(data);
-    localStorage.setItem('adminUser', JSON.stringify(data));
+    localStorage.setItem("adminUser", JSON.stringify(data));
   }
 
   function logout() {
-    localStorage.removeItem('adminUser');
+    localStorage.removeItem("adminUser");
     setUser(null);
-    setUsername('');
-    setPassword('');
+    setUsername("");
+    setPassword("");
   }
 
   async function changeAdminPassword() {
     if (!isManager) return;
 
     if (!newAdminPassword.trim()) {
-      alert('اكتب كلمة المرور الجديدة');
+      alert("اكتب كلمة المرور الجديدة");
       return;
     }
 
     const { error } = await supabase
-      .from('admin_users')
+      .from("admin_users")
       .update({ password: newAdminPassword.trim() })
-      .eq('username', passwordTarget);
+      .eq("username", passwordTarget);
 
     if (error) {
-      alert('تعذر تغيير كلمة المرور: ' + error.message);
+      alert("تعذر تغيير كلمة المرور: " + error.message);
       return;
     }
 
-    alert('تم تغيير كلمة المرور بنجاح');
-    setNewAdminPassword('');
+    alert("تم تغيير كلمة المرور بنجاح");
+    setNewAdminPassword("");
   }
 
-
   function getContractorLink(project: Project) {
-    if (typeof window === 'undefined') return `/project/${project.slug}`;
+    if (typeof window === "undefined") return `/project/${project.slug}`;
     return `${window.location.origin}/project/${project.slug}`;
   }
 
-  function updateContractorDraft(projectId: string, patch: Partial<ContractorDraft>) {
+  function updateContractorDraft(
+    projectId: string,
+    patch: Partial<ContractorDraft>,
+  ) {
     setContractorDrafts((current) => ({
       ...current,
       [projectId]: {
-        manager_name: current[projectId]?.manager_name || '',
-        contractor_code: current[projectId]?.contractor_code || '',
+        manager_name: current[projectId]?.manager_name || "",
+        contractor_code: current[projectId]?.contractor_code || "",
         ...patch,
       },
     }));
@@ -290,75 +339,189 @@ export default function AdminHome() {
     if (!draft) return;
 
     if (!draft.manager_name.trim()) {
-      alert('اكتب اسم المسؤول لهذا المشروع');
+      alert("اكتب اسم المسؤول لهذا المشروع");
       return;
     }
 
     if (!draft.contractor_code.trim()) {
-      alert('اكتب رمز دخول المقاول لهذا المشروع');
+      alert("اكتب رمز دخول المقاول لهذا المشروع");
       return;
     }
 
     setSavingContractorProjectId(project.id);
 
     const { error } = await supabase
-      .from('projects')
+      .from("projects")
       .update({
         manager_name: draft.manager_name.trim(),
         contractor_code: draft.contractor_code.trim(),
       })
-      .eq('id', project.id);
+      .eq("id", project.id);
 
     setSavingContractorProjectId(null);
 
     if (error) {
-      alert('تعذر حفظ بيانات الرابط: ' + error.message);
+      alert("تعذر حفظ بيانات الرابط: " + error.message);
       return;
     }
 
     setProjects((current) =>
       current.map((item) =>
         item.id === project.id
-          ? { ...item, manager_name: draft.manager_name.trim(), contractor_code: draft.contractor_code.trim() }
-          : item
-      )
+          ? {
+              ...item,
+              manager_name: draft.manager_name.trim(),
+              contractor_code: draft.contractor_code.trim(),
+            }
+          : item,
+      ),
     );
 
-    alert('تم حفظ بيانات رابط المقاول');
+    alert("تم حفظ بيانات رابط المقاول");
   }
 
   async function copyContractorLink(project: Project) {
     const link = getContractorLink(project);
     try {
       await navigator.clipboard.writeText(link);
-      alert('تم نسخ رابط المشروع');
+      alert("تم نسخ رابط المشروع");
     } catch {
       alert(link);
     }
   }
 
+  async function writeAuditLog(params: {
+    reportId?: string | null;
+    projectId?: string | null;
+    gardenId?: string | null;
+    action: string;
+    oldData: any;
+    newData: any;
+  }) {
+    await supabase.from("admin_audit_logs").insert({
+      report_id: params.reportId || null,
+      project_id: params.projectId || null,
+      garden_id: params.gardenId || null,
+      action: params.action,
+      old_data: params.oldData,
+      new_data: params.newData,
+      changed_by: user?.username || "admin",
+    });
+  }
+
+  async function openAuditLogModal() {
+    setShowAuditModal(true);
+    await loadAuditLogs();
+  }
+
+  async function loadAuditLogs() {
+    setAuditLoading(true);
+
+    let query = supabase
+      .from("admin_audit_logs")
+      .select("*")
+      .gte("created_at", `${auditDateFilter}T00:00:00`)
+      .lte("created_at", `${auditDateFilter}T23:59:59`)
+      .order("created_at", { ascending: false });
+
+    if (auditProjectFilter !== "all") {
+      query = query.eq("project_id", auditProjectFilter);
+    }
+
+    const { data, error } = await query;
+    setAuditLoading(false);
+
+    if (error) {
+      alert("تعذر تحميل سجل التعديلات: " + error.message);
+      return;
+    }
+
+    setAuditLogs((data || []) as AuditLog[]);
+  }
+
+  function auditActionLabel(action: string) {
+    if (action === "approve_ai_review") return "اعتماد تحقق ذكي";
+    if (action === "escalate_ai_review") return "تسجيل مخالفة تحقق ذكي";
+    if (action === "update_report_status") return "تغيير حالة الري";
+    if (action === "save_edited_record") return "تعديل سجل الحديقة";
+    return action;
+  }
+
+  async function undoAuditLog(log: AuditLog) {
+    if (!isManager) return;
+
+    if (log.undone) {
+      alert("تم التراجع عن هذا التعديل مسبقًا");
+      return;
+    }
+
+    if (!log.report_id || !log.old_data) {
+      alert("لا يمكن التراجع عن هذا التعديل لعدم توفر بيانات قديمة");
+      return;
+    }
+
+    const ok = confirm(
+      "هل تريد التراجع عن هذا التعديل وإرجاع السجل للحالة السابقة؟",
+    );
+    if (!ok) return;
+
+    setUndoingAuditId(log.id);
+
+    const { error: updateError } = await supabase
+      .from("reports")
+      .update(log.old_data)
+      .eq("id", log.report_id);
+
+    if (updateError) {
+      setUndoingAuditId(null);
+      alert("تعذر التراجع: " + updateError.message);
+      return;
+    }
+
+    const { error: logError } = await supabase
+      .from("admin_audit_logs")
+      .update({ undone: true, undone_at: new Date().toISOString() })
+      .eq("id", log.id);
+
+    setUndoingAuditId(null);
+
+    if (logError) {
+      alert("تم التراجع، لكن تعذر تحديث سجل التعديلات: " + logError.message);
+    }
+
+    await loadData();
+    await loadAuditLogs();
+    alert("تم التراجع عن التعديل بنجاح");
+  }
 
   async function generatePeriodReport() {
-    setReportError('');
+    setReportError("");
     setReportRows([]);
     setFineRows([]);
 
     if (!reportFromDate || !reportToDate || !reportProjectId) {
-      setReportError('اختر الفترة والمشروع أولًا.');
+      setReportError("اختر الفترة والمشروع أولًا.");
       return;
     }
 
-    const numberOfDays = workingDaysBetweenInclusive(reportFromDate, reportToDate);
+    const numberOfDays = workingDaysBetweenInclusive(
+      reportFromDate,
+      reportToDate,
+    );
     if (!numberOfDays) {
-      setReportError('تأكد أن تاريخ النهاية بعد تاريخ البداية.');
+      setReportError("تأكد أن تاريخ النهاية بعد تاريخ البداية.");
       return;
     }
 
-    const selectedProject = projects.find((project) => project.id === reportProjectId);
-    const projectGardens = gardens.filter((garden) => garden.project_id === reportProjectId);
+    const selectedProject = projects.find(
+      (project) => project.id === reportProjectId,
+    );
+    const projectGardens = gardens.filter(
+      (garden) => garden.project_id === reportProjectId,
+    );
 
     if (!selectedProject || !projectGardens.length) {
-      setReportError('لا توجد حدائق لهذا المشروع.');
+      setReportError("لا توجد حدائق لهذا المشروع.");
       return;
     }
 
@@ -367,24 +530,38 @@ export default function AdminHome() {
     const gardenIds = projectGardens.map((garden) => garden.id);
 
     const { data, error } = await supabase
-      .from('reports')
-      .select('id, garden_id, report_date, status, insufficient_watering, sidewalk_runoff')
-      .gte('report_date', reportFromDate)
-      .lte('report_date', reportToDate)
-      .in('garden_id', gardenIds);
+      .from("reports")
+      .select(
+        "id, garden_id, report_date, status, insufficient_watering, sidewalk_runoff",
+      )
+      .gte("report_date", reportFromDate)
+      .lte("report_date", reportToDate)
+      .in("garden_id", gardenIds);
 
     setReportLoading(false);
 
     if (error) {
-      setReportError('تعذر إنشاء التقرير: ' + error.message);
+      setReportError("تعذر إنشاء التقرير: " + error.message);
       return;
     }
 
-    const reportsInPeriod = (data || []) as Pick<Report, 'id' | 'garden_id' | 'report_date' | 'status' | 'insufficient_watering' | 'sidewalk_runoff'>[];
+    const reportsInPeriod = (data || []) as Pick<
+      Report,
+      | "id"
+      | "garden_id"
+      | "report_date"
+      | "status"
+      | "insufficient_watering"
+      | "sidewalk_runoff"
+    >[];
 
     const rows: ReportSummaryRow[] = projectGardens.map((garden) => {
-      const gardenReports = reportsInPeriod.filter((report) => report.garden_id === garden.id);
-      const reportedDates = new Set(gardenReports.map((report) => report.report_date));
+      const gardenReports = reportsInPeriod.filter(
+        (report) => report.garden_id === garden.id,
+      );
+      const reportedDates = new Set(
+        gardenReports.map((report) => report.report_date),
+      );
 
       let watered = 0;
       let notWateredExplicit = 0;
@@ -393,9 +570,9 @@ export default function AdminHome() {
 
       gardenReports.forEach((report) => {
         const status = getReportStatus(report as Report);
-        if (status === 'not_watered') notWateredExplicit += 1;
-        else if (status === 'insufficient') insufficient += 1;
-        else if (status === 'sidewalk_runoff') sidewalk += 1;
+        if (status === "not_watered") notWateredExplicit += 1;
+        else if (status === "insufficient") insufficient += 1;
+        else if (status === "sidewalk_runoff") sidewalk += 1;
         else watered += 1;
       });
 
@@ -414,37 +591,57 @@ export default function AdminHome() {
     const fines: FineRow[] = [];
     rows.forEach((row) => {
       if (row.notWatered > 0) {
-        fines.push({ gardenName: row.gardenName, violationType: 'لم يتم الري', count: row.notWatered, fineAmount: 1000, total: row.notWatered * 1000 });
+        fines.push({
+          gardenName: row.gardenName,
+          violationType: "لم يتم الري",
+          count: row.notWatered,
+          fineAmount: 1000,
+          total: row.notWatered * 1000,
+        });
       }
       if (row.insufficient > 0) {
-        fines.push({ gardenName: row.gardenName, violationType: 'عدم كفاية ري', count: row.insufficient, fineAmount: 500, total: row.insufficient * 500 });
+        fines.push({
+          gardenName: row.gardenName,
+          violationType: "عدم كفاية ري",
+          count: row.insufficient,
+          fineAmount: 500,
+          total: row.insufficient * 500,
+        });
       }
       if (row.sidewalk > 0) {
-        fines.push({ gardenName: row.gardenName, violationType: 'خروج الري للرصيف', count: row.sidewalk, fineAmount: 300, total: row.sidewalk * 300 });
+        fines.push({
+          gardenName: row.gardenName,
+          violationType: "خروج الري للرصيف",
+          count: row.sidewalk,
+          fineAmount: 300,
+          total: row.sidewalk * 300,
+        });
       }
     });
 
     setReportRows(rows);
     setFineRows(fines);
-    setReportTitle(`${selectedProject.name} من ${reportFromDate} إلى ${reportToDate}`);
+    setReportTitle(
+      `${selectedProject.name} من ${reportFromDate} إلى ${reportToDate}`,
+    );
   }
 
   function printReportOnly() {
-  const report = document.getElementById('report-print');
+    const report = document.getElementById("report-print");
 
-  if (!report) {
-    alert('أنشئ التقرير أولًا');
-    return;
-  }
+    if (!report) {
+      alert("أنشئ التقرير أولًا");
+      return;
+    }
 
-  const printWindow = window.open('', '_blank', 'width=1200,height=800');
+    const printWindow = window.open("", "_blank", "width=1200,height=800");
 
-  if (!printWindow) {
-    alert('المتصفح منع فتح نافذة الطباعة');
-    return;
-  }
+    if (!printWindow) {
+      alert("المتصفح منع فتح نافذة الطباعة");
+      return;
+    }
 
-  printWindow.document.write(`
+    printWindow.document.write(`
     <!doctype html>
     <html lang="ar" dir="rtl">
       <head>
@@ -549,38 +746,38 @@ export default function AdminHome() {
     </html>
   `);
 
-  printWindow.document.close();
-}
+    printWindow.document.close();
+  }
 
   async function loadData() {
     setLoading(true);
 
     const { data: projectsData } = await supabase
-      .from('projects')
-      .select('id, slug, name, district, manager_name, contractor_code')
-      .order('created_at', { ascending: true });
+      .from("projects")
+      .select("id, slug, name, district, manager_name, contractor_code")
+      .order("created_at", { ascending: true });
 
     const { data: gardensData } = await supabase
-      .from('gardens')
-      .select('id, project_id, name')
-      .eq('active', true)
-      .order('created_at', { ascending: true });
+      .from("gardens")
+      .select("id, project_id, name")
+      .eq("active", true)
+      .order("created_at", { ascending: true });
 
     const { data: reportsData } = await supabase
-      .from('reports')
+      .from("reports")
       .select(
-        'id, garden_id, report_date, created_at, status, admin_note, insufficient_watering, sidewalk_runoff, insufficient_note, sidewalk_runoff_note, notes, ai_review_status, ai_review_score, ai_review_reason, ai_flags'
+        "id, garden_id, report_date, created_at, status, admin_note, insufficient_watering, sidewalk_runoff, insufficient_note, sidewalk_runoff_note, notes, ai_review_status, ai_review_score, ai_review_reason, ai_flags",
       )
-      .eq('report_date', selectedDate);
+      .eq("report_date", selectedDate);
 
     const reportIds = (reportsData || []).map((r) => r.id);
 
     let photosData: Photo[] = [];
     if (reportIds.length) {
       const { data } = await supabase
-        .from('photos')
-        .select('id, report_id, file_url')
-        .in('report_id', reportIds);
+        .from("photos")
+        .select("id, report_id, file_url")
+        .in("report_id", reportIds);
 
       photosData = data || [];
     }
@@ -609,23 +806,33 @@ export default function AdminHome() {
   function openEditRecord(garden: Garden, project: Project, report?: Report) {
     if (!isManager) return;
 
-    const currentStatus = getReportStatus(report) || 'not_watered';
-    const currentPhotos = report ? (photosByReportId.get(report.id) || []).map((photo) => photo.file_url) : [];
+    const currentStatus = getReportStatus(report) || "not_watered";
+    const currentPhotos = report
+      ? (photosByReportId.get(report.id) || []).map((photo) => photo.file_url)
+      : [];
 
     setEditState({ garden, project, report });
     setEditStatus(currentStatus);
-    setEditNote(report?.admin_note || report?.notes || report?.insufficient_note || report?.sidewalk_runoff_note || '');
+    setEditNote(
+      report?.admin_note ||
+        report?.notes ||
+        report?.insufficient_note ||
+        report?.sidewalk_runoff_note ||
+        "",
+    );
     setEditPhotoUrls(currentPhotos);
     setEditNewPhotoUrls([]);
-    setEditUploadFileName('');
+    setEditUploadFileName("");
   }
 
   function safeFileName(value: string) {
-    return value
-      .trim()
-      .replace(/[\\/:*?"<>|#%&{}$!'@+`=]/g, '-')
-      .replace(/\s+/g, '-')
-      .slice(0, 80) || 'garden';
+    return (
+      value
+        .trim()
+        .replace(/[\\/:*?"<>|#%&{}$!'@+`=]/g, "-")
+        .replace(/\s+/g, "-")
+        .slice(0, 80) || "garden"
+    );
   }
 
   async function uploadEditPhotos(files: FileList | File[]) {
@@ -635,31 +842,31 @@ export default function AdminHome() {
     if (!selectedFiles.length) return;
 
     setEditUploading(true);
-    setEditUploadFileName(selectedFiles.map((file) => file.name).join('، '));
+    setEditUploadFileName(selectedFiles.map((file) => file.name).join("، "));
 
     const uploadedUrls: string[] = [];
 
     for (const file of selectedFiles) {
-      const ext = file.name.split('.').pop() || 'jpg';
+      const ext = file.name.split(".").pop() || "jpg";
       const projectName = safeFileName(editState.project.name);
       const gardenName = safeFileName(editState.garden.name);
       const path = `${selectedDate}/${projectName}/${gardenName}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('garden-photos')
+        .from("garden-photos")
         .upload(path, file, {
-          cacheControl: '3600',
+          cacheControl: "3600",
           upsert: true,
         });
 
       if (uploadError) {
         setEditUploading(false);
-        alert('تعذر رفع الصورة: ' + uploadError.message);
+        alert("تعذر رفع الصورة: " + uploadError.message);
         return;
       }
 
       const { data } = supabase.storage
-        .from('garden-photos')
+        .from("garden-photos")
         .getPublicUrl(path);
 
       uploadedUrls.push(data.publicUrl);
@@ -675,15 +882,25 @@ export default function AdminHome() {
 
     setEditSaving(true);
 
+    const oldReport = editState.report
+      ? {
+          status: editState.report.status || null,
+          admin_note: editState.report.admin_note || null,
+          notes: editState.report.notes || null,
+          insufficient_watering: editState.report.insufficient_watering,
+          sidewalk_runoff: editState.report.sidewalk_runoff,
+        }
+      : null;
+
     const updatePayload = {
       garden_id: editState.garden.id,
       report_date: selectedDate,
       status: editStatus,
       admin_note: editNote.trim() || null,
       notes: editNote.trim() || null,
-      insufficient_watering: editStatus === 'insufficient',
-      sidewalk_runoff: editStatus === 'sidewalk_runoff',
-      reviewed_by: user?.username || 'admin',
+      insufficient_watering: editStatus === "insufficient",
+      sidewalk_runoff: editStatus === "sidewalk_runoff",
+      reviewed_by: user?.username || "admin",
       reviewed_at: new Date().toISOString(),
     };
 
@@ -691,25 +908,25 @@ export default function AdminHome() {
 
     if (reportId) {
       const { error } = await supabase
-        .from('reports')
+        .from("reports")
         .update(updatePayload)
-        .eq('id', reportId);
+        .eq("id", reportId);
 
       if (error) {
         setEditSaving(false);
-        alert('تعذر حفظ التعديل: ' + error.message);
+        alert("تعذر حفظ التعديل: " + error.message);
         return;
       }
     } else {
       const { data, error } = await supabase
-        .from('reports')
+        .from("reports")
         .insert(updatePayload)
-        .select('id')
+        .select("id")
         .single();
 
       if (error || !data) {
         setEditSaving(false);
-        alert('تعذر إنشاء السجل: ' + (error?.message || 'خطأ غير معروف'));
+        alert("تعذر إنشاء السجل: " + (error?.message || "خطأ غير معروف"));
         return;
       }
 
@@ -718,63 +935,122 @@ export default function AdminHome() {
 
     if (reportId && editNewPhotoUrls.length) {
       const { error } = await supabase
-        .from('photos')
-        .insert(editNewPhotoUrls.map((url) => ({ report_id: reportId, file_url: url })));
+        .from("photos")
+        .insert(
+          editNewPhotoUrls.map((url) => ({
+            report_id: reportId,
+            file_url: url,
+          })),
+        );
 
       if (error) {
         setEditSaving(false);
-        alert('تم حفظ السجل، لكن تعذر حفظ الصور: ' + error.message);
+        alert("تم حفظ السجل، لكن تعذر حفظ الصور: " + error.message);
         return;
       }
+    }
+
+    if (reportId) {
+      await writeAuditLog({
+        reportId,
+        projectId: editState.project.id,
+        gardenId: editState.garden.id,
+        action: "save_edited_record",
+        oldData: oldReport,
+        newData: updatePayload,
+      });
     }
 
     setEditSaving(false);
     setEditState(null);
     await loadData();
-    alert('تم حفظ التعديل بنجاح');
+    alert("تم حفظ التعديل بنجاح");
   }
 
   async function updateReportStatus(
     reportId: string,
-    status: 'watered' | 'not_watered' | 'insufficient' | 'sidewalk'
+    status: "watered" | "not_watered" | "insufficient" | "sidewalk",
   ) {
     if (!isManager) return;
 
-    const normalizedStatus: ReportStatus = status === 'sidewalk' ? 'sidewalk_runoff' : status;
+    const oldReport = reports.find((report) => report.id === reportId);
 
-    const { error } = await supabase.from('reports').update({
-      status: normalizedStatus,
-      insufficient_watering: normalizedStatus === 'insufficient',
-      sidewalk_runoff: normalizedStatus === 'sidewalk_runoff',
-      reviewed_by: user?.username || 'admin',
-      reviewed_at: new Date().toISOString(),
-    }).eq('id', reportId);
+    const normalizedStatus: ReportStatus =
+      status === "sidewalk" ? "sidewalk_runoff" : status;
+
+    const { error } = await supabase
+      .from("reports")
+      .update({
+        status: normalizedStatus,
+        insufficient_watering: normalizedStatus === "insufficient",
+        sidewalk_runoff: normalizedStatus === "sidewalk_runoff",
+        reviewed_by: user?.username || "admin",
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq("id", reportId);
 
     if (error) {
-      alert('تعذر تحديث الحالة: ' + error.message);
+      alert("تعذر تحديث الحالة: " + error.message);
       return;
+    }
+
+    if (oldReport) {
+      await writeAuditLog({
+        reportId,
+        gardenId: oldReport.garden_id,
+        action: "update_report_status",
+        oldData: {
+          status: oldReport.status || null,
+          insufficient_watering: oldReport.insufficient_watering,
+          sidewalk_runoff: oldReport.sidewalk_runoff,
+        },
+        newData: {
+          status: normalizedStatus,
+          insufficient_watering: normalizedStatus === "insufficient",
+          sidewalk_runoff: normalizedStatus === "sidewalk_runoff",
+        },
+      });
     }
 
     await loadData();
   }
 
-
   async function approveAiReview(reportId: string) {
     if (!isManager) return;
 
+    const oldReport = reports.find((report) => report.id === reportId);
+
     const { error } = await supabase
-      .from('reports')
+      .from("reports")
       .update({
-        ai_review_status: 'passed',
-        ai_review_reason: 'تم اعتماد الصورة يدويًا من لوحة الإدارة',
-        reviewed_by: user?.username || 'admin',
+        ai_review_status: "passed",
+        ai_review_reason: "تم اعتماد الصورة يدويًا من لوحة الإدارة",
+        reviewed_by: user?.username || "admin",
         reviewed_at: new Date().toISOString(),
       })
-      .eq('id', reportId);
+      .eq("id", reportId);
 
     if (error) {
-      alert('تعذر اعتماد التنبيه: ' + error.message);
+      alert("تعذر اعتماد التنبيه: " + error.message);
       return;
+    }
+
+    if (oldReport) {
+      await writeAuditLog({
+        reportId,
+        gardenId: oldReport.garden_id,
+        action: "approve_ai_review",
+        oldData: {
+          ai_review_status: oldReport.ai_review_status || null,
+          ai_review_reason: oldReport.ai_review_reason || null,
+          reviewed_by: null,
+          reviewed_at: null,
+        },
+        newData: {
+          ai_review_status: "passed",
+          ai_review_reason: "تم اعتماد الصورة يدويًا من لوحة الإدارة",
+        },
+      });
     }
 
     await loadData();
@@ -783,29 +1059,55 @@ export default function AdminHome() {
   async function escalateAiReview(report: Report) {
     if (!isManager) return;
 
-    const ok = confirm('سيتم اعتبار هذا السجل مخالفة وتحويل الحالة إلى لم يتم الري. هل أنت متأكد؟');
+    const ok = confirm(
+      "سيتم اعتبار هذا السجل مخالفة وتحويل الحالة إلى لم يتم الري. هل أنت متأكد؟",
+    );
     if (!ok) return;
 
-    const reason = report.ai_review_reason || 'اشتباه تحقق ذكي في الصورة';
+    const reason = report.ai_review_reason || "اشتباه تحقق ذكي في الصورة";
+
+    const oldData = {
+      ai_review_status: report.ai_review_status || null,
+      status: report.status || null,
+      insufficient_watering: report.insufficient_watering,
+      sidewalk_runoff: report.sidewalk_runoff,
+      admin_note: report.admin_note || null,
+      notes: report.notes || null,
+    };
 
     const { error } = await supabase
-      .from('reports')
+      .from("reports")
       .update({
-        ai_review_status: 'rejected',
-        status: 'not_watered',
+        ai_review_status: "rejected",
+        status: "not_watered",
         insufficient_watering: false,
         sidewalk_runoff: false,
         admin_note: `مخالفة تحقق ذكي: ${reason}`,
         notes: `مخالفة تحقق ذكي: ${reason}`,
-        reviewed_by: user?.username || 'admin',
+        reviewed_by: user?.username || "admin",
         reviewed_at: new Date().toISOString(),
       })
-      .eq('id', report.id);
+      .eq("id", report.id);
 
     if (error) {
-      alert('تعذر تصعيد المخالفة: ' + error.message);
+      alert("تعذر تصعيد المخالفة: " + error.message);
       return;
     }
+
+    await writeAuditLog({
+      reportId: report.id,
+      gardenId: report.garden_id,
+      action: "escalate_ai_review",
+      oldData,
+      newData: {
+        ai_review_status: "rejected",
+        status: "not_watered",
+        insufficient_watering: false,
+        sidewalk_runoff: false,
+        admin_note: `مخالفة تحقق ذكي: ${reason}`,
+        notes: `مخالفة تحقق ذكي: ${reason}`,
+      },
+    });
 
     await loadData();
   }
@@ -826,10 +1128,11 @@ export default function AdminHome() {
     return map;
   }, [photos]);
 
-
   const aiAlertReports = useMemo(() => {
-    return reports.filter((report) =>
-      report.ai_review_status === 'needs_review' || report.ai_review_status === 'rejected'
+    return reports.filter(
+      (report) =>
+        report.ai_review_status === "needs_review" ||
+        report.ai_review_status === "rejected",
     );
   }, [reports]);
 
@@ -842,17 +1145,28 @@ export default function AdminHome() {
   }
 
   const wateredGardenIds = useMemo(
-    () => new Set(reports.filter((report) => getReportStatus(report) !== 'not_watered').map((report) => report.garden_id)),
-    [reports]
+    () =>
+      new Set(
+        reports
+          .filter((report) => getReportStatus(report) !== "not_watered")
+          .map((report) => report.garden_id),
+      ),
+    [reports],
   );
 
   const totals = useMemo(() => {
     const friday = isFridayDate(selectedDate);
     const totalGardens = gardens.length;
-    const watered = friday ? 0 : gardens.filter((garden) => wateredGardenIds.has(garden.id)).length;
+    const watered = friday
+      ? 0
+      : gardens.filter((garden) => wateredGardenIds.has(garden.id)).length;
     const notWatered = friday ? 0 : totalGardens - watered;
-    const insufficient = friday ? 0 : reports.filter((r) => getReportStatus(r) === 'insufficient').length;
-    const sidewalk = friday ? 0 : reports.filter((r) => getReportStatus(r) === 'sidewalk_runoff').length;
+    const insufficient = friday
+      ? 0
+      : reports.filter((r) => getReportStatus(r) === "insufficient").length;
+    const sidewalk = friday
+      ? 0
+      : reports.filter((r) => getReportStatus(r) === "sidewalk_runoff").length;
 
     return { totalGardens, watered, notWatered, insufficient, sidewalk };
   }, [gardens, wateredGardenIds, reports, selectedDate]);
@@ -874,7 +1188,7 @@ export default function AdminHome() {
             value={username}
             onChange={(e) => {
               setUsername(e.target.value);
-              setPassword('');
+              setPassword("");
             }}
           >
             <option value="">اختر العضوية</option>
@@ -891,7 +1205,9 @@ export default function AdminHome() {
             />
           )}
 
-          <button type="submit">{loginLoading ? 'جارٍ الدخول...' : 'دخول'}</button>
+          <button type="submit">
+            {loginLoading ? "جارٍ الدخول..." : "دخول"}
+          </button>
 
           <div className="login-help">
             <p>منصة إدارية مخصصة للمستخدمين المعتمدين فقط.</p>
@@ -922,24 +1238,57 @@ export default function AdminHome() {
           </label>
 
           <button onClick={loadData}>↻ تحديث البيانات</button>
-          <button onClick={() => setShowReportModal(true)}>📊 إعداد تقرير</button>
+          <button onClick={() => setShowReportModal(true)}>
+            📊 إعداد تقرير
+          </button>
           {isManager && (
-            <button onClick={() => setShowPasswordModal(true)}>⚿ إدارة كلمة المرور</button>
+            <button onClick={openAuditLogModal}>↩ سجل التعديلات</button>
           )}
           {isManager && (
-            <button onClick={() => setShowContractorLinksModal(true)}>🔗 روابط المقاولين</button>
+            <button onClick={() => setShowPasswordModal(true)}>
+              ⚿ إدارة كلمة المرور
+            </button>
+          )}
+          {isManager && (
+            <button onClick={() => setShowContractorLinksModal(true)}>
+              🔗 روابط المقاولين
+            </button>
           )}
           <button onClick={logout}>↩ خروج</button>
         </div>
       </section>
 
       <section className="admin-overview">
-        <div><span>إجمالي الحدائق</span><strong>{totals.totalGardens}</strong><em>◌</em></div>
-        <div><span>تم ريها</span><strong>{totals.watered}</strong><em>♢</em></div>
-        <div><span>لم يتم ريها</span><strong>{totals.notWatered}</strong><em>⌁</em></div>
-        <div><span>عدم كفاية ري</span><strong>{totals.insufficient}</strong><em>−</em></div>
-        <div><span>خروج الري للرصيف</span><strong>{totals.sidewalk}</strong><em>↪</em></div>
-        <div className="ai-overview-card"><span>تنبيهات التحقق الذكي</span><strong>{aiAlertReports.length}</strong><em>⚠</em></div>
+        <div>
+          <span>إجمالي الحدائق</span>
+          <strong>{totals.totalGardens}</strong>
+          <em>◌</em>
+        </div>
+        <div>
+          <span>تم ريها</span>
+          <strong>{totals.watered}</strong>
+          <em>♢</em>
+        </div>
+        <div>
+          <span>لم يتم ريها</span>
+          <strong>{totals.notWatered}</strong>
+          <em>⌁</em>
+        </div>
+        <div>
+          <span>عدم كفاية ري</span>
+          <strong>{totals.insufficient}</strong>
+          <em>−</em>
+        </div>
+        <div>
+          <span>خروج الري للرصيف</span>
+          <strong>{totals.sidewalk}</strong>
+          <em>↪</em>
+        </div>
+        <div className="ai-overview-card">
+          <span>تنبيهات التحقق الذكي</span>
+          <strong>{aiAlertReports.length}</strong>
+          <em>⚠</em>
+        </div>
       </section>
 
       {isFridayDate(selectedDate) && (
@@ -949,14 +1298,16 @@ export default function AdminHome() {
         </section>
       )}
 
-
       {aiAlertReports.length > 0 && (
         <section className="ai-alerts-panel">
           <div className="ai-alerts-head">
             <div>
               <span>مركز التحقق الذكي</span>
               <h2>تنبيهات الصور المشكوك فيها</h2>
-              <p>يعرض السجلات التي تحتاج مراجعة أو تم رفضها آليًا حسب نتيجة التحقق الذكي.</p>
+              <p>
+                يعرض السجلات التي تحتاج مراجعة أو تم رفضها آليًا حسب نتيجة
+                التحقق الذكي.
+              </p>
             </div>
             <strong>{aiAlertReports.length}</strong>
           </div>
@@ -964,19 +1315,31 @@ export default function AdminHome() {
           <div className="ai-alerts-grid">
             {aiAlertReports.map((report) => {
               const garden = getGardenById(report.garden_id);
-              const project = garden ? getProjectById(garden.project_id) : undefined;
+              const project = garden
+                ? getProjectById(garden.project_id)
+                : undefined;
               const reportPhotos = photosByReportId.get(report.id) || [];
               const firstPhoto = reportPhotos[0];
-              const score = typeof report.ai_review_score === 'number'
-                ? `${Math.round(report.ai_review_score * 100)}%`
-                : 'غير محدد';
+              const score =
+                typeof report.ai_review_score === "number"
+                  ? `${Math.round(report.ai_review_score * 100)}%`
+                  : "غير محدد";
 
               return (
-                <article key={report.id} className={`ai-alert-card ${report.ai_review_status === 'rejected' ? 'rejected' : 'review'}`}>
+                <article
+                  key={report.id}
+                  className={`ai-alert-card ${report.ai_review_status === "rejected" ? "rejected" : "review"}`}
+                >
                   <div className="ai-alert-image">
                     {firstPhoto?.file_url ? (
-                      <button type="button" onClick={() => setPreviewImageUrl(firstPhoto.file_url)}>
-                        <img src={firstPhoto.file_url} alt={garden?.name || 'صورة التحقق'} />
+                      <button
+                        type="button"
+                        onClick={() => setPreviewImageUrl(firstPhoto.file_url)}
+                      >
+                        <img
+                          src={firstPhoto.file_url}
+                          alt={garden?.name || "صورة التحقق"}
+                        />
                         <span>معاينة</span>
                       </button>
                     ) : (
@@ -986,20 +1349,38 @@ export default function AdminHome() {
 
                   <div className="ai-alert-content">
                     <div className="ai-alert-title-row">
-                      <h3>{garden?.name || 'حديقة غير معروفة'}</h3>
-                      <span>{report.ai_review_status === 'rejected' ? 'مرفوض' : 'يحتاج مراجعة'}</span>
+                      <h3>{garden?.name || "حديقة غير معروفة"}</h3>
+                      <span>
+                        {report.ai_review_status === "rejected"
+                          ? "مرفوض"
+                          : "يحتاج مراجعة"}
+                      </span>
                     </div>
-                    <p>{project?.name || 'مشروع غير معروف'}</p>
+                    <p>{project?.name || "مشروع غير معروف"}</p>
                     <ul>
-                      <li>درجة الثقة: <strong>{score}</strong></li>
-                      <li>الوقت: <strong>{formatDateTime(report.created_at)}</strong></li>
-                      <li>السبب: <strong>{report.ai_review_reason || 'لم يتم تسجيل سبب تفصيلي'}</strong></li>
+                      <li>
+                        درجة الثقة: <strong>{score}</strong>
+                      </li>
+                      <li>
+                        الوقت:{" "}
+                        <strong>{formatDateTime(report.created_at)}</strong>
+                      </li>
+                      <li>
+                        السبب:{" "}
+                        <strong>
+                          {report.ai_review_reason || "لم يتم تسجيل سبب تفصيلي"}
+                        </strong>
+                      </li>
                     </ul>
 
                     {isManager && (
                       <div className="ai-alert-actions">
-                        <button onClick={() => approveAiReview(report.id)}>اعتماد الصورة</button>
-                        <button onClick={() => escalateAiReview(report)}>تسجيل مخالفة</button>
+                        <button onClick={() => approveAiReview(report.id)}>
+                          اعتماد الصورة
+                        </button>
+                        <button onClick={() => escalateAiReview(report)}>
+                          تسجيل مخالفة
+                        </button>
                       </div>
                     )}
                   </div>
@@ -1015,82 +1396,135 @@ export default function AdminHome() {
       ) : (
         <section className="projects-admin-grid">
           {projects.map((project) => {
-            const projectGardens = gardens.filter((garden) => garden.project_id === project.id);
+            const projectGardens = gardens.filter(
+              (garden) => garden.project_id === project.id,
+            );
             const friday = isFridayDate(selectedDate);
-            const wateredGardens = friday ? [] : projectGardens.filter((garden) => wateredGardenIds.has(garden.id));
-            const notWateredGardens = friday ? [] : projectGardens.filter((garden) => !wateredGardenIds.has(garden.id));
+            const wateredGardens = friday
+              ? []
+              : projectGardens.filter((garden) =>
+                  wateredGardenIds.has(garden.id),
+                );
+            const notWateredGardens = friday
+              ? []
+              : projectGardens.filter(
+                  (garden) => !wateredGardenIds.has(garden.id),
+                );
 
             const insufficientGardens = wateredGardens.filter((garden) => {
               const report = reportByGardenId.get(garden.id);
-              return getReportStatus(report) === 'insufficient';
+              return getReportStatus(report) === "insufficient";
             });
 
             const sidewalkGardens = wateredGardens.filter((garden) => {
               const report = reportByGardenId.get(garden.id);
-              return getReportStatus(report) === 'sidewalk_runoff';
+              return getReportStatus(report) === "sidewalk_runoff";
             });
 
             const isOpen = openProjectId === project.id;
 
             return (
-              <article key={project.id} className="admin-project-card project-click-card">
-                <div className="project-header" onClick={() => openProject(project.id)}>
-                  <div className="project-number-badge">{wateredGardens.length}</div>
+              <article
+                key={project.id}
+                className="admin-project-card project-click-card"
+              >
+                <div
+                  className="project-header"
+                  onClick={() => openProject(project.id)}
+                >
+                  <div className="project-number-badge">
+                    {wateredGardens.length}
+                  </div>
                   <div>
                     <h2>{project.name}</h2>
-                    <p>{project.district || 'بدون نطاق'}</p>
+                    <p>{project.district || "بدون نطاق"}</p>
                   </div>
                 </div>
 
-                <div className="project-daily-meter" aria-label="مؤشر حالة الري اليومي">
+                <div
+                  className="project-daily-meter"
+                  aria-label="مؤشر حالة الري اليومي"
+                >
                   <div className="meter-track">
                     <span
                       className="meter-segment meter-watered"
-                      style={{ width: `${projectGardens.length ? (wateredGardens.length / projectGardens.length) * 100 : 0}%` }}
+                      style={{
+                        width: `${projectGardens.length ? (wateredGardens.length / projectGardens.length) * 100 : 0}%`,
+                      }}
                     />
                     <span
                       className="meter-segment meter-not-watered"
-                      style={{ width: `${projectGardens.length ? (notWateredGardens.length / projectGardens.length) * 100 : 0}%` }}
+                      style={{
+                        width: `${projectGardens.length ? (notWateredGardens.length / projectGardens.length) * 100 : 0}%`,
+                      }}
                     />
                     <span
                       className="meter-segment meter-insufficient"
-                      style={{ width: `${projectGardens.length ? (insufficientGardens.length / projectGardens.length) * 100 : 0}%` }}
+                      style={{
+                        width: `${projectGardens.length ? (insufficientGardens.length / projectGardens.length) * 100 : 0}%`,
+                      }}
                     />
                     <span
                       className="meter-segment meter-sidewalk"
-                      style={{ width: `${projectGardens.length ? (sidewalkGardens.length / projectGardens.length) * 100 : 0}%` }}
+                      style={{
+                        width: `${projectGardens.length ? (sidewalkGardens.length / projectGardens.length) * 100 : 0}%`,
+                      }}
                     />
                   </div>
                   <div className="meter-legend">
-                    <span><i className="legend-watered" />تم الري {wateredGardens.length}</span>
-                    <span><i className="legend-not-watered" />لم يتم {notWateredGardens.length}</span>
-                    <span><i className="legend-insufficient" />عدم كفاية {insufficientGardens.length}</span>
-                    <span><i className="legend-sidewalk" />خروج للرصيف {sidewalkGardens.length}</span>
+                    <span>
+                      <i className="legend-watered" />
+                      تم الري {wateredGardens.length}
+                    </span>
+                    <span>
+                      <i className="legend-not-watered" />
+                      لم يتم {notWateredGardens.length}
+                    </span>
+                    <span>
+                      <i className="legend-insufficient" />
+                      عدم كفاية {insufficientGardens.length}
+                    </span>
+                    <span>
+                      <i className="legend-sidewalk" />
+                      خروج للرصيف {sidewalkGardens.length}
+                    </span>
                   </div>
                 </div>
 
                 {isOpen && (
                   <>
                     <div className="project-stats">
-                      <button className="stat-button" onClick={() => toggleSection('watered')}>
+                      <button
+                        className="stat-button"
+                        onClick={() => toggleSection("watered")}
+                      >
                         <span>تم ريها</span>
                         <strong>{wateredGardens.length}</strong>
                       </button>
-                      <button className="stat-button" onClick={() => toggleSection('not_watered')}>
+                      <button
+                        className="stat-button"
+                        onClick={() => toggleSection("not_watered")}
+                      >
                         <span>لم يتم ريها</span>
                         <strong>{notWateredGardens.length}</strong>
                       </button>
-                      <button className="stat-button" onClick={() => toggleSection('insufficient')}>
+                      <button
+                        className="stat-button"
+                        onClick={() => toggleSection("insufficient")}
+                      >
                         <span>عدم كفاية ري</span>
                         <strong>{insufficientGardens.length}</strong>
                       </button>
-                      <button className="stat-button" onClick={() => toggleSection('sidewalk')}>
+                      <button
+                        className="stat-button"
+                        onClick={() => toggleSection("sidewalk")}
+                      >
                         <span>خروج الري للرصيف</span>
                         <strong>{sidewalkGardens.length}</strong>
                       </button>
                     </div>
 
-                    {openSection === 'watered' && (
+                    {openSection === "watered" && (
                       <section className="details-section">
                         <h3>تفاصيل الحدائق التي تم ريها</h3>
 
@@ -1100,7 +1534,8 @@ export default function AdminHome() {
                               const report = reportByGardenId.get(garden.id);
                               if (!report) return null;
 
-                              const reportPhotos = photosByReportId.get(report.id) || [];
+                              const reportPhotos =
+                                photosByReportId.get(report.id) || [];
                               const currentStatus = getReportStatus(report);
 
                               return (
@@ -1108,7 +1543,9 @@ export default function AdminHome() {
                                   {isManager && (
                                     <button
                                       className="card-more-btn"
-                                      onClick={() => openEditRecord(garden, project, report)}
+                                      onClick={() =>
+                                        openEditRecord(garden, project, report)
+                                      }
                                       title="تعديل السجل"
                                     >
                                       ⋮
@@ -1121,15 +1558,20 @@ export default function AdminHome() {
                                   </div>
 
                                   <div className="report-meta">
-                                    <p>التاريخ/الوقت: {formatDateTime(report.created_at)}</p>
-                                    <p>حالة الري: {statusLabel(currentStatus)}</p>
                                     <p>
-                                      الملاحظات:{' '}
+                                      التاريخ/الوقت:{" "}
+                                      {formatDateTime(report.created_at)}
+                                    </p>
+                                    <p>
+                                      حالة الري: {statusLabel(currentStatus)}
+                                    </p>
+                                    <p>
+                                      الملاحظات:{" "}
                                       {report.admin_note ||
                                         report.notes ||
                                         report.insufficient_note ||
                                         report.sidewalk_runoff_note ||
-                                        'لا توجد'}
+                                        "لا توجد"}
                                     </p>
                                   </div>
 
@@ -1139,25 +1581,71 @@ export default function AdminHome() {
                                         <button
                                           type="button"
                                           className="report-photo-preview-btn"
-                                          key={photo.id || `${photo.file_url}-${index}`}
-                                          onClick={() => setPreviewImageUrl(photo.file_url)}
+                                          key={
+                                            photo.id ||
+                                            `${photo.file_url}-${index}`
+                                          }
+                                          onClick={() =>
+                                            setPreviewImageUrl(photo.file_url)
+                                          }
                                           title="معاينة الصورة بالحجم الكامل"
                                         >
-                                          <img src={photo.file_url} alt={`${garden.name} ${index + 1}`} />
+                                          <img
+                                            src={photo.file_url}
+                                            alt={`${garden.name} ${index + 1}`}
+                                          />
                                           <span>تكبير الصورة</span>
                                         </button>
                                       ))
                                     ) : (
-                                      <div className="no-image">لا توجد صورة</div>
+                                      <div className="no-image">
+                                        لا توجد صورة
+                                      </div>
                                     )}
                                   </div>
 
                                   {isManager && (
                                     <div className="report-actions-4">
-                                      <button onClick={() => updateReportStatus(report.id, 'watered')}>تم الري</button>
-                                      <button onClick={() => updateReportStatus(report.id, 'not_watered')}>لم يتم الري</button>
-                                      <button onClick={() => updateReportStatus(report.id, 'insufficient')}>عدم كفاية ري</button>
-                                      <button onClick={() => updateReportStatus(report.id, 'sidewalk')}>خروج الري للرصيف</button>
+                                      <button
+                                        onClick={() =>
+                                          updateReportStatus(
+                                            report.id,
+                                            "watered",
+                                          )
+                                        }
+                                      >
+                                        تم الري
+                                      </button>
+                                      <button
+                                        onClick={() =>
+                                          updateReportStatus(
+                                            report.id,
+                                            "not_watered",
+                                          )
+                                        }
+                                      >
+                                        لم يتم الري
+                                      </button>
+                                      <button
+                                        onClick={() =>
+                                          updateReportStatus(
+                                            report.id,
+                                            "insufficient",
+                                          )
+                                        }
+                                      >
+                                        عدم كفاية ري
+                                      </button>
+                                      <button
+                                        onClick={() =>
+                                          updateReportStatus(
+                                            report.id,
+                                            "sidewalk",
+                                          )
+                                        }
+                                      >
+                                        خروج الري للرصيف
+                                      </button>
                                     </div>
                                   )}
                                 </div>
@@ -1165,12 +1653,14 @@ export default function AdminHome() {
                             })}
                           </div>
                         ) : (
-                          <p className="empty-list">لا توجد تسجيلات ري لهذا اليوم</p>
+                          <p className="empty-list">
+                            لا توجد تسجيلات ري لهذا اليوم
+                          </p>
                         )}
                       </section>
                     )}
 
-                    {openSection === 'not_watered' && (
+                    {openSection === "not_watered" && (
                       <section className="details-section">
                         <h3>الحدائق التي لم يتم ريها</h3>
                         {notWateredGardens.length ? (
@@ -1178,11 +1668,22 @@ export default function AdminHome() {
                             {notWateredGardens.map((garden) => {
                               const report = reportByGardenId.get(garden.id);
                               return (
-                                <div className="not-watered-card" key={garden.id}>
+                                <div
+                                  className="not-watered-card"
+                                  key={garden.id}
+                                >
                                   <strong>{garden.name}</strong>
-                                  <span>{report?.admin_note || report?.notes || 'لا توجد ملاحظات'}</span>
+                                  <span>
+                                    {report?.admin_note ||
+                                      report?.notes ||
+                                      "لا توجد ملاحظات"}
+                                  </span>
                                   {isManager && (
-                                    <button onClick={() => openEditRecord(garden, project, report)}>
+                                    <button
+                                      onClick={() =>
+                                        openEditRecord(garden, project, report)
+                                      }
+                                    >
                                       تعديل السجل
                                     </button>
                                   )}
@@ -1191,29 +1692,43 @@ export default function AdminHome() {
                             })}
                           </div>
                         ) : (
-                          <p className="all-done">تم ري جميع حدائق المشروع في هذا اليوم</p>
+                          <p className="all-done">
+                            تم ري جميع حدائق المشروع في هذا اليوم
+                          </p>
                         )}
                       </section>
                     )}
 
-                    {openSection === 'insufficient' && (
+                    {openSection === "insufficient" && (
                       <section className="details-section">
                         <h3>الحدائق عليها عدم كفاية ري</h3>
                         {insufficientGardens.length ? (
-                          <ul>{insufficientGardens.map((garden) => <li key={garden.id}>{garden.name}</li>)}</ul>
+                          <ul>
+                            {insufficientGardens.map((garden) => (
+                              <li key={garden.id}>{garden.name}</li>
+                            ))}
+                          </ul>
                         ) : (
-                          <p className="empty-list">لا توجد حدائق عليها عدم كفاية ري</p>
+                          <p className="empty-list">
+                            لا توجد حدائق عليها عدم كفاية ري
+                          </p>
                         )}
                       </section>
                     )}
 
-                    {openSection === 'sidewalk' && (
+                    {openSection === "sidewalk" && (
                       <section className="details-section">
                         <h3>الحدائق عليها خروج ري للرصيف</h3>
                         {sidewalkGardens.length ? (
-                          <ul>{sidewalkGardens.map((garden) => <li key={garden.id}>{garden.name}</li>)}</ul>
+                          <ul>
+                            {sidewalkGardens.map((garden) => (
+                              <li key={garden.id}>{garden.name}</li>
+                            ))}
+                          </ul>
                         ) : (
-                          <p className="empty-list">لا توجد حدائق عليها خروج ري للرصيف</p>
+                          <p className="empty-list">
+                            لا توجد حدائق عليها خروج ري للرصيف
+                          </p>
                         )}
                       </section>
                     )}
@@ -1225,11 +1740,123 @@ export default function AdminHome() {
         </section>
       )}
 
+      {showAuditModal && isManager && (
+        <div
+          className="edit-modal-backdrop"
+          onClick={() => setShowAuditModal(false)}
+        >
+          <section
+            className="edit-modal audit-modal"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="edit-modal-head">
+              <h2>سجل التعديلات والتراجع</h2>
+              <button onClick={() => setShowAuditModal(false)}>×</button>
+            </div>
 
+            <p className="edit-modal-subtitle">
+              راجع تعديلات اليوم أو مشروع محدد، ثم اضغط تراجع لإعادة السجل إلى
+              حالته السابقة.
+            </p>
+
+            <div className="audit-filters-grid">
+              <label>
+                <span>تاريخ التعديل</span>
+                <input
+                  type="date"
+                  value={auditDateFilter}
+                  onChange={(e) => setAuditDateFilter(e.target.value)}
+                />
+              </label>
+
+              <label>
+                <span>المشروع</span>
+                <select
+                  value={auditProjectFilter}
+                  onChange={(e) => setAuditProjectFilter(e.target.value)}
+                >
+                  <option value="all">كل المشاريع</option>
+                  {projects.map((project) => (
+                    <option key={project.id} value={project.id}>
+                      {project.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <button
+                className="audit-refresh-btn"
+                onClick={loadAuditLogs}
+                disabled={auditLoading}
+              >
+                {auditLoading ? "جارٍ التحميل..." : "عرض السجل"}
+              </button>
+            </div>
+
+            <div className="audit-list">
+              {auditLogs.length ? (
+                auditLogs.map((log) => {
+                  const garden = log.garden_id
+                    ? getGardenById(log.garden_id)
+                    : undefined;
+                  const project = log.project_id
+                    ? getProjectById(log.project_id)
+                    : undefined;
+
+                  return (
+                    <article
+                      className={`audit-card ${log.undone ? "undone" : ""}`}
+                      key={log.id}
+                    >
+                      <div>
+                        <h3>{auditActionLabel(log.action)}</h3>
+                        <p>
+                          {project?.name || "مشروع غير محدد"} /{" "}
+                          {garden?.name || "حديقة غير محددة"}
+                        </p>
+                        <small>
+                          {formatDateTime(log.created_at)} — بواسطة{" "}
+                          {log.changed_by || "غير محدد"}
+                        </small>
+                        {log.undone && (
+                          <strong className="audit-undone-label">
+                            تم التراجع
+                          </strong>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={() => undoAuditLog(log)}
+                        disabled={
+                          Boolean(log.undone) || undoingAuditId === log.id
+                        }
+                      >
+                        {undoingAuditId === log.id
+                          ? "جارٍ التراجع..."
+                          : "تراجع"}
+                      </button>
+                    </article>
+                  );
+                })
+              ) : (
+                <p className="empty-list">
+                  لا توجد تعديلات مسجلة لهذا اليوم أو المشروع.
+                </p>
+              )}
+            </div>
+          </section>
+        </div>
+      )}
 
       {showReportModal && (
-        <div className="edit-modal-backdrop" onClick={() => setShowReportModal(false)}>
-          <section className="edit-modal report-modal" onClick={(event) => event.stopPropagation()}>
+        <div
+          className="edit-modal-backdrop"
+          onClick={() => setShowReportModal(false)}
+        >
+          <section
+            className="edit-modal report-modal"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="edit-modal-head">
               <h2>إعداد تقرير الفترة</h2>
               <button onClick={() => setShowReportModal(false)}>×</button>
@@ -1242,19 +1869,32 @@ export default function AdminHome() {
             <div className="report-filters-grid">
               <label>
                 <span>من تاريخ</span>
-                <input type="date" value={reportFromDate} onChange={(e) => setReportFromDate(e.target.value)} />
+                <input
+                  type="date"
+                  value={reportFromDate}
+                  onChange={(e) => setReportFromDate(e.target.value)}
+                />
               </label>
 
               <label>
                 <span>إلى تاريخ</span>
-                <input type="date" value={reportToDate} onChange={(e) => setReportToDate(e.target.value)} />
+                <input
+                  type="date"
+                  value={reportToDate}
+                  onChange={(e) => setReportToDate(e.target.value)}
+                />
               </label>
 
               <label>
                 <span>المشروع</span>
-                <select value={reportProjectId} onChange={(e) => setReportProjectId(e.target.value)}>
+                <select
+                  value={reportProjectId}
+                  onChange={(e) => setReportProjectId(e.target.value)}
+                >
                   {projects.map((project) => (
-                    <option key={project.id} value={project.id}>{project.name}</option>
+                    <option key={project.id} value={project.id}>
+                      {project.name}
+                    </option>
                   ))}
                 </select>
               </label>
@@ -1262,11 +1902,11 @@ export default function AdminHome() {
 
             <div className="edit-modal-actions">
               <button onClick={generatePeriodReport} disabled={reportLoading}>
-                {reportLoading ? 'جارٍ إنشاء التقرير...' : 'إنشاء التقرير'}
+                {reportLoading ? "جارٍ إنشاء التقرير..." : "إنشاء التقرير"}
               </button>
               <button onClick={printReportOnly} disabled={!reportRows.length}>
-  📄 تحميل التقرير الرسمي PDF
-</button>
+                📄 تحميل التقرير الرسمي PDF
+              </button>
             </div>
 
             {reportError && <p className="report-error">{reportError}</p>}
@@ -1319,7 +1959,9 @@ export default function AdminHome() {
                       <tbody>
                         {fineRows.length ? (
                           fineRows.map((row, index) => (
-                            <tr key={`${row.gardenName}-${row.violationType}-${index}`}>
+                            <tr
+                              key={`${row.gardenName}-${row.violationType}-${index}`}
+                            >
                               <td>{row.gardenName}</td>
                               <td>{row.violationType}</td>
                               <td>{row.count}</td>
@@ -1329,7 +1971,9 @@ export default function AdminHome() {
                           ))
                         ) : (
                           <tr>
-                            <td colSpan={5}>لا توجد غرامات خلال الفترة المحددة</td>
+                            <td colSpan={5}>
+                              لا توجد غرامات خلال الفترة المحددة
+                            </td>
                           </tr>
                         )}
                       </tbody>
@@ -1338,7 +1982,12 @@ export default function AdminHome() {
 
                   <div className="total-fines-card">
                     <span>إجمالي الغرامات لكافة الحدائق</span>
-                    <strong>{formatMoney(fineRows.reduce((sum, row) => sum + row.total, 0))} ريال</strong>
+                    <strong>
+                      {formatMoney(
+                        fineRows.reduce((sum, row) => sum + row.total, 0),
+                      )}{" "}
+                      ريال
+                    </strong>
                   </div>
                 </div>
               </div>
@@ -1348,11 +1997,19 @@ export default function AdminHome() {
       )}
 
       {showContractorLinksModal && isManager && (
-        <div className="edit-modal-backdrop" onClick={() => setShowContractorLinksModal(false)}>
-          <section className="edit-modal contractor-links-modal" onClick={(event) => event.stopPropagation()}>
+        <div
+          className="edit-modal-backdrop"
+          onClick={() => setShowContractorLinksModal(false)}
+        >
+          <section
+            className="edit-modal contractor-links-modal"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="edit-modal-head">
               <h2>إدارة روابط المقاولين</h2>
-              <button onClick={() => setShowContractorLinksModal(false)}>×</button>
+              <button onClick={() => setShowContractorLinksModal(false)}>
+                ×
+              </button>
             </div>
 
             <p className="edit-modal-subtitle">
@@ -1362,8 +2019,8 @@ export default function AdminHome() {
             <div className="contractor-links-list">
               {projects.map((project) => {
                 const draft = contractorDrafts[project.id] || {
-                  manager_name: project.manager_name || '',
-                  contractor_code: project.contractor_code || '',
+                  manager_name: project.manager_name || "",
+                  contractor_code: project.contractor_code || "",
                 };
 
                 return (
@@ -1371,7 +2028,7 @@ export default function AdminHome() {
                     <div className="contractor-link-head">
                       <div>
                         <h3>{project.name}</h3>
-                        <p>{project.district || 'بدون نطاق'}</p>
+                        <p>{project.district || "بدون نطاق"}</p>
                       </div>
                       <span>{project.slug}</span>
                     </div>
@@ -1381,7 +2038,11 @@ export default function AdminHome() {
                       <input
                         value={draft.manager_name}
                         placeholder="مثال: مدير مشروع المخططات"
-                        onChange={(e) => updateContractorDraft(project.id, { manager_name: e.target.value })}
+                        onChange={(e) =>
+                          updateContractorDraft(project.id, {
+                            manager_name: e.target.value,
+                          })
+                        }
                       />
                     </label>
 
@@ -1390,7 +2051,11 @@ export default function AdminHome() {
                       <input
                         value={draft.contractor_code}
                         placeholder="مثال: 1234"
-                        onChange={(e) => updateContractorDraft(project.id, { contractor_code: e.target.value })}
+                        onChange={(e) =>
+                          updateContractorDraft(project.id, {
+                            contractor_code: e.target.value,
+                          })
+                        }
                       />
                     </label>
 
@@ -1400,10 +2065,17 @@ export default function AdminHome() {
                     </label>
 
                     <div className="contractor-link-actions">
-                      <button onClick={() => saveContractorProject(project)} disabled={savingContractorProjectId === project.id}>
-                        {savingContractorProjectId === project.id ? 'جارٍ الحفظ...' : 'حفظ البيانات'}
+                      <button
+                        onClick={() => saveContractorProject(project)}
+                        disabled={savingContractorProjectId === project.id}
+                      >
+                        {savingContractorProjectId === project.id
+                          ? "جارٍ الحفظ..."
+                          : "حفظ البيانات"}
                       </button>
-                      <button onClick={() => copyContractorLink(project)}>نسخ الرابط</button>
+                      <button onClick={() => copyContractorLink(project)}>
+                        نسخ الرابط
+                      </button>
                     </div>
                   </div>
                 );
@@ -1414,20 +2086,30 @@ export default function AdminHome() {
       )}
 
       {showPasswordModal && isManager && (
-        <div className="edit-modal-backdrop" onClick={() => setShowPasswordModal(false)}>
-          <section className="edit-modal password-modal" onClick={(event) => event.stopPropagation()}>
+        <div
+          className="edit-modal-backdrop"
+          onClick={() => setShowPasswordModal(false)}
+        >
+          <section
+            className="edit-modal password-modal"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="edit-modal-head">
               <h2>إدارة كلمات المرور</h2>
               <button onClick={() => setShowPasswordModal(false)}>×</button>
             </div>
 
-            <p className="edit-modal-subtitle">تغيير كلمة مرور المدير أو المشرف</p>
+            <p className="edit-modal-subtitle">
+              تغيير كلمة مرور المدير أو المشرف
+            </p>
 
             <label>
               <span>العضوية</span>
               <select
                 value={passwordTarget}
-                onChange={(e) => setPasswordTarget(e.target.value as 'manager' | 'supervisor')}
+                onChange={(e) =>
+                  setPasswordTarget(e.target.value as "manager" | "supervisor")
+                }
               >
                 <option value="manager">المدير</option>
                 <option value="supervisor">المشرف</option>
@@ -1454,19 +2136,26 @@ export default function AdminHome() {
 
       {editState && (
         <div className="edit-modal-backdrop" onClick={() => setEditState(null)}>
-          <section className="edit-modal" onClick={(event) => event.stopPropagation()}>
+          <section
+            className="edit-modal"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="edit-modal-head">
               <h2>تعديل سجل الحديقة</h2>
               <button onClick={() => setEditState(null)}>×</button>
             </div>
 
             <p className="edit-modal-subtitle">
-              {editState.project.name} / {editState.garden.name} / {selectedDate}
+              {editState.project.name} / {editState.garden.name} /{" "}
+              {selectedDate}
             </p>
 
             <label>
               <span>الحالة</span>
-              <select value={editStatus} onChange={(e) => setEditStatus(e.target.value as ReportStatus)}>
+              <select
+                value={editStatus}
+                onChange={(e) => setEditStatus(e.target.value as ReportStatus)}
+              >
                 <option value="watered">تم الري</option>
                 <option value="not_watered">لم يتم الري</option>
                 <option value="insufficient">عدم كفاية ري</option>
@@ -1503,20 +2192,30 @@ export default function AdminHome() {
             )}
 
             {editUploadFileName && !editUploading && (
-              <p className="edit-upload-status">تم اختيار: {editUploadFileName}</p>
+              <p className="edit-upload-status">
+                تم اختيار: {editUploadFileName}
+              </p>
             )}
 
             {editPhotoUrls.length > 0 && (
               <div className="edit-photo-preview edit-photo-preview-grid">
                 {editPhotoUrls.map((url, index) => (
                   <div className="edit-photo-thumb" key={`${url}-${index}`}>
-                    <img src={url} alt={`معاينة الصورة ${index + 1}`} onClick={() => setPreviewImageUrl(url)} />
+                    <img
+                      src={url}
+                      alt={`معاينة الصورة ${index + 1}`}
+                      onClick={() => setPreviewImageUrl(url)}
+                    />
                     {editNewPhotoUrls.includes(url) && (
                       <button
                         type="button"
                         onClick={() => {
-                          setEditPhotoUrls((prev) => prev.filter((item) => item !== url));
-                          setEditNewPhotoUrls((prev) => prev.filter((item) => item !== url));
+                          setEditPhotoUrls((prev) =>
+                            prev.filter((item) => item !== url),
+                          );
+                          setEditNewPhotoUrls((prev) =>
+                            prev.filter((item) => item !== url),
+                          );
                         }}
                       >
                         إزالة
@@ -1528,8 +2227,15 @@ export default function AdminHome() {
             )}
 
             <div className="edit-modal-actions">
-              <button onClick={saveEditedRecord} disabled={editSaving || editUploading}>
-                {editSaving ? 'جارٍ الحفظ...' : editUploading ? 'انتظر رفع الصورة...' : 'حفظ التعديل'}
+              <button
+                onClick={saveEditedRecord}
+                disabled={editSaving || editUploading}
+              >
+                {editSaving
+                  ? "جارٍ الحفظ..."
+                  : editUploading
+                    ? "انتظر رفع الصورة..."
+                    : "حفظ التعديل"}
               </button>
               <button onClick={() => setEditState(null)}>إلغاء</button>
             </div>
@@ -1538,14 +2244,24 @@ export default function AdminHome() {
       )}
 
       {previewImageUrl && (
-        <div className="image-preview-backdrop" onClick={() => setPreviewImageUrl(null)}>
-          <section className="image-preview-modal" onClick={(event) => event.stopPropagation()}>
-            <button className="image-preview-close" onClick={() => setPreviewImageUrl(null)}>×</button>
+        <div
+          className="image-preview-backdrop"
+          onClick={() => setPreviewImageUrl(null)}
+        >
+          <section
+            className="image-preview-modal"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              className="image-preview-close"
+              onClick={() => setPreviewImageUrl(null)}
+            >
+              ×
+            </button>
             <img src={previewImageUrl} alt="معاينة الصورة بالحجم الكامل" />
           </section>
         </div>
       )}
-
     </main>
   );
 }
