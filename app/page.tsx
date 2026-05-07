@@ -2378,7 +2378,7 @@ const duplicatePhoto =
         </div>
 
         <div>
-          <h3>الصورة القديمة المطابقة</h3>
+          <h3>الصورة المطابقة في سجل آخر</h3>
           <img
             src={duplicateViewer.oldPhoto.file_url}
             alt=""
@@ -2388,21 +2388,21 @@ const duplicatePhoto =
 
       <div className="duplicate-meta">
         <p>
-          الحديقة السابقة:
+          الحديقة المطابقة:
           <strong>
             {duplicateViewer.oldGarden?.name || "غير معروف"}
           </strong>
         </p>
 
         <p>
-          المشروع السابق:
+          المشروع المطابق:
           <strong>
             {duplicateViewer.oldProject?.name || "غير معروف"}
           </strong>
         </p>
 
         <p>
-          تاريخ السجل:
+          تاريخ السجل المطابق:
           <strong>
             {duplicateViewer.oldReport?.report_date || "-"}
           </strong>
