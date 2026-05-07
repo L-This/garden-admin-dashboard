@@ -62,6 +62,7 @@ type Photo = {
   id: string;
   report_id: string;
   file_url: string;
+  image_hash?: string | null;
   duplicate_of_photo_id?: string | null;
   duplicate_match_type?: string | null;
   duplicate_match_score?: number | null;
@@ -1069,7 +1070,22 @@ export default function AdminHome() {
   }
 
   async function openDuplicateViewer(photo: Photo) {
-  if (!photo.duplicate_of_photo_id) {
+  let duplicatePhotoId = photo.duplicate_of_photo_id;
+
+  if (!duplicatePhotoId && photo.image_hash) {
+    const { data: matchedPhoto } = await supabase
+      .from("photos")
+      .select("id")
+      .eq("image_hash", photo.image_hash)
+      .neq("id", photo.id)
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .single();
+
+    duplicatePhotoId = matchedPhoto?.id || null;
+  }
+
+  if (!duplicatePhotoId) {
     alert("لا توجد صورة مطابقة محفوظة");
     return;
   }
@@ -1078,10 +1094,10 @@ export default function AdminHome() {
 
   const { data: oldPhoto } = await supabase
     .from("photos")
-    .select("id, report_id, file_url, duplicate_of_photo_id, duplicate_match_type, duplicate_match_score")
-    .eq("id", photo.duplicate_of_photo_id)
+    .select("id, report_id, file_url")
+    .eq("id", duplicatePhotoId)
     .single();
-
+    
   if (!oldPhoto) {
     setDuplicateLoading(false);
     alert("تعذر العثور على الصورة القديمة");
@@ -1381,6 +1397,11 @@ export default function AdminHome() {
                 : undefined;
               const reportPhotos = photosByReportId.get(report.id) || [];
               const firstPhoto = reportPhotos[0];
+
+const duplicatePhoto =
+  reportPhotos.find((photo) => photo.duplicate_of_photo_id) ||
+  reportPhotos.find((photo) => photo.image_hash) ||
+  firstPhoto;
               const score =
                 typeof report.ai_review_score === "number"
                   ? `${Math.round(report.ai_review_score * 100)}%`
@@ -1436,8 +1457,8 @@ export default function AdminHome() {
 
                     {isManager && (
                       <div className="ai-alert-actions">
-                        {firstPhoto && String(report.ai_review_reason || report.ai_flags || '').includes('مكررة') && (
-  <button onClick={() => openDuplicateViewer(firstPhoto)}>
+                        {duplicatePhoto && String(report.ai_review_reason || report.ai_flags || '').includes('مكررة') && (
+  <button onClick={() => openDuplicateViewer(duplicatePhoto)}>
     🔍 عرض الصورة المطابقة
   </button>
 )}
