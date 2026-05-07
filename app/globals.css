@@ -3974,3 +3974,56 @@ button[data-status="runoff"],
     font-size: 13px;
   }
 }
+.audit-filters-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.audit-refresh-btn {
+  height: 48px;
+}
+
+.audit-list {
+  margin-top: 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.audit-card {
+  background: rgba(255,255,255,.9);
+  border: 1px solid rgba(216,180,92,.28);
+  border-radius: 18px;
+  padding: 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.audit-card h3 {
+  margin: 0 0 6px;
+}
+
+.audit-card p,
+.audit-card small {
+  display: block;
+  margin: 0 0 4px;
+}
+
+.audit-card button {
+  border: 0;
+  border-radius: 14px;
+  padding: 10px 18px;
+  background: #7f1d1d;
+  color: white;
+  font-weight: 900;
+}
+
+.audit-card.undone {
+  opacity: .6;
+}
+
+.audit-undone-label {
+  color: #0b7d57;
+}
