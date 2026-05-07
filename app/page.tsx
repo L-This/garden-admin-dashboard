@@ -62,6 +62,9 @@ type Photo = {
   id: string;
   report_id: string;
   file_url: string;
+  duplicate_of_photo_id?: string | null;
+  duplicate_match_type?: string | null;
+  duplicate_match_score?: number | null;
 };
 
 type OpenSection =
@@ -207,7 +210,9 @@ export default function AdminHome() {
   const [editUploadFileName, setEditUploadFileName] = useState("");
   const [editSaving, setEditSaving] = useState(false);
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
-
+  const [duplicateViewer, setDuplicateViewer] = useState<any | null>(null);
+  const [duplicateLoading, setDuplicateLoading] = useState(false);
+  
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportFromDate, setReportFromDate] = useState(today());
   const [reportToDate, setReportToDate] = useState(today());
@@ -776,7 +781,14 @@ export default function AdminHome() {
     if (reportIds.length) {
       const { data } = await supabase
         .from("photos")
-        .select("id, report_id, file_url")
+        .select(`
+  id,
+  report_id,
+  file_url,
+  duplicate_of_photo_id,
+  duplicate_match_type,
+  duplicate_match_score
+`)
         .in("report_id", reportIds);
 
       photosData = data || [];
@@ -1056,6 +1068,55 @@ export default function AdminHome() {
     await loadData();
   }
 
+  async function openDuplicateViewer(photo: Photo) {
+  if (!photo.duplicate_of_photo_id) {
+    alert("لا توجد صورة مطابقة محفوظة");
+    return;
+  }
+
+  setDuplicateLoading(true);
+
+  const { data: oldPhoto } = await supabase
+    .from("photos")
+    .select("id, report_id, file_url")
+    .eq("id", photo.duplicate_of_photo_id)
+    .single();
+
+  if (!oldPhoto) {
+    setDuplicateLoading(false);
+    alert("تعذر العثور على الصورة القديمة");
+    return;
+  }
+
+  const { data: oldReport } = await supabase
+    .from("reports")
+    .select("id, garden_id, report_date")
+    .eq("id", oldPhoto.report_id)
+    .single();
+
+  let oldGarden = null;
+
+  if (oldReport?.garden_id) {
+    oldGarden = gardens.find((g) => g.id === oldReport.garden_id);
+  }
+
+  let oldProject = null;
+
+  if (oldGarden?.project_id) {
+    oldProject = projects.find((p) => p.id === oldGarden.project_id);
+  }
+
+  setDuplicateViewer({
+    currentPhoto: photo,
+    oldPhoto,
+    oldReport,
+    oldGarden,
+    oldProject,
+  });
+
+  setDuplicateLoading(false);
+}
+  
   async function escalateAiReview(report: Report) {
     if (!isManager) return;
 
@@ -1375,6 +1436,11 @@ export default function AdminHome() {
 
                     {isManager && (
                       <div className="ai-alert-actions">
+                        {firstPhoto?.duplicate_of_photo_id && (
+  <button onClick={() => openDuplicateViewer(firstPhoto)}>
+    🔍 عرض الصورة المطابقة
+  </button>
+)}
                         <button onClick={() => approveAiReview(report.id)}>
                           اعتماد الصورة
                         </button>
@@ -2262,6 +2328,77 @@ export default function AdminHome() {
           </section>
         </div>
       )}
+      {duplicateViewer && (
+  <div
+    className="image-preview-backdrop"
+    onClick={() => setDuplicateViewer(null)}
+  >
+    <section
+      className="duplicate-viewer-modal"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <button
+        className="image-preview-close"
+        onClick={() => setDuplicateViewer(null)}
+      >
+        ×
+      </button>
+
+      <h2>مقارنة الصورة المكررة</h2>
+
+      <div className="duplicate-grid">
+        <div>
+          <h3>الصورة الحالية</h3>
+          <img
+            src={duplicateViewer.currentPhoto.file_url}
+            alt=""
+          />
+        </div>
+
+        <div>
+          <h3>الصورة القديمة المطابقة</h3>
+          <img
+            src={duplicateViewer.oldPhoto.file_url}
+            alt=""
+          />
+        </div>
+      </div>
+
+      <div className="duplicate-meta">
+        <p>
+          الحديقة السابقة:
+          <strong>
+            {duplicateViewer.oldGarden?.name || "غير معروف"}
+          </strong>
+        </p>
+
+        <p>
+          المشروع السابق:
+          <strong>
+            {duplicateViewer.oldProject?.name || "غير معروف"}
+          </strong>
+        </p>
+
+        <p>
+          تاريخ السجل:
+          <strong>
+            {duplicateViewer.oldReport?.report_date || "-"}
+          </strong>
+        </p>
+
+        <p>
+          نوع التطابق:
+          <strong>تطابق كامل للبصمة</strong>
+        </p>
+
+        <p>
+          نسبة التطابق:
+          <strong>100%</strong>
+        </p>
+      </div>
+    </section>
+  </div>
+)}
     </main>
   );
 }
