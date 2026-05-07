@@ -2366,57 +2366,118 @@ const duplicatePhoto =
         ×
       </button>
 
-      <h2>مقارنة الصورة المكررة</h2>
+      <div className="duplicate-viewer-head">
+        <div>
+          <span className="duplicate-badge">
+            مقارنة صورة مكررة
+          </span>
+
+          <h2>
+            {duplicateViewer.oldGarden?.name || "حديقة غير معروفة"}
+            {" ↔ "}
+            {getGardenById(
+              reports.find(
+                (r) =>
+                  r.id === duplicateViewer.currentPhoto.report_id
+              )?.garden_id || ""
+            )?.name || "الحديقة الحالية"}
+          </h2>
+
+          <p>
+            مقارنة بين السجل الحالي والسجل المطابق المكتشف بواسطة
+            التحقق الذكي.
+          </p>
+        </div>
+
+        <div className="duplicate-head-actions">
+          <button
+            onClick={() => window.print()}
+            className="duplicate-print-btn"
+          >
+            🖨️ طباعة / حفظ PDF
+          </button>
+        </div>
+      </div>
 
       <div className="duplicate-grid">
-        <div>
+        <div className="duplicate-photo-box">
           <h3>الصورة الحالية</h3>
+
           <img
             src={duplicateViewer.currentPhoto.file_url}
             alt=""
           />
+
+          <div className="duplicate-photo-meta">
+            <p>
+              الحديقة:
+              <strong>
+                {
+                  getGardenById(
+                    reports.find(
+                      (r) =>
+                        r.id === duplicateViewer.currentPhoto.report_id
+                    )?.garden_id || ""
+                  )?.name
+                }
+              </strong>
+            </p>
+
+            <p>
+              التاريخ:
+              <strong>{selectedDate}</strong>
+            </p>
+          </div>
         </div>
 
-        <div>
+        <div className="duplicate-photo-box">
           <h3>الصورة المطابقة في سجل آخر</h3>
+
           <img
             src={duplicateViewer.oldPhoto.file_url}
             alt=""
           />
+
+          <div className="duplicate-photo-meta">
+            <p>
+              الحديقة المطابقة:
+              <strong>
+                {duplicateViewer.oldGarden?.name || "غير معروف"}
+              </strong>
+            </p>
+
+            <p>
+              المشروع المطابق:
+              <strong>
+                {duplicateViewer.oldProject?.name || "غير معروف"}
+              </strong>
+            </p>
+
+            <p>
+              تاريخ السجل:
+              <strong>
+                {duplicateViewer.oldReport?.report_date || "-"}
+              </strong>
+            </p>
+          </div>
         </div>
       </div>
 
-      <div className="duplicate-meta">
-        <p>
-          الحديقة المطابقة:
-          <strong>
-            {duplicateViewer.oldGarden?.name || "غير معروف"}
-          </strong>
-        </p>
-
-        <p>
-          المشروع المطابق:
-          <strong>
-            {duplicateViewer.oldProject?.name || "غير معروف"}
-          </strong>
-        </p>
-
-        <p>
-          تاريخ السجل المطابق:
-          <strong>
-            {duplicateViewer.oldReport?.report_date || "-"}
-          </strong>
-        </p>
-
-        <p>
-          نوع التطابق:
+      <div className="duplicate-summary-box">
+        <div>
+          <span>نوع التطابق</span>
           <strong>تطابق كامل للبصمة</strong>
-        </p>
+        </div>
 
-        <p>
-          نسبة التطابق:
+        <div>
+          <span>نسبة التطابق</span>
           <strong>100%</strong>
-        </p>
+        </div>
+
+        <div>
+          <span>نتيجة التحقق</span>
+          <strong>تم اكتشاف صورة مستخدمة مسبقًا</strong>
+        </div>
       </div>
     </section>
   </div>
