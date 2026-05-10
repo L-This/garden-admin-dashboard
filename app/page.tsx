@@ -421,29 +421,52 @@ export default function AdminHome() {
   }
 
   async function loadAuditLogs() {
-    setAuditLoading(true);
+  setAuditLoading(true);
 
-    let query = supabase
-      .from("admin_audit_logs")
-      .select("*")
-      .gte("created_at", `${auditDateFilter}T00:00:00`)
-      .lte("created_at", `${auditDateFilter}T23:59:59`)
-      .order("created_at", { ascending: false });
+  let reportsQuery = supabase
+    .from("reports")
+    .select("id")
+    .eq("report_date", auditDateFilter);
 
-    if (auditProjectFilter !== "all") {
-      query = query.eq("project_id", auditProjectFilter);
-    }
+  if (auditProjectFilter !== "all") {
+    const projectGardens = gardens
+      .filter((g) => g.project_id === auditProjectFilter)
+      .map((g) => g.id);
 
-    const { data, error } = await query;
-    setAuditLoading(false);
-
-    if (error) {
-      alert("تعذر تحميل سجل التعديلات: " + error.message);
-      return;
-    }
-
-    setAuditLogs((data || []) as AuditLog[]);
+    reportsQuery = reportsQuery.in("garden_id", projectGardens);
   }
+
+  const { data: reportRows, error: reportsError } = await reportsQuery;
+
+  if (reportsError) {
+    setAuditLoading(false);
+    alert("تعذر تحميل التقارير");
+    return;
+  }
+
+  const reportIds = (reportRows || []).map((r) => r.id);
+
+  if (!reportIds.length) {
+    setAuditLogs([]);
+    setAuditLoading(false);
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("admin_audit_logs")
+    .select("*")
+    .in("report_id", reportIds)
+    .order("created_at", { ascending: false });
+
+  setAuditLoading(false);
+
+  if (error) {
+    alert("تعذر تحميل سجل التعديلات: " + error.message);
+    return;
+  }
+
+  setAuditLogs((data || []) as AuditLog[]);
+}
 
   function auditActionLabel(action: string) {
     if (action === "approve_ai_review") return "اعتماد تحقق ذكي";
