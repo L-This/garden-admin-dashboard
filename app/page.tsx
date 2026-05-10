@@ -809,6 +809,7 @@ export default function AdminHome() {
   id,
   report_id,
   file_url,
+  image_hash,
   duplicate_of_photo_id,
   duplicate_match_type,
   duplicate_match_score
