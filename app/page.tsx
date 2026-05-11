@@ -1245,7 +1245,39 @@ export default function AdminHome() {
   function getProjectById(projectId: string) {
     return projects.find((project) => project.id === projectId);
   }
+  function getDuplicateTypeLabel(photo?: Photo | null) {
+  if (!photo?.duplicate_match_type) return null;
 
+  if (photo.duplicate_match_type.includes("same_day")) {
+    return {
+      text: "تكرار داخل نفس اليوم",
+      className: "duplicate-type-same-day",
+      icon: "↺",
+    };
+  }
+
+  if (photo.duplicate_match_type.includes("different_report")) {
+    return {
+      text: "تكرار في سجل مختلف",
+      className: "duplicate-type-different-report",
+      icon: "⚠",
+    };
+  }
+
+  if (photo.duplicate_match_type.includes("different_garden")) {
+    return {
+      text: "تكرار بين حدائق مختلفة",
+      className: "duplicate-type-different-garden",
+      icon: "⛔",
+    };
+  }
+
+  return {
+    text: "تطابق صورة",
+    className: "duplicate-type-default",
+    icon: "⚑",
+  };
+}
   const wateredGardenIds = useMemo(
     () =>
       new Set(
@@ -1427,6 +1459,7 @@ const duplicatePhoto =
   reportPhotos.find((photo) => photo.duplicate_of_photo_id) ||
   reportPhotos.find((photo) => photo.image_hash) ||
   firstPhoto;
+const duplicateInfo = getDuplicateTypeLabel(duplicatePhoto);
               const score =
                 typeof report.ai_review_score === "number"
                   ? `${Math.round(report.ai_review_score * 100)}%`
@@ -1478,6 +1511,14 @@ const duplicatePhoto =
                           {report.ai_review_reason || "لم يتم تسجيل سبب تفصيلي"}
                         </strong>
                       </li>
+                      {duplicateInfo && (
+  <li>
+    نوع التطابق:
+    <strong className={duplicateInfo.className}>
+      {duplicateInfo.icon} {duplicateInfo.text}
+    </strong>
+  </li>
+)}
                     </ul>
 
                     {isManager && (
