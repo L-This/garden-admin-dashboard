@@ -223,6 +223,9 @@ export default function AdminHome() {
   const [reportRows, setReportRows] = useState<ReportSummaryRow[]>([]);
   const [fineRows, setFineRows] = useState<FineRow[]>([]);
   const [reportTitle, setReportTitle] = useState("");
+  const [notWateredFine, setNotWateredFine] = useState(1000);
+  const [insufficientFine, setInsufficientFine] = useState(500);
+  const [sidewalkFine, setSidewalkFine] = useState(300);
 
   const [showAuditModal, setShowAuditModal] = useState(false);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
@@ -617,6 +620,10 @@ export default function AdminHome() {
       };
     });
 
+    const currentNotWateredFine = Number(notWateredFine) || 0;
+    const currentInsufficientFine = Number(insufficientFine) || 0;
+    const currentSidewalkFine = Number(sidewalkFine) || 0;
+
     const fines: FineRow[] = [];
     rows.forEach((row) => {
       if (row.notWatered > 0) {
@@ -624,8 +631,8 @@ export default function AdminHome() {
           gardenName: row.gardenName,
           violationType: "لم يتم الري",
           count: row.notWatered,
-          fineAmount: 1000,
-          total: row.notWatered * 1000,
+          fineAmount: currentNotWateredFine,
+          total: row.notWatered * currentNotWateredFine,
         });
       }
       if (row.insufficient > 0) {
@@ -633,8 +640,8 @@ export default function AdminHome() {
           gardenName: row.gardenName,
           violationType: "عدم كفاية ري",
           count: row.insufficient,
-          fineAmount: 500,
-          total: row.insufficient * 500,
+          fineAmount: currentInsufficientFine,
+          total: row.insufficient * currentInsufficientFine,
         });
       }
       if (row.sidewalk > 0) {
@@ -642,8 +649,8 @@ export default function AdminHome() {
           gardenName: row.gardenName,
           violationType: "خروج الري للرصيف",
           count: row.sidewalk,
-          fineAmount: 300,
-          total: row.sidewalk * 300,
+          fineAmount: currentSidewalkFine,
+          total: row.sidewalk * currentSidewalkFine,
         });
       }
     });
@@ -1245,39 +1252,7 @@ export default function AdminHome() {
   function getProjectById(projectId: string) {
     return projects.find((project) => project.id === projectId);
   }
-  function getDuplicateTypeLabel(photo?: Photo | null) {
-  if (!photo?.duplicate_match_type) return null;
 
-  if (photo.duplicate_match_type.includes("same_day")) {
-    return {
-      text: "تكرار داخل نفس اليوم",
-      className: "duplicate-type-same-day",
-      icon: "↺",
-    };
-  }
-
-  if (photo.duplicate_match_type.includes("different_report")) {
-    return {
-      text: "تكرار في سجل مختلف",
-      className: "duplicate-type-different-report",
-      icon: "⚠",
-    };
-  }
-
-  if (photo.duplicate_match_type.includes("different_garden")) {
-    return {
-      text: "تكرار بين حدائق مختلفة",
-      className: "duplicate-type-different-garden",
-      icon: "⛔",
-    };
-  }
-
-  return {
-    text: "تطابق صورة",
-    className: "duplicate-type-default",
-    icon: "⚑",
-  };
-}
   const wateredGardenIds = useMemo(
     () =>
       new Set(
@@ -1459,7 +1434,6 @@ const duplicatePhoto =
   reportPhotos.find((photo) => photo.duplicate_of_photo_id) ||
   reportPhotos.find((photo) => photo.image_hash) ||
   firstPhoto;
-const duplicateInfo = getDuplicateTypeLabel(duplicatePhoto);
               const score =
                 typeof report.ai_review_score === "number"
                   ? `${Math.round(report.ai_review_score * 100)}%`
@@ -1511,14 +1485,6 @@ const duplicateInfo = getDuplicateTypeLabel(duplicatePhoto);
                           {report.ai_review_reason || "لم يتم تسجيل سبب تفصيلي"}
                         </strong>
                       </li>
-                      {duplicateInfo && (
-  <li>
-    نوع التطابق:
-    <strong className={duplicateInfo.className}>
-      {duplicateInfo.icon} {duplicateInfo.text}
-    </strong>
-  </li>
-)}
                     </ul>
 
                     {isManager && (
@@ -2050,6 +2016,38 @@ const duplicateInfo = getDuplicateTypeLabel(duplicatePhoto);
                     </option>
                   ))}
                 </select>
+              </label>
+            </div>
+
+            <div className="report-fines-grid">
+              <label>
+                <span>غرامة لم يتم الري</span>
+                <input
+                  type="number"
+                  min="0"
+                  value={notWateredFine}
+                  onChange={(e) => setNotWateredFine(Number(e.target.value))}
+                />
+              </label>
+
+              <label>
+                <span>غرامة عدم كفاية الري</span>
+                <input
+                  type="number"
+                  min="0"
+                  value={insufficientFine}
+                  onChange={(e) => setInsufficientFine(Number(e.target.value))}
+                />
+              </label>
+
+              <label>
+                <span>غرامة خروج الري للرصيف</span>
+                <input
+                  type="number"
+                  min="0"
+                  value={sidewalkFine}
+                  onChange={(e) => setSidewalkFine(Number(e.target.value))}
+                />
               </label>
             </div>
 
