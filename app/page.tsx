@@ -246,6 +246,7 @@ export default function AdminHome() {
   const [showExecutiveModal, setShowExecutiveModal] = useState(false);
   const [executiveFromDate, setExecutiveFromDate] = useState(today());
   const [executiveToDate, setExecutiveToDate] = useState(today());
+  const [executiveProjectFilter, setExecutiveProjectFilter] = useState("all");
   const [executiveLoading, setExecutiveLoading] = useState(false);
   const [executiveRows, setExecutiveRows] = useState<ExecutiveProjectRow[]>([]);
   const [executiveError, setExecutiveError] = useState("");
@@ -735,7 +736,18 @@ export default function AdminHome() {
     const currentInsufficientFine = Number(insufficientFine) || 0;
     const currentSidewalkFine = Number(sidewalkFine) || 0;
 
-    const rows: ExecutiveProjectRow[] = projects.map((project) => {
+    const projectsToAnalyze =
+      executiveProjectFilter === "all"
+        ? projects
+        : projects.filter((project) => project.id === executiveProjectFilter);
+
+    if (!projectsToAnalyze.length) {
+      setExecutiveError("اختر مشروعًا صحيحًا أو كل المشاريع.");
+      setExecutiveLoading(false);
+      return;
+    }
+
+    const rows: ExecutiveProjectRow[] = projectsToAnalyze.map((project) => {
       const projectGardens = gardens.filter(
         (garden) => garden.project_id === project.id,
       );
@@ -2558,7 +2570,7 @@ const duplicatePhoto =
                   لوحة المؤشرات التنفيذية
                 </h2>
                 <p style={{ margin: "8px 0 0", opacity: .86, fontWeight: 700 }}>
-                  ترتيب المشاريع، أفضل أداء، أعلى تعثر، وإجمالي الغرامات حسب الفترة المحددة.
+                  ترتيب المشاريع، أفضل أداء، أعلى تعثر، وإجمالي الغرامات حسب الفترة المحددة مع إمكانية عرض كل المشاريع أو مشروع محدد.
                 </p>
               </div>
 
@@ -2591,7 +2603,7 @@ const duplicatePhoto =
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(5, minmax(150px, 1fr))",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
                   gap: 14,
                   marginBottom: 18,
                 }}
@@ -2612,6 +2624,25 @@ const duplicatePhoto =
                     onChange={(e) => setExecutiveToDate(e.target.value)}
                   />
                 </label>
+
+                <label>
+                  <span>نطاق اللوحة</span>
+                  <select
+                    value={executiveProjectFilter}
+                    onChange={(e) => {
+                      setExecutiveProjectFilter(e.target.value);
+                      setExecutiveRows([]);
+                    }}
+                  >
+                    <option value="all">كل المشاريع</option>
+                    {projects.map((project) => (
+                      <option key={project.id} value={project.id}>
+                        {project.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
                 <label>
                   <span>غرامة لم يتم الري</span>
                   <input
