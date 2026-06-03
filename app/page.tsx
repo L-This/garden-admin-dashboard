@@ -877,9 +877,19 @@ export default function AdminHome() {
           }
 
           .executive-report-dashboard {
-            page-break-inside: avoid;
-            break-inside: avoid;
-          }
+  page-break-inside: avoid;
+  break-inside: avoid;
+  margin: 18px 0 22px !important;
+  padding: 18px !important;
+  border: 2px solid rgba(216, 180, 92, .55) !important;
+  border-radius: 22px !important;
+  background: #fffaf0 !important;
+}
+
+.executive-report-dashboard * {
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
 
           .fines-report-box {
             page-break-before: always;
@@ -906,6 +916,17 @@ export default function AdminHome() {
           button {
             display: none !important;
           }
+
+          @media print {
+  .executive-report-dashboard {
+    overflow: visible !important;
+  }
+
+  .fines-report-box {
+    page-break-before: auto !important;
+    break-before: auto !important;
+  }
+}
         </style>
       </head>
       <body>
