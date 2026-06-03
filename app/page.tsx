@@ -826,11 +826,6 @@ export default function AdminHome() {
     const achievementPercent = requiredWateringTotal
       ? Math.round((totalWatered / requiredWateringTotal) * 100)
       : 0;
-    const safeAchievementPercent = Math.max(0, Math.min(100, achievementPercent));
-    const violationPercent = requiredWateringTotal
-      ? Math.round((totalViolations / requiredWateringTotal) * 100)
-      : 0;
-    const safeViolationPercent = Math.max(0, Math.min(100, violationPercent));
 
     const reportRowsHtml = reportRows
       .map(
@@ -867,10 +862,7 @@ export default function AdminHome() {
           <meta charset="utf-8" />
           <title>تقرير ري الحدائق</title>
           <style>
-            @page {
-              size: A4 landscape;
-              margin: 10mm;
-            }
+            @page { size: A4 landscape; margin: 10mm; }
 
             * {
               box-sizing: border-box;
@@ -884,10 +876,6 @@ export default function AdminHome() {
               font-family: Arial, sans-serif;
               color: #062b24;
               background: #ffffff;
-            }
-
-            .print-page {
-              width: 100%;
             }
 
             .period-report-head {
@@ -909,8 +897,35 @@ export default function AdminHome() {
               font-weight: 700;
             }
 
-            .table-wrap {
-              width: 100%;
+            .summary-strip {
+              display: grid;
+              grid-template-columns: repeat(5, 1fr);
+              gap: 8px;
+              margin: 10px 0 14px;
+              break-inside: avoid;
+              page-break-inside: avoid;
+            }
+
+            .summary-strip div {
+              border: 1px solid #d8c58b;
+              border-radius: 12px;
+              padding: 8px;
+              text-align: center;
+              background: #fffaf0;
+              font-weight: 900;
+            }
+
+            .summary-strip span {
+              display: block;
+              font-size: 10px;
+              color: #6b5b2a;
+              margin-bottom: 4px;
+            }
+
+            .summary-strip strong {
+              display: block;
+              font-size: 15px;
+              color: #062b24;
             }
 
             table {
@@ -921,18 +936,9 @@ export default function AdminHome() {
               margin: 10px 0 18px;
             }
 
-            thead {
-              display: table-header-group;
-            }
-
-            tfoot {
-              display: table-footer-group;
-            }
-
-            tr {
-              break-inside: avoid;
-              page-break-inside: avoid;
-            }
+            thead { display: table-header-group; }
+            tfoot { display: table-footer-group; }
+            tr { break-inside: avoid; page-break-inside: avoid; }
 
             th,
             td {
@@ -950,182 +956,9 @@ export default function AdminHome() {
               font-weight: 900;
             }
 
-            .dashboard-page {
+            .fines-section {
               break-before: page;
               page-break-before: always;
-              break-inside: avoid;
-              page-break-inside: avoid;
-              padding-top: 2mm;
-            }
-
-            .executive-report-dashboard {
-              width: 100%;
-              margin: 0 0 16px;
-              padding: 18px;
-              border: 2px solid rgba(216, 180, 92, .72);
-              border-radius: 22px;
-              background: linear-gradient(135deg, #ffffff 0%, #fff8e6 48%, #f5fbf7 100%);
-              box-shadow: none;
-              overflow: visible;
-            }
-
-            .dash-head {
-              display: flex;
-              justify-content: space-between;
-              gap: 16px;
-              align-items: flex-start;
-              margin-bottom: 16px;
-            }
-
-            .dash-badge {
-              display: inline-block;
-              padding: 6px 13px;
-              border-radius: 999px;
-              background: #f8f1dc;
-              color: #8a5a11;
-              font-weight: 900;
-              font-size: 12px;
-              margin-bottom: 8px;
-            }
-
-            .dash-head h3 {
-              margin: 0;
-              font-size: 23px;
-              color: #062b24;
-            }
-
-            .dash-head p {
-              margin: 6px 0 0;
-              color: #55706a;
-              font-weight: 700;
-              font-size: 13px;
-            }
-
-            .achievement-box {
-              min-width: 145px;
-              text-align: center;
-              padding: 12px 14px;
-              border-radius: 18px;
-              background: #062b24;
-              color: white;
-            }
-
-            .achievement-box span {
-              display: block;
-              font-size: 12px;
-              opacity: .85;
-            }
-
-            .achievement-box strong {
-              display: block;
-              font-size: 34px;
-              line-height: 1.1;
-            }
-
-            .kpi-grid {
-              display: grid;
-              grid-template-columns: repeat(4, 1fr);
-              gap: 10px;
-              margin-bottom: 14px;
-            }
-
-            .kpi-card {
-              min-height: 76px;
-              padding: 13px 12px;
-              border-radius: 16px;
-              background: linear-gradient(180deg, #ffffff 0%, #fbf7ea 100%);
-              border: 1px solid rgba(216, 180, 92, .55);
-            }
-
-            .kpi-card span {
-              display: block;
-              font-weight: 900;
-              font-size: 13px;
-            }
-
-            .kpi-card strong {
-              display: block;
-              margin-top: 7px;
-              color: #062b24;
-              font-size: 25px;
-            }
-
-            .dashboard-bottom {
-              display: grid;
-              grid-template-columns: 2fr 1fr;
-              gap: 12px;
-            }
-
-            .progress-card,
-            .fines-card {
-              border-radius: 18px;
-              padding: 14px;
-              background: rgba(255,255,255,.88);
-              border: 1px solid #eadfbc;
-            }
-
-            .progress-title {
-              display: flex;
-              justify-content: space-between;
-              margin-bottom: 9px;
-              font-weight: 900;
-            }
-
-            .progress-bar {
-              height: 22px;
-              border-radius: 999px;
-              overflow: hidden;
-              background: #eee7d5;
-              display: flex;
-            }
-
-            .progress-green {
-              width: ${safeAchievementPercent}%;
-              background: linear-gradient(90deg, #0f7a53, #20a36f);
-            }
-
-            .progress-red {
-              width: ${safeViolationPercent}%;
-              background: linear-gradient(90deg, #d97706, #be123c);
-            }
-
-            .progress-note {
-              display: flex;
-              justify-content: space-between;
-              margin-top: 9px;
-              font-size: 12px;
-              color: #55706a;
-              font-weight: 800;
-              gap: 10px;
-            }
-
-            .fines-card {
-              background: #fff7ed;
-              border-color: #fed7aa;
-              text-align: center;
-            }
-
-            .fines-card span {
-              color: #9a3412;
-              font-weight: 900;
-            }
-
-            .fines-card strong {
-              display: block;
-              margin-top: 9px;
-              color: #7f1d1d;
-              font-size: 25px;
-            }
-
-            .fines-card small {
-              display: block;
-              margin-top: 7px;
-              color: #9a3412;
-              font-weight: 800;
-            }
-
-            .fines-section {
-              margin-top: 10px;
             }
 
             .fines-section h3 {
@@ -1143,6 +976,8 @@ export default function AdminHome() {
               font-weight: 900;
               font-size: 16px;
               background: #fffaf0;
+              break-inside: avoid;
+              page-break-inside: avoid;
             }
 
             .total-fines-card strong {
@@ -1154,13 +989,21 @@ export default function AdminHome() {
           </style>
         </head>
         <body>
-          <main class="print-page">
+          <main>
             <section class="period-report-head">
               <h3>تقرير ري الحدائق</h3>
               <p>${escapeHtml(reportTitle)}</p>
             </section>
 
-            <section class="table-wrap">
+            <section class="summary-strip">
+              <div><span>الإجمالي المطلوب</span><strong>${formatMoney(requiredWateringTotal)}</strong></div>
+              <div><span>تم الري</span><strong>${formatMoney(totalWatered)}</strong></div>
+              <div><span>المخالفات</span><strong>${formatMoney(totalViolations)}</strong></div>
+              <div><span>نسبة الإنجاز</span><strong>${achievementPercent}%</strong></div>
+              <div><span>إجمالي الغرامات</span><strong>${formatMoney(totalFines)} ريال</strong></div>
+            </section>
+
+            <section>
               <table>
                 <thead>
                   <tr>
@@ -1175,72 +1018,292 @@ export default function AdminHome() {
               </table>
             </section>
 
-            <section class="dashboard-page">
-              <div class="executive-report-dashboard">
-                <div class="dash-head">
-                  <div>
-                    <span class="dash-badge">لوحة المؤشرات التنفيذية</span>
-                    <h3>ملخص أداء الري خلال الفترة</h3>
-                    <p>قراءة سريعة للإجمالي المطلوب حسب الفترة، نسبة الإنجاز، وإجمالي الغرامات.</p>
-                  </div>
-                  <div class="achievement-box">
-                    <span>نسبة الإنجاز</span>
-                    <strong>${achievementPercent}%</strong>
-                  </div>
-                </div>
+            <section class="fines-section">
+              <h3>الغرامات</h3>
+              <table>
+                <thead>
+                  <tr>
+                    <th>الحديقة</th>
+                    <th>نوع المخالفة</th>
+                    <th>عدد المرات</th>
+                    <th>قيمة الغرامة</th>
+                    <th>الإجمالي</th>
+                  </tr>
+                </thead>
+                <tbody>${fineRowsHtml}</tbody>
+              </table>
 
-                <div class="kpi-grid">
-                  <div class="kpi-card"><span style="color:#0f7a53">تم الري</span><strong>${formatMoney(totalWatered)}</strong></div>
-                  <div class="kpi-card"><span style="color:#9f1239">لم يتم الري</span><strong>${formatMoney(totalNotWatered)}</strong></div>
-                  <div class="kpi-card"><span style="color:#b45309">عدم كفاية الري</span><strong>${formatMoney(totalInsufficient)}</strong></div>
-                  <div class="kpi-card"><span style="color:#854d0e">خروج الري للرصيف</span><strong>${formatMoney(totalSidewalk)}</strong></div>
-                </div>
-
-                <div class="dashboard-bottom">
-                  <div class="progress-card">
-                    <div class="progress-title">
-                      <strong>مؤشر الإنجاز العام</strong>
-                      <span>${formatMoney(totalWatered)} / ${formatMoney(requiredWateringTotal)}</span>
-                    </div>
-                    <div class="progress-bar">
-                      <span class="progress-green"></span>
-                      <span class="progress-red"></span>
-                    </div>
-                    <div class="progress-note">
-                      <span>المطلوب للفترة: ${formatMoney(requiredWateringTotal)} (${formatMoney(reportRows.length)} حديقة × ${formatMoney(workingDays)} أيام عمل)</span>
-                      <span>الأحمر/البرتقالي: حالات تحتاج متابعة</span>
-                    </div>
-                  </div>
-
-                  <div class="fines-card">
-                    <span>إجمالي الغرامات</span>
-                    <strong>${formatMoney(totalFines)} ريال</strong>
-                    <small>عدد المخالفات: ${formatMoney(totalViolations)}</small>
-                  </div>
-                </div>
+              <div class="total-fines-card">
+                <span>إجمالي الغرامات لكافة الحدائق</span>
+                <strong>${formatMoney(totalFines)} ريال</strong>
               </div>
-
-              <section class="fines-section">
-                <h3>الغرامات</h3>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>الحديقة</th>
-                      <th>نوع المخالفة</th>
-                      <th>عدد المرات</th>
-                      <th>قيمة الغرامة</th>
-                      <th>الإجمالي</th>
-                    </tr>
-                  </thead>
-                  <tbody>${fineRowsHtml}</tbody>
-                </table>
-
-                <div class="total-fines-card">
-                  <span>إجمالي الغرامات لكافة الحدائق</span>
-                  <strong>${formatMoney(totalFines)} ريال</strong>
-                </div>
-              </section>
             </section>
+          </main>
+          <script>
+            window.onload = function () {
+              window.focus();
+              window.print();
+            };
+          </script>
+        </body>
+      </html>
+    `);
+
+    printWindow.document.close();
+  }
+
+  function printExecutiveDashboard() {
+    if (!executiveRows.length) {
+      alert("حدّث لوحة المؤشرات أولًا");
+      return;
+    }
+
+    const printWindow = window.open("", "_blank", "width=1200,height=800");
+
+    if (!printWindow) {
+      alert("المتصفح منع فتح نافذة الطباعة");
+      return;
+    }
+
+    const escapeHtml = (value: unknown) =>
+      String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+    const totalRequired = executiveRows.reduce((sum, row) => sum + row.required, 0);
+    const totalWatered = executiveRows.reduce((sum, row) => sum + row.watered, 0);
+    const totalViolations = executiveRows.reduce((sum, row) => sum + row.violations, 0);
+    const totalFines = executiveRows.reduce((sum, row) => sum + row.fines, 0);
+    const overallRate = totalRequired ? Math.round((totalWatered / totalRequired) * 100) : 0;
+    const bestProject = executiveRows
+      .filter((row) => row.required > 0)
+      .sort((a, b) => b.achievementRate - a.achievementRate)[0];
+    const worstProject = executiveRows
+      .filter((row) => row.required > 0)
+      .sort((a, b) => a.achievementRate - b.achievementRate)[0];
+    const highestFineProject = [...executiveRows].sort((a, b) => b.fines - a.fines)[0];
+
+    const rowsHtml = executiveRows
+      .map(
+        (row, index) => `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${escapeHtml(row.projectName)}</td>
+            <td>${formatMoney(row.totalGardens)}</td>
+            <td>${formatMoney(row.required)}</td>
+            <td>${formatMoney(row.watered)}</td>
+            <td>${formatMoney(row.violations)}</td>
+            <td>${row.achievementRate}%</td>
+            <td>${formatMoney(row.fines)} ريال</td>
+          </tr>`,
+      )
+      .join("");
+
+    printWindow.document.write(`
+      <!doctype html>
+      <html lang="ar" dir="rtl">
+        <head>
+          <meta charset="utf-8" />
+          <title>لوحة المؤشرات التنفيذية</title>
+          <style>
+            @page { size: A4 landscape; margin: 10mm; }
+
+            * {
+              box-sizing: border-box;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+
+            body {
+              margin: 0;
+              direction: rtl;
+              font-family: Arial, sans-serif;
+              color: #062b24;
+              background: #ffffff;
+            }
+
+            .executive-print-hero {
+              padding: 18px 22px;
+              border-radius: 22px;
+              color: #ffffff;
+              background: radial-gradient(circle at 12% 10%, rgba(255,211,105,.42), transparent 32%), linear-gradient(135deg, #062b24, #0f6f52);
+              margin-bottom: 14px;
+              break-inside: avoid;
+              page-break-inside: avoid;
+            }
+
+            .executive-print-hero span {
+              display: inline-block;
+              padding: 6px 14px;
+              border-radius: 999px;
+              background: rgba(255,255,255,.18);
+              font-weight: 900;
+              margin-bottom: 8px;
+            }
+
+            .executive-print-hero h1 {
+              margin: 0;
+              font-size: 30px;
+            }
+
+            .executive-print-hero p {
+              margin: 8px 0 0;
+              font-weight: 700;
+              opacity: .9;
+            }
+
+            .kpi-grid {
+              display: grid;
+              grid-template-columns: 1.25fr repeat(3, 1fr);
+              gap: 10px;
+              margin-bottom: 14px;
+              break-inside: avoid;
+              page-break-inside: avoid;
+            }
+
+            .kpi-card {
+              padding: 14px;
+              border-radius: 18px;
+              border: 1px solid #eadfbc;
+              background: linear-gradient(180deg, #ffffff, #fbf5e6);
+              min-height: 92px;
+            }
+
+            .kpi-card.main {
+              background: linear-gradient(135deg, #062b24, #0f6f52);
+              color: white;
+            }
+
+            .kpi-card span {
+              display: block;
+              font-weight: 900;
+              font-size: 12px;
+              color: #8a5a11;
+            }
+
+            .kpi-card.main span { color: rgba(255,255,255,.86); }
+
+            .kpi-card strong {
+              display: block;
+              margin-top: 9px;
+              font-size: 24px;
+              color: #062b24;
+            }
+
+            .kpi-card.main strong {
+              color: white;
+              font-size: 42px;
+              line-height: 1;
+            }
+
+            .progress-card {
+              padding: 14px;
+              border-radius: 18px;
+              border: 1px solid #eadfbc;
+              background: #fffaf0;
+              margin-bottom: 14px;
+              break-inside: avoid;
+              page-break-inside: avoid;
+            }
+
+            .progress-title {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 9px;
+              font-weight: 900;
+            }
+
+            .progress-bar {
+              height: 24px;
+              border-radius: 999px;
+              overflow: hidden;
+              background: #efe7d4;
+              display: flex;
+            }
+
+            .progress-bar span:first-child {
+              width: ${Math.max(0, Math.min(100, overallRate))}%;
+              background: linear-gradient(90deg, #0f7a53, #24b47e);
+            }
+
+            .progress-bar span:last-child {
+              flex: 1;
+              background: linear-gradient(90deg, #f59e0b, #be123c);
+            }
+
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              table-layout: fixed;
+              font-size: 11px;
+              margin-top: 10px;
+            }
+
+            thead { display: table-header-group; }
+            tr { break-inside: avoid; page-break-inside: avoid; }
+
+            th,
+            td {
+              border: 1px solid #d8c58b;
+              padding: 7px 5px;
+              text-align: center;
+              vertical-align: middle;
+              line-height: 1.45;
+              word-break: break-word;
+            }
+
+            th {
+              background: #07563f;
+              color: white;
+              font-weight: 900;
+            }
+          </style>
+        </head>
+        <body>
+          <main>
+            <section class="executive-print-hero">
+              <span>مركز القرار التنفيذي</span>
+              <h1>لوحة المؤشرات التنفيذية</h1>
+              <p>من ${escapeHtml(executiveFromDate)} إلى ${escapeHtml(executiveToDate)} — ترتيب المشاريع وأداء الري والغرامات.</p>
+            </section>
+
+            <section class="kpi-grid">
+              <div class="kpi-card main">
+                <span>نسبة الإنجاز العامة</span>
+                <strong>${overallRate}%</strong>
+                <small>${formatMoney(totalWatered)} / ${formatMoney(totalRequired)} عملية مطلوبة</small>
+              </div>
+              <div class="kpi-card"><span>أفضل مشروع</span><strong>${escapeHtml(bestProject?.projectName || "-")}</strong><small>إنجاز ${bestProject?.achievementRate || 0}%</small></div>
+              <div class="kpi-card"><span>أسوأ مشروع</span><strong>${escapeHtml(worstProject?.projectName || "-")}</strong><small>إنجاز ${worstProject?.achievementRate || 0}%</small></div>
+              <div class="kpi-card"><span>أعلى غرامات</span><strong>${escapeHtml(highestFineProject?.projectName || "-")}</strong><small>${formatMoney(highestFineProject?.fines || 0)} ريال</small></div>
+            </section>
+
+            <section class="progress-card">
+              <div class="progress-title">
+                <strong>مؤشر الأداء العام</strong>
+                <span>${formatMoney(totalViolations)} مخالفة / ${formatMoney(totalFines)} ريال</span>
+              </div>
+              <div class="progress-bar"><span></span><span></span></div>
+            </section>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>الترتيب</th>
+                  <th>المشروع</th>
+                  <th>الحدائق</th>
+                  <th>المطلوب</th>
+                  <th>تم الري</th>
+                  <th>المخالفات</th>
+                  <th>الإنجاز</th>
+                  <th>الغرامات</th>
+                </tr>
+              </thead>
+              <tbody>${rowsHtml}</tbody>
+            </table>
           </main>
           <script>
             window.onload = function () {
@@ -2528,7 +2591,7 @@ const duplicatePhoto =
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(4, minmax(160px, 1fr))",
+                  gridTemplateColumns: "repeat(5, minmax(150px, 1fr))",
                   gap: 14,
                   marginBottom: 18,
                 }}
@@ -2573,6 +2636,22 @@ const duplicatePhoto =
                   }}
                 >
                   {executiveLoading ? "جارٍ التحليل..." : "تحديث المؤشرات"}
+                </button>
+                <button
+                  onClick={printExecutiveDashboard}
+                  disabled={!executiveRows.length}
+                  style={{
+                    alignSelf: "end",
+                    border: "none",
+                    borderRadius: 16,
+                    padding: "14px 18px",
+                    background: executiveRows.length ? "#8a5a11" : "#b8b1a0",
+                    color: "white",
+                    fontWeight: 900,
+                    cursor: executiveRows.length ? "pointer" : "not-allowed",
+                  }}
+                >
+                  🖨️ طباعة اللوحة
                 </button>
               </div>
 
