@@ -744,6 +744,11 @@ export default function AdminHome() {
             font-weight: 900;
           }
 
+          .executive-report-dashboard {
+            page-break-inside: avoid;
+            break-inside: avoid;
+          }
+
           .fines-report-box {
             page-break-before: always;
             break-before: page;
@@ -2093,6 +2098,209 @@ const duplicatePhoto =
                     </tbody>
                   </table>
                 </div>
+
+                {(() => {
+                  const totalWatered = reportRows.reduce((sum, row) => sum + row.watered, 0);
+                  const totalNotWatered = reportRows.reduce((sum, row) => sum + row.notWatered, 0);
+                  const totalInsufficient = reportRows.reduce((sum, row) => sum + row.insufficient, 0);
+                  const totalSidewalk = reportRows.reduce((sum, row) => sum + row.sidewalk, 0);
+                  const totalCases = totalWatered + totalNotWatered + totalInsufficient + totalSidewalk;
+                  const totalViolations = totalNotWatered + totalInsufficient + totalSidewalk;
+                  const totalFines = fineRows.reduce((sum, row) => sum + row.total, 0);
+                  const achievementPercent = totalCases
+                    ? Math.round((totalWatered / totalCases) * 100)
+                    : 0;
+                  const violationPercent = totalCases
+                    ? Math.round((totalViolations / totalCases) * 100)
+                    : 0;
+
+                  const cardBase = {
+                    border: "1px solid rgba(216, 180, 92, .45)",
+                    borderRadius: 18,
+                    padding: "16px 14px",
+                    background: "linear-gradient(180deg, #ffffff 0%, #fbf7ea 100%)",
+                    boxShadow: "0 10px 26px rgba(6, 43, 36, .08)",
+                    minHeight: 86,
+                  };
+
+                  return (
+                    <section
+                      className="executive-report-dashboard"
+                      style={{
+                        margin: "22px 0 26px",
+                        padding: 22,
+                        borderRadius: 26,
+                        border: "2px solid rgba(216, 180, 92, .55)",
+                        background:
+                          "linear-gradient(135deg, #ffffff 0%, #fff8e6 48%, #f5fbf7 100%)",
+                        boxShadow: "0 16px 40px rgba(6, 43, 36, .10)",
+                        breakInside: "avoid",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "flex-start",
+                          gap: 16,
+                          marginBottom: 18,
+                        }}
+                      >
+                        <div>
+                          <span
+                            style={{
+                              display: "inline-flex",
+                              padding: "7px 14px",
+                              borderRadius: 999,
+                              background: "#f8f1dc",
+                              color: "#8a5a11",
+                              fontWeight: 900,
+                              fontSize: 13,
+                              marginBottom: 8,
+                            }}
+                          >
+                            لوحة المؤشرات التنفيذية
+                          </span>
+                          <h3 style={{ margin: 0, fontSize: 24, color: "#062b24" }}>
+                            ملخص أداء الري خلال الفترة
+                          </h3>
+                          <p style={{ margin: "6px 0 0", color: "#55706a", fontWeight: 700 }}>
+                            قراءة سريعة لإجمالي الحالات، نسبة الإنجاز، وإجمالي الغرامات.
+                          </p>
+                        </div>
+
+                        <div
+                          style={{
+                            minWidth: 150,
+                            textAlign: "center",
+                            padding: "12px 14px",
+                            borderRadius: 20,
+                            background: "#062b24",
+                            color: "white",
+                            boxShadow: "0 12px 28px rgba(6, 43, 36, .22)",
+                          }}
+                        >
+                          <span style={{ display: "block", fontSize: 12, opacity: .85 }}>
+                            نسبة الإنجاز
+                          </span>
+                          <strong style={{ display: "block", fontSize: 34, lineHeight: 1.1 }}>
+                            {achievementPercent}%
+                          </strong>
+                        </div>
+                      </div>
+
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(4, minmax(130px, 1fr))",
+                          gap: 12,
+                          marginBottom: 18,
+                        }}
+                      >
+                        <div style={cardBase}>
+                          <span style={{ color: "#0f7a53", fontWeight: 900 }}>تم الري</span>
+                          <strong style={{ display: "block", fontSize: 30, marginTop: 8, color: "#062b24" }}>
+                            {formatMoney(totalWatered)}
+                          </strong>
+                        </div>
+                        <div style={cardBase}>
+                          <span style={{ color: "#9f1239", fontWeight: 900 }}>لم يتم الري</span>
+                          <strong style={{ display: "block", fontSize: 30, marginTop: 8, color: "#062b24" }}>
+                            {formatMoney(totalNotWatered)}
+                          </strong>
+                        </div>
+                        <div style={cardBase}>
+                          <span style={{ color: "#b45309", fontWeight: 900 }}>عدم كفاية الري</span>
+                          <strong style={{ display: "block", fontSize: 30, marginTop: 8, color: "#062b24" }}>
+                            {formatMoney(totalInsufficient)}
+                          </strong>
+                        </div>
+                        <div style={cardBase}>
+                          <span style={{ color: "#854d0e", fontWeight: 900 }}>خروج الري للرصيف</span>
+                          <strong style={{ display: "block", fontSize: 30, marginTop: 8, color: "#062b24" }}>
+                            {formatMoney(totalSidewalk)}
+                          </strong>
+                        </div>
+                      </div>
+
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "2fr 1fr",
+                          gap: 16,
+                          alignItems: "stretch",
+                        }}
+                      >
+                        <div
+                          style={{
+                            borderRadius: 20,
+                            padding: 16,
+                            background: "rgba(255,255,255,.82)",
+                            border: "1px solid #eadfbc",
+                          }}
+                        >
+                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+                            <strong>مؤشر الإنجاز العام</strong>
+                            <span style={{ fontWeight: 900 }}>{formatMoney(totalWatered)} / {formatMoney(totalCases)}</span>
+                          </div>
+                          <div
+                            style={{
+                              height: 22,
+                              borderRadius: 999,
+                              overflow: "hidden",
+                              background: "#eee7d5",
+                              display: "flex",
+                            }}
+                          >
+                            <span
+                              style={{
+                                width: `${achievementPercent}%`,
+                                background: "linear-gradient(90deg, #0f7a53, #20a36f)",
+                              }}
+                            />
+                            <span
+                              style={{
+                                width: `${violationPercent}%`,
+                                background: "linear-gradient(90deg, #d97706, #be123c)",
+                              }}
+                            />
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              marginTop: 10,
+                              fontSize: 13,
+                              color: "#55706a",
+                              fontWeight: 800,
+                            }}
+                          >
+                            <span>الأخضر: إنجاز الري</span>
+                            <span>الأحمر/البرتقالي: حالات تحتاج متابعة</span>
+                          </div>
+                        </div>
+
+                        <div
+                          style={{
+                            borderRadius: 20,
+                            padding: 16,
+                            background: "#fff7ed",
+                            border: "1px solid #fed7aa",
+                            textAlign: "center",
+                          }}
+                        >
+                          <span style={{ color: "#9a3412", fontWeight: 900 }}>إجمالي الغرامات</span>
+                          <strong style={{ display: "block", fontSize: 28, marginTop: 10, color: "#7f1d1d" }}>
+                            {formatMoney(totalFines)} ريال
+                          </strong>
+                          <small style={{ display: "block", marginTop: 8, color: "#9a3412", fontWeight: 800 }}>
+                            عدد المخالفات: {formatMoney(totalViolations)}
+                          </small>
+                        </div>
+                      </div>
+                    </section>
+                  );
+                })()}
 
                 <div className="fines-report-box">
                   <h3>الغرامات</h3>
