@@ -1097,6 +1097,9 @@ export default function AdminHome() {
       .filter((row) => row.required > 0)
       .sort((a, b) => a.achievementRate - b.achievementRate)[0];
     const highestFineProject = [...executiveRows].sort((a, b) => b.fines - a.fines)[0];
+    const isSingleExecutiveView = executiveProjectFilter !== "all";
+    const selectedExecutiveRow = executiveRows[0];
+    const executiveGap = Math.max(0, totalRequired - totalWatered);
 
     const rowsHtml = executiveRows
       .map(
@@ -1279,7 +1282,7 @@ export default function AdminHome() {
             <section class="executive-print-hero">
               <span>مركز القرار التنفيذي</span>
               <h1>لوحة المؤشرات التنفيذية</h1>
-              <p>من ${escapeHtml(executiveFromDate)} إلى ${escapeHtml(executiveToDate)} — ترتيب المشاريع وأداء الري والغرامات.</p>
+              <p>من ${escapeHtml(executiveFromDate)} إلى ${escapeHtml(executiveToDate)} — ${isSingleExecutiveView ? "مؤشرات المشروع المحدد: " + escapeHtml(selectedExecutiveRow?.projectName || "-") : "ترتيب المشاريع وأداء الري والغرامات"}.</p>
             </section>
 
             <section class="kpi-grid">
@@ -1288,9 +1291,9 @@ export default function AdminHome() {
                 <strong>${overallRate}%</strong>
                 <small>${formatMoney(totalWatered)} / ${formatMoney(totalRequired)} عملية مطلوبة</small>
               </div>
-              <div class="kpi-card"><span>أفضل مشروع</span><strong>${escapeHtml(bestProject?.projectName || "-")}</strong><small>إنجاز ${bestProject?.achievementRate || 0}%</small></div>
-              <div class="kpi-card"><span>أسوأ مشروع</span><strong>${escapeHtml(worstProject?.projectName || "-")}</strong><small>إنجاز ${worstProject?.achievementRate || 0}%</small></div>
-              <div class="kpi-card"><span>أعلى غرامات</span><strong>${escapeHtml(highestFineProject?.projectName || "-")}</strong><small>${formatMoney(highestFineProject?.fines || 0)} ريال</small></div>
+              <div class="kpi-card"><span>${isSingleExecutiveView ? "حالة المشروع" : "أفضل مشروع"}</span><strong>${escapeHtml(isSingleExecutiveView ? (selectedExecutiveRow?.projectName || "-") : (bestProject?.projectName || "-"))}</strong><small>إنجاز ${isSingleExecutiveView ? (selectedExecutiveRow?.achievementRate || 0) : (bestProject?.achievementRate || 0)}%</small></div>
+              <div class="kpi-card"><span>${isSingleExecutiveView ? "الفجوة عن المطلوب" : "أسوأ مشروع"}</span><strong>${isSingleExecutiveView ? formatMoney(executiveGap) : escapeHtml(worstProject?.projectName || "-")}</strong><small>${isSingleExecutiveView ? "عملية ري غير منجزة" : "إنجاز " + (worstProject?.achievementRate || 0) + "%"}</small></div>
+              <div class="kpi-card"><span>${isSingleExecutiveView ? "غرامات المشروع" : "أعلى غرامات"}</span><strong>${isSingleExecutiveView ? formatMoney(totalFines) + " ريال" : escapeHtml(highestFineProject?.projectName || "-")}</strong><small>${isSingleExecutiveView ? formatMoney(totalViolations) + " مخالفة" : formatMoney(highestFineProject?.fines || 0) + " ريال"}</small></div>
             </section>
 
             <section class="progress-card">
@@ -2570,7 +2573,9 @@ const duplicatePhoto =
                   لوحة المؤشرات التنفيذية
                 </h2>
                 <p style={{ margin: "8px 0 0", opacity: .86, fontWeight: 700 }}>
-                  ترتيب المشاريع، أفضل أداء، أعلى تعثر، وإجمالي الغرامات حسب الفترة المحددة مع إمكانية عرض كل المشاريع أو مشروع محدد.
+                  {executiveProjectFilter === "all"
+                    ? "ترتيب المشاريع، أفضل أداء، أعلى تعثر، وإجمالي الغرامات حسب الفترة المحددة."
+                    : "قراءة تنفيذية مركزة للمشروع المحدد: الإنجاز، الفجوة عن المطلوب، المخالفات، والأثر المالي."}
                 </p>
               </div>
 
@@ -2704,6 +2709,9 @@ const duplicatePhoto =
                     .filter((row) => row.required > 0)
                     .sort((a, b) => a.achievementRate - b.achievementRate)[0];
                   const highestFineProject = [...executiveRows].sort((a, b) => b.fines - a.fines)[0];
+                  const isSingleExecutiveView = executiveProjectFilter !== "all";
+                  const selectedExecutiveRow = executiveRows[0];
+                  const executiveGap = Math.max(0, totalRequired - totalWatered);
 
                   const kpiStyle = {
                     borderRadius: 24,
@@ -2741,32 +2749,50 @@ const duplicatePhoto =
                         </div>
 
                         <div style={kpiStyle}>
-                          <span style={{ color: "#0f7a53", fontWeight: 900 }}>أفضل مشروع</span>
+                          <span style={{ color: "#0f7a53", fontWeight: 900 }}>
+                            {isSingleExecutiveView ? "حالة المشروع" : "أفضل مشروع"}
+                          </span>
                           <strong style={{ display: "block", fontSize: 22, marginTop: 10, color: "#062b24" }}>
-                            {bestProject?.projectName || "-"}
+                            {isSingleExecutiveView
+                              ? selectedExecutiveRow?.projectName || "-"
+                              : bestProject?.projectName || "-"}
                           </strong>
                           <small style={{ color: "#55706a", fontWeight: 800 }}>
-                            إنجاز {bestProject?.achievementRate || 0}%
+                            إنجاز {isSingleExecutiveView
+                              ? selectedExecutiveRow?.achievementRate || 0
+                              : bestProject?.achievementRate || 0}%
                           </small>
                         </div>
 
                         <div style={kpiStyle}>
-                          <span style={{ color: "#be123c", fontWeight: 900 }}>أسوأ مشروع</span>
+                          <span style={{ color: "#be123c", fontWeight: 900 }}>
+                            {isSingleExecutiveView ? "الفجوة عن المطلوب" : "أسوأ مشروع"}
+                          </span>
                           <strong style={{ display: "block", fontSize: 22, marginTop: 10, color: "#062b24" }}>
-                            {worstProject?.projectName || "-"}
+                            {isSingleExecutiveView
+                              ? formatMoney(executiveGap)
+                              : worstProject?.projectName || "-"}
                           </strong>
                           <small style={{ color: "#55706a", fontWeight: 800 }}>
-                            إنجاز {worstProject?.achievementRate || 0}%
+                            {isSingleExecutiveView
+                              ? "عملية ري غير منجزة"
+                              : `إنجاز ${worstProject?.achievementRate || 0}%`}
                           </small>
                         </div>
 
                         <div style={kpiStyle}>
-                          <span style={{ color: "#9a3412", fontWeight: 900 }}>أعلى غرامات</span>
+                          <span style={{ color: "#9a3412", fontWeight: 900 }}>
+                            {isSingleExecutiveView ? "غرامات المشروع" : "أعلى غرامات"}
+                          </span>
                           <strong style={{ display: "block", fontSize: 22, marginTop: 10, color: "#7f1d1d" }}>
-                            {highestFineProject?.projectName || "-"}
+                            {isSingleExecutiveView
+                              ? `${formatMoney(totalFines)} ريال`
+                              : highestFineProject?.projectName || "-"}
                           </strong>
                           <small style={{ color: "#9a3412", fontWeight: 900 }}>
-                            {formatMoney(highestFineProject?.fines || 0)} ريال
+                            {isSingleExecutiveView
+                              ? `${formatMoney(totalViolations)} مخالفة`
+                              : `${formatMoney(highestFineProject?.fines || 0)} ريال`}
                           </small>
                         </div>
                       </div>
@@ -2839,7 +2865,9 @@ const duplicatePhoto =
 
                       <div style={kpiStyle}>
                         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
-                          <h3 style={{ margin: 0 }}>ترتيب المشاريع حسب الإنجاز</h3>
+                          <h3 style={{ margin: 0 }}>
+                            {isSingleExecutiveView ? "تفصيل أداء المشروع خلال الفترة" : "ترتيب المشاريع حسب الإنجاز"}
+                          </h3>
                           <span style={{ color: "#55706a", fontWeight: 800 }}>
                             من {executiveFromDate} إلى {executiveToDate}
                           </span>
