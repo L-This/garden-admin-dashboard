@@ -795,9 +795,7 @@ export default function AdminHome() {
   }
 
   function printReportOnly() {
-    const report = document.getElementById("report-print");
-
-    if (!report) {
+    if (!reportRows.length) {
       alert("أنشئ التقرير أولًا");
       return;
     }
@@ -809,136 +807,450 @@ export default function AdminHome() {
       return;
     }
 
+    const escapeHtml = (value: unknown) =>
+      String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+    const workingDays = workingDaysBetweenInclusive(reportFromDate, reportToDate);
+    const requiredWateringTotal = reportRows.length * workingDays;
+    const totalWatered = reportRows.reduce((sum, row) => sum + row.watered, 0);
+    const totalNotWatered = reportRows.reduce((sum, row) => sum + row.notWatered, 0);
+    const totalInsufficient = reportRows.reduce((sum, row) => sum + row.insufficient, 0);
+    const totalSidewalk = reportRows.reduce((sum, row) => sum + row.sidewalk, 0);
+    const totalViolations = totalNotWatered + totalInsufficient + totalSidewalk;
+    const totalFines = fineRows.reduce((sum, row) => sum + row.total, 0);
+    const achievementPercent = requiredWateringTotal
+      ? Math.round((totalWatered / requiredWateringTotal) * 100)
+      : 0;
+    const safeAchievementPercent = Math.max(0, Math.min(100, achievementPercent));
+    const violationPercent = requiredWateringTotal
+      ? Math.round((totalViolations / requiredWateringTotal) * 100)
+      : 0;
+    const safeViolationPercent = Math.max(0, Math.min(100, violationPercent));
+
+    const reportRowsHtml = reportRows
+      .map(
+        (row) => `
+          <tr>
+            <td>${escapeHtml(row.gardenName)}</td>
+            <td>${formatMoney(row.watered)}</td>
+            <td>${formatMoney(row.notWatered)}</td>
+            <td>${formatMoney(row.insufficient)}</td>
+            <td>${formatMoney(row.sidewalk)}</td>
+          </tr>`,
+      )
+      .join("");
+
+    const fineRowsHtml = fineRows.length
+      ? fineRows
+          .map(
+            (row) => `
+              <tr>
+                <td>${escapeHtml(row.gardenName)}</td>
+                <td>${escapeHtml(row.violationType)}</td>
+                <td>${formatMoney(row.count)}</td>
+                <td>${formatMoney(row.fineAmount)} ريال</td>
+                <td>${formatMoney(row.total)} ريال</td>
+              </tr>`,
+          )
+          .join("")
+      : `<tr><td colspan="5">لا توجد غرامات خلال الفترة المحددة</td></tr>`;
+
     printWindow.document.write(`
-    <!doctype html>
-    <html lang="ar" dir="rtl">
-      <head>
-        <meta charset="utf-8" />
-        <title>تقرير ري الحدائق</title>
-        <style>
-          @page {
-            size: A4 landscape;
-            margin: 10mm;
-          }
+      <!doctype html>
+      <html lang="ar" dir="rtl">
+        <head>
+          <meta charset="utf-8" />
+          <title>تقرير ري الحدائق</title>
+          <style>
+            @page {
+              size: A4 landscape;
+              margin: 10mm;
+            }
 
-          body {
-            margin: 0;
-            padding: 0;
-            direction: rtl;
-            font-family: Arial, sans-serif;
-            color: #062b24;
-            background: white;
-          }
+            * {
+              box-sizing: border-box;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
 
-          .period-report-print-area {
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-          }
+            body {
+              margin: 0;
+              direction: rtl;
+              font-family: Arial, sans-serif;
+              color: #062b24;
+              background: #ffffff;
+            }
 
-          .period-report-head,
-          .fines-report-box h3 {
-            text-align: center;
-            margin-bottom: 14px;
-          }
+            .print-page {
+              width: 100%;
+            }
 
-          .period-report-head h3 {
-            font-size: 24px;
-            margin: 0 0 6px;
-          }
+            .period-report-head {
+              text-align: center;
+              margin-bottom: 12px;
+              break-after: avoid;
+              page-break-after: avoid;
+            }
 
-          .period-report-head p {
-            font-size: 14px;
-            margin: 0;
-            font-weight: 700;
-          }
+            .period-report-head h3 {
+              font-size: 24px;
+              margin: 0 0 6px;
+              font-weight: 900;
+            }
 
-          table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-            margin: 12px 0 24px;
-            font-size: 11px;
-          }
+            .period-report-head p {
+              font-size: 14px;
+              margin: 0;
+              font-weight: 700;
+            }
 
-          th,
-          td {
-            border: 1px solid #d8c58b;
-            padding: 7px 5px;
-            text-align: center;
-            vertical-align: middle;
-            word-break: break-word;
-            line-height: 1.5;
-          }
+            .table-wrap {
+              width: 100%;
+            }
 
-          th {
-            background: #f8f1dc;
-            font-weight: 900;
-          }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              table-layout: fixed;
+              font-size: 11px;
+              margin: 10px 0 18px;
+            }
 
-          .executive-report-dashboard {
-  page-break-inside: avoid;
-  break-inside: avoid;
-  margin: 18px 0 22px !important;
-  padding: 18px !important;
-  border: 2px solid rgba(216, 180, 92, .55) !important;
-  border-radius: 22px !important;
-  background: #fffaf0 !important;
-}
+            thead {
+              display: table-header-group;
+            }
 
-.executive-report-dashboard * {
-  -webkit-print-color-adjust: exact !important;
-  print-color-adjust: exact !important;
-}
+            tfoot {
+              display: table-footer-group;
+            }
 
-          .fines-report-box {
-            page-break-before: always;
-            break-before: page;
-          }
+            tr {
+              break-inside: avoid;
+              page-break-inside: avoid;
+            }
 
-          .total-fines-card {
-            margin-top: 16px;
-            padding: 14px;
-            border: 2px solid #d8c58b;
-            text-align: center;
-            font-weight: 900;
-            font-size: 18px;
-          }
+            th,
+            td {
+              border: 1px solid #d8c58b;
+              padding: 7px 5px;
+              text-align: center;
+              vertical-align: middle;
+              word-break: break-word;
+              line-height: 1.45;
+            }
 
-          .total-fines-card strong {
-            color: #b91c1c;
-            display: block;
-            margin-top: 8px;
-            font-size: 24px;
-          }
+            th {
+              background: #07563f;
+              color: #ffffff;
+              font-weight: 900;
+            }
 
-          .edit-modal-actions,
-          button {
-            display: none !important;
-          }
+            .dashboard-page {
+              break-before: page;
+              page-break-before: always;
+              break-inside: avoid;
+              page-break-inside: avoid;
+              padding-top: 2mm;
+            }
 
-          @media print {
-  .executive-report-dashboard {
-    overflow: visible !important;
-  }
+            .executive-report-dashboard {
+              width: 100%;
+              margin: 0 0 16px;
+              padding: 18px;
+              border: 2px solid rgba(216, 180, 92, .72);
+              border-radius: 22px;
+              background: linear-gradient(135deg, #ffffff 0%, #fff8e6 48%, #f5fbf7 100%);
+              box-shadow: none;
+              overflow: visible;
+            }
 
-  .fines-report-box {
-    page-break-before: auto !important;
-    break-before: auto !important;
-  }
-}
-        </style>
-      </head>
-      <body>
-        ${report.outerHTML}
-        <script>
-          window.onload = function () {
-            window.print();
-          };
-        </script>
-      </body>
-    </html>
-  `);
+            .dash-head {
+              display: flex;
+              justify-content: space-between;
+              gap: 16px;
+              align-items: flex-start;
+              margin-bottom: 16px;
+            }
+
+            .dash-badge {
+              display: inline-block;
+              padding: 6px 13px;
+              border-radius: 999px;
+              background: #f8f1dc;
+              color: #8a5a11;
+              font-weight: 900;
+              font-size: 12px;
+              margin-bottom: 8px;
+            }
+
+            .dash-head h3 {
+              margin: 0;
+              font-size: 23px;
+              color: #062b24;
+            }
+
+            .dash-head p {
+              margin: 6px 0 0;
+              color: #55706a;
+              font-weight: 700;
+              font-size: 13px;
+            }
+
+            .achievement-box {
+              min-width: 145px;
+              text-align: center;
+              padding: 12px 14px;
+              border-radius: 18px;
+              background: #062b24;
+              color: white;
+            }
+
+            .achievement-box span {
+              display: block;
+              font-size: 12px;
+              opacity: .85;
+            }
+
+            .achievement-box strong {
+              display: block;
+              font-size: 34px;
+              line-height: 1.1;
+            }
+
+            .kpi-grid {
+              display: grid;
+              grid-template-columns: repeat(4, 1fr);
+              gap: 10px;
+              margin-bottom: 14px;
+            }
+
+            .kpi-card {
+              min-height: 76px;
+              padding: 13px 12px;
+              border-radius: 16px;
+              background: linear-gradient(180deg, #ffffff 0%, #fbf7ea 100%);
+              border: 1px solid rgba(216, 180, 92, .55);
+            }
+
+            .kpi-card span {
+              display: block;
+              font-weight: 900;
+              font-size: 13px;
+            }
+
+            .kpi-card strong {
+              display: block;
+              margin-top: 7px;
+              color: #062b24;
+              font-size: 25px;
+            }
+
+            .dashboard-bottom {
+              display: grid;
+              grid-template-columns: 2fr 1fr;
+              gap: 12px;
+            }
+
+            .progress-card,
+            .fines-card {
+              border-radius: 18px;
+              padding: 14px;
+              background: rgba(255,255,255,.88);
+              border: 1px solid #eadfbc;
+            }
+
+            .progress-title {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 9px;
+              font-weight: 900;
+            }
+
+            .progress-bar {
+              height: 22px;
+              border-radius: 999px;
+              overflow: hidden;
+              background: #eee7d5;
+              display: flex;
+            }
+
+            .progress-green {
+              width: ${safeAchievementPercent}%;
+              background: linear-gradient(90deg, #0f7a53, #20a36f);
+            }
+
+            .progress-red {
+              width: ${safeViolationPercent}%;
+              background: linear-gradient(90deg, #d97706, #be123c);
+            }
+
+            .progress-note {
+              display: flex;
+              justify-content: space-between;
+              margin-top: 9px;
+              font-size: 12px;
+              color: #55706a;
+              font-weight: 800;
+              gap: 10px;
+            }
+
+            .fines-card {
+              background: #fff7ed;
+              border-color: #fed7aa;
+              text-align: center;
+            }
+
+            .fines-card span {
+              color: #9a3412;
+              font-weight: 900;
+            }
+
+            .fines-card strong {
+              display: block;
+              margin-top: 9px;
+              color: #7f1d1d;
+              font-size: 25px;
+            }
+
+            .fines-card small {
+              display: block;
+              margin-top: 7px;
+              color: #9a3412;
+              font-weight: 800;
+            }
+
+            .fines-section {
+              margin-top: 10px;
+            }
+
+            .fines-section h3 {
+              text-align: center;
+              margin: 0 0 10px;
+              font-size: 20px;
+            }
+
+            .total-fines-card {
+              margin-top: 12px;
+              padding: 12px;
+              border: 2px solid #d8c58b;
+              border-radius: 16px;
+              text-align: center;
+              font-weight: 900;
+              font-size: 16px;
+              background: #fffaf0;
+            }
+
+            .total-fines-card strong {
+              color: #b91c1c;
+              display: block;
+              margin-top: 7px;
+              font-size: 22px;
+            }
+          </style>
+        </head>
+        <body>
+          <main class="print-page">
+            <section class="period-report-head">
+              <h3>تقرير ري الحدائق</h3>
+              <p>${escapeHtml(reportTitle)}</p>
+            </section>
+
+            <section class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>الحديقة</th>
+                    <th>تم الري</th>
+                    <th>لم يتم الري</th>
+                    <th>عدم كفاية ري</th>
+                    <th>خروج الري</th>
+                  </tr>
+                </thead>
+                <tbody>${reportRowsHtml}</tbody>
+              </table>
+            </section>
+
+            <section class="dashboard-page">
+              <div class="executive-report-dashboard">
+                <div class="dash-head">
+                  <div>
+                    <span class="dash-badge">لوحة المؤشرات التنفيذية</span>
+                    <h3>ملخص أداء الري خلال الفترة</h3>
+                    <p>قراءة سريعة للإجمالي المطلوب حسب الفترة، نسبة الإنجاز، وإجمالي الغرامات.</p>
+                  </div>
+                  <div class="achievement-box">
+                    <span>نسبة الإنجاز</span>
+                    <strong>${achievementPercent}%</strong>
+                  </div>
+                </div>
+
+                <div class="kpi-grid">
+                  <div class="kpi-card"><span style="color:#0f7a53">تم الري</span><strong>${formatMoney(totalWatered)}</strong></div>
+                  <div class="kpi-card"><span style="color:#9f1239">لم يتم الري</span><strong>${formatMoney(totalNotWatered)}</strong></div>
+                  <div class="kpi-card"><span style="color:#b45309">عدم كفاية الري</span><strong>${formatMoney(totalInsufficient)}</strong></div>
+                  <div class="kpi-card"><span style="color:#854d0e">خروج الري للرصيف</span><strong>${formatMoney(totalSidewalk)}</strong></div>
+                </div>
+
+                <div class="dashboard-bottom">
+                  <div class="progress-card">
+                    <div class="progress-title">
+                      <strong>مؤشر الإنجاز العام</strong>
+                      <span>${formatMoney(totalWatered)} / ${formatMoney(requiredWateringTotal)}</span>
+                    </div>
+                    <div class="progress-bar">
+                      <span class="progress-green"></span>
+                      <span class="progress-red"></span>
+                    </div>
+                    <div class="progress-note">
+                      <span>المطلوب للفترة: ${formatMoney(requiredWateringTotal)} (${formatMoney(reportRows.length)} حديقة × ${formatMoney(workingDays)} أيام عمل)</span>
+                      <span>الأحمر/البرتقالي: حالات تحتاج متابعة</span>
+                    </div>
+                  </div>
+
+                  <div class="fines-card">
+                    <span>إجمالي الغرامات</span>
+                    <strong>${formatMoney(totalFines)} ريال</strong>
+                    <small>عدد المخالفات: ${formatMoney(totalViolations)}</small>
+                  </div>
+                </div>
+              </div>
+
+              <section class="fines-section">
+                <h3>الغرامات</h3>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>الحديقة</th>
+                      <th>نوع المخالفة</th>
+                      <th>عدد المرات</th>
+                      <th>قيمة الغرامة</th>
+                      <th>الإجمالي</th>
+                    </tr>
+                  </thead>
+                  <tbody>${fineRowsHtml}</tbody>
+                </table>
+
+                <div class="total-fines-card">
+                  <span>إجمالي الغرامات لكافة الحدائق</span>
+                  <strong>${formatMoney(totalFines)} ريال</strong>
+                </div>
+              </section>
+            </section>
+          </main>
+          <script>
+            window.onload = function () {
+              window.focus();
+              window.print();
+            };
+          </script>
+        </body>
+      </html>
+    `);
 
     printWindow.document.close();
   }
