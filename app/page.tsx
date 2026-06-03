@@ -117,6 +117,22 @@ type FineRow = {
   total: number;
 };
 
+type ExecutiveProjectRow = {
+  projectId: string;
+  projectName: string;
+  district: string;
+  totalGardens: number;
+  workingDays: number;
+  required: number;
+  watered: number;
+  notWatered: number;
+  insufficient: number;
+  sidewalk: number;
+  violations: number;
+  fines: number;
+  achievementRate: number;
+};
+
 function today() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -226,6 +242,13 @@ export default function AdminHome() {
   const [notWateredFine, setNotWateredFine] = useState(1000);
   const [insufficientFine, setInsufficientFine] = useState(500);
   const [sidewalkFine, setSidewalkFine] = useState(300);
+
+  const [showExecutiveModal, setShowExecutiveModal] = useState(false);
+  const [executiveFromDate, setExecutiveFromDate] = useState(today());
+  const [executiveToDate, setExecutiveToDate] = useState(today());
+  const [executiveLoading, setExecutiveLoading] = useState(false);
+  const [executiveRows, setExecutiveRows] = useState<ExecutiveProjectRow[]>([]);
+  const [executiveError, setExecutiveError] = useState("");
 
   const [showAuditModal, setShowAuditModal] = useState(false);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
@@ -659,6 +682,115 @@ export default function AdminHome() {
     setFineRows(fines);
     setReportTitle(
       `${selectedProject.name} من ${reportFromDate} إلى ${reportToDate}`,
+    );
+  }
+
+  async function loadExecutiveDashboard() {
+    setExecutiveError("");
+    setExecutiveRows([]);
+
+    if (!executiveFromDate || !executiveToDate) {
+      setExecutiveError("حدد تاريخ البداية والنهاية أولًا.");
+      return;
+    }
+
+    const workingDays = workingDaysBetweenInclusive(
+      executiveFromDate,
+      executiveToDate,
+    );
+
+    if (!workingDays) {
+      setExecutiveError("تأكد أن تاريخ النهاية بعد تاريخ البداية.");
+      return;
+    }
+
+    setExecutiveLoading(true);
+
+    const { data, error } = await supabase
+      .from("reports")
+      .select(
+        "id, garden_id, report_date, status, insufficient_watering, sidewalk_runoff",
+      )
+      .gte("report_date", executiveFromDate)
+      .lte("report_date", executiveToDate);
+
+    setExecutiveLoading(false);
+
+    if (error) {
+      setExecutiveError("تعذر تحميل لوحة المؤشرات: " + error.message);
+      return;
+    }
+
+    const periodReports = (data || []) as Pick<
+      Report,
+      | "id"
+      | "garden_id"
+      | "report_date"
+      | "status"
+      | "insufficient_watering"
+      | "sidewalk_runoff"
+    >[];
+
+    const currentNotWateredFine = Number(notWateredFine) || 0;
+    const currentInsufficientFine = Number(insufficientFine) || 0;
+    const currentSidewalkFine = Number(sidewalkFine) || 0;
+
+    const rows: ExecutiveProjectRow[] = projects.map((project) => {
+      const projectGardens = gardens.filter(
+        (garden) => garden.project_id === project.id,
+      );
+      const gardenIds = new Set(projectGardens.map((garden) => garden.id));
+      const projectReports = periodReports.filter((report) =>
+        gardenIds.has(report.garden_id),
+      );
+
+      let watered = 0;
+      let notWateredExplicit = 0;
+      let insufficient = 0;
+      let sidewalk = 0;
+
+      projectReports.forEach((report) => {
+        const status = getReportStatus(report as Report);
+        if (status === "not_watered") notWateredExplicit += 1;
+        else if (status === "insufficient") insufficient += 1;
+        else if (status === "sidewalk_runoff") sidewalk += 1;
+        else watered += 1;
+      });
+
+      const required = projectGardens.length * workingDays;
+      const reportedKeys = new Set(
+        projectReports.map((report) => `${report.garden_id}-${report.report_date}`),
+      );
+      const missing = Math.max(0, required - reportedKeys.size);
+      const notWatered = notWateredExplicit + missing;
+      const violations = notWatered + insufficient + sidewalk;
+      const fines =
+        notWatered * currentNotWateredFine +
+        insufficient * currentInsufficientFine +
+        sidewalk * currentSidewalkFine;
+      const achievementRate = required
+        ? Math.round((watered / required) * 100)
+        : 0;
+
+      return {
+        projectId: project.id,
+        projectName: project.name,
+        district: project.district || "بدون نطاق",
+        totalGardens: projectGardens.length,
+        workingDays,
+        required,
+        watered,
+        notWatered,
+        insufficient,
+        sidewalk,
+        violations,
+        fines,
+        achievementRate,
+      };
+    });
+
+    setExecutiveRows(
+      rows.sort((a, b) => b.achievementRate - a.achievementRate),
     );
   }
 
@@ -1356,6 +1488,16 @@ export default function AdminHome() {
             📊 إعداد تقرير
           </button>
           {isManager && (
+            <button
+              onClick={() => {
+                setShowExecutiveModal(true);
+                if (!executiveRows.length) loadExecutiveDashboard();
+              }}
+            >
+              📈 لوحة المؤشرات التنفيذية
+            </button>
+          )}
+          {isManager && (
             <button onClick={openAuditLogModal}>↩ سجل التعديلات</button>
           )}
           {isManager && (
@@ -1972,6 +2114,380 @@ const duplicatePhoto =
         </div>
       )}
 
+      {showExecutiveModal && isManager && (
+        <div
+          className="edit-modal-backdrop"
+          onClick={() => setShowExecutiveModal(false)}
+        >
+          <section
+            className="edit-modal"
+            style={{
+              width: "min(1240px, 96vw)",
+              maxHeight: "92vh",
+              overflow: "auto",
+              borderRadius: 34,
+              padding: 0,
+              background:
+                "radial-gradient(circle at 20% 10%, rgba(255,232,168,.52), transparent 26%), linear-gradient(135deg, #062b24 0%, #0b4a38 38%, #f7edd0 100%)",
+              border: "1px solid rgba(255, 239, 190, .65)",
+              boxShadow: "0 28px 80px rgba(6,43,36,.35)",
+            }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div
+              style={{
+                padding: "28px 32px",
+                color: "white",
+                display: "flex",
+                justifyContent: "space-between",
+                gap: 18,
+                alignItems: "flex-start",
+              }}
+            >
+              <div>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    padding: "8px 16px",
+                    borderRadius: 999,
+                    background: "rgba(255,255,255,.15)",
+                    border: "1px solid rgba(255,255,255,.25)",
+                    fontWeight: 900,
+                    marginBottom: 12,
+                  }}
+                >
+                  مركز القرار التنفيذي
+                </span>
+                <h2 style={{ margin: 0, fontSize: 34 }}>
+                  لوحة المؤشرات التنفيذية
+                </h2>
+                <p style={{ margin: "8px 0 0", opacity: .86, fontWeight: 700 }}>
+                  ترتيب المشاريع، أفضل أداء، أعلى تعثر، وإجمالي الغرامات حسب الفترة المحددة.
+                </p>
+              </div>
+
+              <button
+                onClick={() => setShowExecutiveModal(false)}
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 999,
+                  border: "none",
+                  background: "rgba(255,255,255,.18)",
+                  color: "white",
+                  fontSize: 24,
+                  cursor: "pointer",
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div
+              style={{
+                margin: "0 22px 22px",
+                padding: 22,
+                borderRadius: 28,
+                background: "rgba(255,255,255,.92)",
+                backdropFilter: "blur(16px)",
+              }}
+            >
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(4, minmax(160px, 1fr))",
+                  gap: 14,
+                  marginBottom: 18,
+                }}
+              >
+                <label>
+                  <span>من تاريخ</span>
+                  <input
+                    type="date"
+                    value={executiveFromDate}
+                    onChange={(e) => setExecutiveFromDate(e.target.value)}
+                  />
+                </label>
+                <label>
+                  <span>إلى تاريخ</span>
+                  <input
+                    type="date"
+                    value={executiveToDate}
+                    onChange={(e) => setExecutiveToDate(e.target.value)}
+                  />
+                </label>
+                <label>
+                  <span>غرامة لم يتم الري</span>
+                  <input
+                    type="number"
+                    min="0"
+                    value={notWateredFine}
+                    onChange={(e) => setNotWateredFine(Number(e.target.value))}
+                  />
+                </label>
+                <button
+                  onClick={loadExecutiveDashboard}
+                  disabled={executiveLoading}
+                  style={{
+                    alignSelf: "end",
+                    border: "none",
+                    borderRadius: 16,
+                    padding: "14px 18px",
+                    background: "#0d6b4d",
+                    color: "white",
+                    fontWeight: 900,
+                    cursor: "pointer",
+                  }}
+                >
+                  {executiveLoading ? "جارٍ التحليل..." : "تحديث المؤشرات"}
+                </button>
+              </div>
+
+              {executiveError && <p className="report-error">{executiveError}</p>}
+
+              {executiveRows.length > 0 &&
+                (() => {
+                  const totalRequired = executiveRows.reduce((sum, row) => sum + row.required, 0);
+                  const totalWatered = executiveRows.reduce((sum, row) => sum + row.watered, 0);
+                  const totalViolations = executiveRows.reduce((sum, row) => sum + row.violations, 0);
+                  const totalFines = executiveRows.reduce((sum, row) => sum + row.fines, 0);
+                  const overallRate = totalRequired
+                    ? Math.round((totalWatered / totalRequired) * 100)
+                    : 0;
+                  const bestProject = executiveRows
+                    .filter((row) => row.required > 0)
+                    .sort((a, b) => b.achievementRate - a.achievementRate)[0];
+                  const worstProject = executiveRows
+                    .filter((row) => row.required > 0)
+                    .sort((a, b) => a.achievementRate - b.achievementRate)[0];
+                  const highestFineProject = [...executiveRows].sort((a, b) => b.fines - a.fines)[0];
+
+                  const kpiStyle = {
+                    borderRadius: 24,
+                    padding: 20,
+                    background: "linear-gradient(180deg, #ffffff, #fbf5e6)",
+                    border: "1px solid #eadfbc",
+                    boxShadow: "0 14px 32px rgba(6,43,36,.08)",
+                  };
+
+                  return (
+                    <>
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "1.1fr repeat(3, 1fr)",
+                          gap: 16,
+                          marginBottom: 18,
+                        }}
+                      >
+                        <div
+                          style={{
+                            ...kpiStyle,
+                            background:
+                              "radial-gradient(circle at 15% 15%, rgba(255,211,105,.38), transparent 32%), linear-gradient(135deg, #062b24, #0f6f52)",
+                            color: "white",
+                          }}
+                        >
+                          <span style={{ opacity: .86, fontWeight: 800 }}>نسبة الإنجاز العامة</span>
+                          <strong style={{ display: "block", fontSize: 54, lineHeight: 1, marginTop: 12 }}>
+                            {overallRate}%
+                          </strong>
+                          <small style={{ display: "block", marginTop: 10, opacity: .9 }}>
+                            {formatMoney(totalWatered)} / {formatMoney(totalRequired)} عملية مطلوبة
+                          </small>
+                        </div>
+
+                        <div style={kpiStyle}>
+                          <span style={{ color: "#0f7a53", fontWeight: 900 }}>أفضل مشروع</span>
+                          <strong style={{ display: "block", fontSize: 22, marginTop: 10, color: "#062b24" }}>
+                            {bestProject?.projectName || "-"}
+                          </strong>
+                          <small style={{ color: "#55706a", fontWeight: 800 }}>
+                            إنجاز {bestProject?.achievementRate || 0}%
+                          </small>
+                        </div>
+
+                        <div style={kpiStyle}>
+                          <span style={{ color: "#be123c", fontWeight: 900 }}>أسوأ مشروع</span>
+                          <strong style={{ display: "block", fontSize: 22, marginTop: 10, color: "#062b24" }}>
+                            {worstProject?.projectName || "-"}
+                          </strong>
+                          <small style={{ color: "#55706a", fontWeight: 800 }}>
+                            إنجاز {worstProject?.achievementRate || 0}%
+                          </small>
+                        </div>
+
+                        <div style={kpiStyle}>
+                          <span style={{ color: "#9a3412", fontWeight: 900 }}>أعلى غرامات</span>
+                          <strong style={{ display: "block", fontSize: 22, marginTop: 10, color: "#7f1d1d" }}>
+                            {highestFineProject?.projectName || "-"}
+                          </strong>
+                          <small style={{ color: "#9a3412", fontWeight: 900 }}>
+                            {formatMoney(highestFineProject?.fines || 0)} ريال
+                          </small>
+                        </div>
+                      </div>
+
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "1.35fr .65fr",
+                          gap: 16,
+                          marginBottom: 18,
+                        }}
+                      >
+                        <div style={kpiStyle}>
+                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+                            <strong>مؤشر الأداء العام</strong>
+                            <span style={{ fontWeight: 900 }}>{overallRate}%</span>
+                          </div>
+                          <div
+                            style={{
+                              height: 26,
+                              borderRadius: 999,
+                              overflow: "hidden",
+                              background: "#efe7d4",
+                              display: "flex",
+                            }}
+                          >
+                            <span
+                              style={{
+                                width: `${overallRate}%`,
+                                background: "linear-gradient(90deg, #0f7a53, #24b47e)",
+                              }}
+                            />
+                            <span
+                              style={{
+                                width: `${Math.max(0, 100 - overallRate)}%`,
+                                background: "linear-gradient(90deg, #f59e0b, #be123c)",
+                              }}
+                            />
+                          </div>
+                          <div
+                            style={{
+                              marginTop: 14,
+                              display: "grid",
+                              gridTemplateColumns: "repeat(4, 1fr)",
+                              gap: 10,
+                              textAlign: "center",
+                            }}
+                          >
+                            <div><strong>{formatMoney(totalRequired)}</strong><br /><small>المطلوب</small></div>
+                            <div><strong>{formatMoney(totalWatered)}</strong><br /><small>تم الري</small></div>
+                            <div><strong>{formatMoney(totalViolations)}</strong><br /><small>مخالفات</small></div>
+                            <div><strong>{formatMoney(totalFines)} ريال</strong><br /><small>غرامات</small></div>
+                          </div>
+                        </div>
+
+                        <div
+                          style={{
+                            ...kpiStyle,
+                            textAlign: "center",
+                            background: "linear-gradient(180deg, #fff7ed, #ffffff)",
+                          }}
+                        >
+                          <span style={{ color: "#9a3412", fontWeight: 900 }}>الأثر المالي</span>
+                          <strong style={{ display: "block", fontSize: 34, color: "#7f1d1d", marginTop: 12 }}>
+                            {formatMoney(totalFines)}
+                          </strong>
+                          <small style={{ color: "#9a3412", fontWeight: 900 }}>ريال إجمالي الغرامات</small>
+                        </div>
+                      </div>
+
+                      <div style={kpiStyle}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
+                          <h3 style={{ margin: 0 }}>ترتيب المشاريع حسب الإنجاز</h3>
+                          <span style={{ color: "#55706a", fontWeight: 800 }}>
+                            من {executiveFromDate} إلى {executiveToDate}
+                          </span>
+                        </div>
+
+                        <div style={{ display: "grid", gap: 12 }}>
+                          {executiveRows.map((row, index) => (
+                            <div
+                              key={row.projectId}
+                              style={{
+                                display: "grid",
+                                gridTemplateColumns: "46px 1.2fr 1.6fr 120px 130px",
+                                gap: 12,
+                                alignItems: "center",
+                                padding: "14px 16px",
+                                borderRadius: 18,
+                                background:
+                                  index === 0
+                                    ? "linear-gradient(90deg, rgba(15,122,83,.14), #fff)"
+                                    : index === executiveRows.length - 1
+                                      ? "linear-gradient(90deg, rgba(190,18,60,.12), #fff)"
+                                      : "#fff",
+                                border: "1px solid #eadfbc",
+                              }}
+                            >
+                              <strong
+                                style={{
+                                  width: 38,
+                                  height: 38,
+                                  display: "grid",
+                                  placeItems: "center",
+                                  borderRadius: 999,
+                                  background: index === 0 ? "#0f7a53" : "#f8f1dc",
+                                  color: index === 0 ? "white" : "#7c4a03",
+                                }}
+                              >
+                                {index + 1}
+                              </strong>
+
+                              <div>
+                                <strong style={{ color: "#062b24" }}>{row.projectName}</strong>
+                                <small style={{ display: "block", color: "#55706a", marginTop: 4 }}>
+                                  {row.totalGardens} حديقة × {row.workingDays} أيام عمل
+                                </small>
+                              </div>
+
+                              <div>
+                                <div
+                                  style={{
+                                    height: 14,
+                                    borderRadius: 999,
+                                    overflow: "hidden",
+                                    background: "#efe7d4",
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      display: "block",
+                                      height: "100%",
+                                      width: `${row.achievementRate}%`,
+                                      background: "linear-gradient(90deg, #0f7a53, #24b47e)",
+                                    }}
+                                  />
+                                </div>
+                                <small style={{ color: "#55706a", fontWeight: 800 }}>
+                                  {formatMoney(row.watered)} / {formatMoney(row.required)} عملية ري
+                                </small>
+                              </div>
+
+                              <strong style={{ fontSize: 22, color: row.achievementRate >= 85 ? "#0f7a53" : row.achievementRate >= 60 ? "#b45309" : "#be123c" }}>
+                                {row.achievementRate}%
+                              </strong>
+
+                              <div style={{ textAlign: "center" }}>
+                                <strong style={{ color: "#7f1d1d" }}>{formatMoney(row.fines)} ريال</strong>
+                                <small style={{ display: "block", color: "#55706a" }}>
+                                  {formatMoney(row.violations)} مخالفة
+                                </small>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
+            </div>
+          </section>
+        </div>
+      )}
+
       {showReportModal && (
         <div
           className="edit-modal-backdrop"
@@ -2104,14 +2620,16 @@ const duplicatePhoto =
                   const totalNotWatered = reportRows.reduce((sum, row) => sum + row.notWatered, 0);
                   const totalInsufficient = reportRows.reduce((sum, row) => sum + row.insufficient, 0);
                   const totalSidewalk = reportRows.reduce((sum, row) => sum + row.sidewalk, 0);
+                  const workingDays = workingDaysBetweenInclusive(reportFromDate, reportToDate);
+                  const requiredWateringTotal = reportRows.length * workingDays;
                   const totalCases = totalWatered + totalNotWatered + totalInsufficient + totalSidewalk;
                   const totalViolations = totalNotWatered + totalInsufficient + totalSidewalk;
                   const totalFines = fineRows.reduce((sum, row) => sum + row.total, 0);
-                  const achievementPercent = totalCases
-                    ? Math.round((totalWatered / totalCases) * 100)
+                  const achievementPercent = requiredWateringTotal
+                    ? Math.round((totalWatered / requiredWateringTotal) * 100)
                     : 0;
-                  const violationPercent = totalCases
-                    ? Math.round((totalViolations / totalCases) * 100)
+                  const violationPercent = requiredWateringTotal
+                    ? Math.round((totalViolations / requiredWateringTotal) * 100)
                     : 0;
 
                   const cardBase = {
@@ -2165,7 +2683,7 @@ const duplicatePhoto =
                             ملخص أداء الري خلال الفترة
                           </h3>
                           <p style={{ margin: "6px 0 0", color: "#55706a", fontWeight: 700 }}>
-                            قراءة سريعة لإجمالي الحالات، نسبة الإنجاز، وإجمالي الغرامات.
+                            قراءة سريعة للإجمالي المطلوب حسب الفترة، نسبة الإنجاز، وإجمالي الغرامات.
                           </p>
                         </div>
 
@@ -2241,7 +2759,7 @@ const duplicatePhoto =
                         >
                           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
                             <strong>مؤشر الإنجاز العام</strong>
-                            <span style={{ fontWeight: 900 }}>{formatMoney(totalWatered)} / {formatMoney(totalCases)}</span>
+                            <span style={{ fontWeight: 900 }}>{formatMoney(totalWatered)} / {formatMoney(requiredWateringTotal)}</span>
                           </div>
                           <div
                             style={{
@@ -2275,7 +2793,7 @@ const duplicatePhoto =
                               fontWeight: 800,
                             }}
                           >
-                            <span>الأخضر: إنجاز الري</span>
+                            <span>المطلوب للفترة: {formatMoney(requiredWateringTotal)} ({reportRows.length} حديقة × {workingDays} أيام عمل)</span>
                             <span>الأحمر/البرتقالي: حالات تحتاج متابعة</span>
                           </div>
                         </div>
