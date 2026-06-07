@@ -66,7 +66,6 @@ type Photo = {
   duplicate_of_photo_id?: string | null;
   duplicate_match_type?: string | null;
   duplicate_match_score?: number | null;
-  created_at?: string | null;
 };
 
 type OpenSection =
@@ -189,29 +188,35 @@ function formatMoney(value: number) {
   return new Intl.NumberFormat("ar-SA").format(value);
 }
 
-function cleanAiReviewReason(reason?: string | null) {
-  if (!reason) return "لم يتم تسجيل سبب تفصيلي";
-  return reason.replace(/\s*\(\d+\)\s*$/g, "").trim();
+function cleanAiReason(reason?: string | null) {
+  return (reason || "لم يتم تسجيل سبب تفصيلي").replace(/\s*\(\d+\)\s*$/g, "");
 }
 
-function duplicateMatchCountLabel(count?: number | null) {
+function duplicateCountLabel(count?: number | null) {
   const value = Number(count || 0);
-  if (value === 0) return "لا توجد سجلات مطابقة";
   if (value === 1) return "سجل مطابق واحد";
   if (value === 2) return "سجلان مطابقان";
-  if (value >= 3 && value <= 10) return `${value} سجلات مطابقة`;
-  return `${value} سجلًا مطابقًا`;
+  return `${formatMoney(value)} سجلات مطابقة`;
 }
 
 function duplicateMatchTypeLabel(type?: string | null) {
-  if (!type) return "تطابق كامل للبصمة";
-  if (type.includes("different_garden")) return "تطابق كامل في حديقة مختلفة";
-  if (type.includes("different_project")) return "تطابق كامل في مشروع مختلف";
-  if (type.includes("different_report")) return "تطابق كامل في سجل آخر";
-  if (type.includes("same_garden")) return "تطابق كامل لنفس الحديقة";
-  if (type.includes("same_day")) return "تطابق كامل في نفس اليوم";
-  if (type.includes("exact_hash")) return "تطابق كامل للبصمة";
-  return "تطابق صورة";
+  const value = String(type || "");
+  if (value.includes("different_report")) return "تطابق كامل في سجل آخر";
+  if (value.includes("same_garden")) return "تطابق كامل لنفس الحديقة";
+  if (value.includes("different_garden")) return "تطابق كامل بين حدائق مختلفة";
+  return "تطابق كامل للبصمة";
+}
+
+function dayDifferenceLabel(currentDate?: string | null, matchedDate?: string | null) {
+  if (!currentDate || !matchedDate) return "غير محدد";
+  const current = new Date(`${currentDate}T00:00:00`).getTime();
+  const matched = new Date(`${matchedDate}T00:00:00`).getTime();
+  if (Number.isNaN(current) || Number.isNaN(matched)) return "غير محدد";
+  const days = Math.abs(Math.round((current - matched) / 86400000));
+  if (days === 0) return "نفس اليوم";
+  if (days === 1) return "فرق يوم واحد";
+  if (days === 2) return "فرق يومين";
+  return `فرق ${formatMoney(days)} أيام`;
 }
 
 export default function AdminHome() {
@@ -1998,7 +2003,7 @@ const duplicatePhoto =
                       <li>
                         السبب:{" "}
                         <strong>
-                          {cleanAiReviewReason(report.ai_review_reason)}
+                          {cleanAiReason(report.ai_review_reason)}
                         </strong>
                       </li>
                     </ul>
@@ -3508,7 +3513,31 @@ const duplicatePhoto =
           </section>
         </div>
       )}
-      {duplicateViewer && (
+      {duplicateViewer && (() => {
+        const matches = duplicateViewer.matches || [];
+        const primaryMatch = matches[0];
+        const matchCount = duplicateViewer.matchCount || matches.length || 0;
+        const sameGarden =
+          primaryMatch?.garden?.id &&
+          duplicateViewer.currentGarden?.id &&
+          primaryMatch.garden.id === duplicateViewer.currentGarden.id;
+        const sameProject =
+          primaryMatch?.project?.id &&
+          duplicateViewer.currentProject?.id &&
+          primaryMatch.project.id === duplicateViewer.currentProject.id;
+        const relationLabel = !primaryMatch
+          ? "لا يوجد سجل مطابق"
+          : sameGarden
+            ? "نفس الحديقة"
+            : sameProject
+              ? "حديقة مختلفة داخل نفس المشروع"
+              : "مشروع مختلف";
+        const relationColor = sameGarden ? "#0f7a53" : sameProject ? "#b45309" : "#b91c1c";
+        const relationBg = sameGarden ? "#ecfdf3" : sameProject ? "#fff7ed" : "#fef2f2";
+        const currentDate = duplicateViewer.currentReport?.report_date || selectedDate;
+        const primaryDate = primaryMatch?.report?.report_date || null;
+
+        return (
         <div
           className="image-preview-backdrop"
           onClick={() => setDuplicateViewer(null)}
@@ -3532,8 +3561,11 @@ const duplicatePhoto =
                   {" ↔ الصور المطابقة"}
                 </h2>
                 <p>
-                  تم العثور على {duplicateMatchCountLabel(duplicateViewer.matchCount)} لنفس بصمة الصورة.
-                  استخدم هذه النافذة لمراجعة السجل الحالي وجميع السجلات السابقة المطابقة.
+                  {matchCount === 1
+                    ? "تم العثور على سجل مطابق واحد لنفس بصمة الصورة."
+                    : `تم العثور على ${duplicateCountLabel(matchCount)} لنفس بصمة الصورة.`}
+                  {" "}
+                  راجع السجل الحالي والسجل المطابق قبل اتخاذ القرار.
                 </p>
               </div>
 
@@ -3547,7 +3579,12 @@ const duplicatePhoto =
               </div>
             </div>
 
-            <div className="duplicate-summary-box">
+            <div
+              className="duplicate-summary-box"
+              style={{
+                gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+              }}
+            >
               <div>
                 <span>السجل الحالي</span>
                 <strong>{duplicateViewer.currentGarden?.name || "غير معروف"}</strong>
@@ -3556,19 +3593,47 @@ const duplicatePhoto =
 
               <div>
                 <span>تاريخ السجل الحالي</span>
-                <strong>{duplicateViewer.currentReport?.report_date || selectedDate}</strong>
+                <strong>{currentDate}</strong>
               </div>
 
               <div>
                 <span>عدد السجلات المطابقة</span>
-                <strong>{duplicateMatchCountLabel(duplicateViewer.matchCount)}</strong>
+                <strong>{duplicateCountLabel(matchCount)}</strong>
               </div>
 
               <div>
                 <span>نوع التطابق</span>
-                <strong>{duplicateMatchTypeLabel(duplicateViewer.matchType)}</strong>
+                <strong>
+                  {duplicateMatchTypeLabel(duplicateViewer.matchType)}
+                </strong>
               </div>
             </div>
+
+            {primaryMatch && (
+              <div
+                className="duplicate-summary-box"
+                style={{
+                  gridTemplateColumns: "1fr",
+                  background: relationBg,
+                  borderColor: relationColor,
+                  marginTop: 12,
+                }}
+              >
+                <div>
+                  <span>نتيجة المقارنة</span>
+                  <strong style={{ color: relationColor, fontSize: 24 }}>
+                    {relationLabel}
+                  </strong>
+                  <small style={{ color: relationColor, fontWeight: 900 }}>
+                    {duplicateViewer.currentGarden?.name || "الحديقة الحالية"}
+                    {" ←→ "}
+                    {primaryMatch.garden?.name || "الحديقة المطابقة"}
+                    {" — "}
+                    {dayDifferenceLabel(currentDate, primaryDate)}
+                  </small>
+                </div>
+              </div>
+            )}
 
             <div className="duplicate-grid">
               <div className="duplicate-photo-box">
@@ -3584,8 +3649,8 @@ const duplicatePhoto =
                     <strong>{duplicateViewer.currentProject?.name || "غير معروف"}</strong>
                   </p>
                   <p>
-                    التاريخ:
-                    <strong>{duplicateViewer.currentReport?.report_date || selectedDate}</strong>
+                    تاريخ السجل:
+                    <strong>{currentDate}</strong>
                   </p>
                   <p>
                     وقت الرفع:
@@ -3595,87 +3660,102 @@ const duplicatePhoto =
               </div>
 
               <div className="duplicate-photo-box">
-                <h3>أقرب سجل مطابق</h3>
-                <img src={duplicateViewer.matches?.[0]?.photo?.file_url} alt="أقرب صورة مطابقة" />
+                <h3>{matchCount === 1 ? "الصورة المطابقة" : "أقرب صورة مطابقة"}</h3>
+                {primaryMatch?.photo?.file_url ? (
+                  <img src={primaryMatch.photo.file_url} alt="الصورة المطابقة" />
+                ) : (
+                  <div className="no-image">لا توجد صورة</div>
+                )}
                 <div className="duplicate-photo-meta">
                   <p>
                     الحديقة المطابقة:
-                    <strong>{duplicateViewer.matches?.[0]?.garden?.name || "غير معروف"}</strong>
+                    <strong>{primaryMatch?.garden?.name || "غير معروف"}</strong>
                   </p>
                   <p>
                     المشروع المطابق:
-                    <strong>{duplicateViewer.matches?.[0]?.project?.name || "غير معروف"}</strong>
+                    <strong>{primaryMatch?.project?.name || "غير معروف"}</strong>
                   </p>
                   <p>
                     تاريخ السجل:
-                    <strong>{duplicateViewer.matches?.[0]?.report?.report_date || "-"}</strong>
+                    <strong>{primaryDate || "-"}</strong>
                   </p>
                   <p>
                     وقت الرفع:
-                    <strong>{formatDateTime(duplicateViewer.matches?.[0]?.report?.created_at)}</strong>
+                    <strong>{formatDateTime(primaryMatch?.report?.created_at)}</strong>
                   </p>
                   <p>
                     نوع التطابق:
-                    <strong>{duplicateMatchTypeLabel(duplicateViewer.matches?.[0]?.photo?.duplicate_match_type || duplicateViewer.matchType)}</strong>
+                    <strong>{duplicateMatchTypeLabel(primaryMatch?.photo?.duplicate_match_type || duplicateViewer.matchType)}</strong>
                   </p>
                   <p>
                     درجة التطابق:
-                    <strong>{duplicateViewer.matches?.[0]?.photo?.duplicate_match_score || duplicateViewer.matchScore || 100}%</strong>
+                    <strong>{primaryMatch?.photo?.duplicate_match_score || duplicateViewer.matchScore || 100}%</strong>
                   </p>
                 </div>
               </div>
             </div>
 
-            <div
-              className="duplicate-summary-box"
-              style={{ gridTemplateColumns: "1fr", textAlign: "right" }}
-            >
-              <div>
-                <span>جميع السجلات المطابقة</span>
-                <strong>راجع كل سجل مطابق للتأكد قبل تسجيل المخالفة</strong>
-              </div>
-            </div>
-
-            <div
-              className="duplicate-grid"
-              style={{ gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}
-            >
-              {duplicateViewer.matches?.map((match: any, index: number) => (
-                <div className="duplicate-photo-box" key={match.photo.id}>
-                  <h3>مطابقة رقم {index + 1}</h3>
-                  <img src={match.photo.file_url} alt={`صورة مطابقة ${index + 1}`} />
-                  <div className="duplicate-photo-meta">
-                    <p>
-                      الحديقة:
-                      <strong>{match.garden?.name || "غير معروف"}</strong>
-                    </p>
-                    <p>
-                      المشروع:
-                      <strong>{match.project?.name || "غير معروف"}</strong>
-                    </p>
-                    <p>
-                      تاريخ السجل:
-                      <strong>{match.report?.report_date || "-"}</strong>
-                    </p>
-                    <p>
-                      وقت الرفع:
-                      <strong>{formatDateTime(match.report?.created_at)}</strong>
-                    </p>
-                    <p>
-                      نوع التطابق:
-                      <strong>{duplicateMatchTypeLabel(match.photo.duplicate_match_type || duplicateViewer.matchType)}</strong>
-                    </p>
-                    <p>
-                      درجة التطابق:
-                      <strong>{match.photo.duplicate_match_score || duplicateViewer.matchScore || 100}%</strong>
-                    </p>
+            {matchCount > 1 && (
+              <>
+                <div
+                  className="duplicate-summary-box"
+                  style={{ gridTemplateColumns: "1fr", textAlign: "right" }}
+                >
+                  <div>
+                    <span>جميع السجلات المطابقة ({formatMoney(matchCount)})</span>
+                    <strong>راجع كل سجل مطابق للتأكد قبل تسجيل المخالفة</strong>
                   </div>
                 </div>
-              ))}
-            </div>
+
+                <div
+                  className="duplicate-grid"
+                  style={{ gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}
+                >
+                  {matches.map((match: any, index: number) => (
+                    <div className="duplicate-photo-box" key={match.photo.id}>
+                      <h3>السجل المطابق رقم {index + 1} من {matchCount}</h3>
+                      <img src={match.photo.file_url} alt={`صورة مطابقة ${index + 1}`} />
+                      <div className="duplicate-photo-meta">
+                        <p>
+                          الحديقة:
+                          <strong>{match.garden?.name || "غير معروف"}</strong>
+                        </p>
+                        <p>
+                          المشروع:
+                          <strong>{match.project?.name || "غير معروف"}</strong>
+                        </p>
+                        <p>
+                          تاريخ السجل:
+                          <strong>{match.report?.report_date || "-"}</strong>
+                        </p>
+                        <p>
+                          وقت الرفع:
+                          <strong>{formatDateTime(match.report?.created_at)}</strong>
+                        </p>
+                        <p>
+                          العلاقة:
+                          <strong>
+                            {match.garden?.id === duplicateViewer.currentGarden?.id
+                              ? "نفس الحديقة"
+                              : match.project?.id === duplicateViewer.currentProject?.id
+                                ? "حديقة مختلفة داخل نفس المشروع"
+                                : "مشروع مختلف"}
+                          </strong>
+                        </p>
+                        <p>
+                          التطابق:
+                          <strong>{match.photo.duplicate_match_score || duplicateViewer.matchScore || 100}%</strong>
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </section>
         </div>
-      )}
+        );
+      })()}
     </main>
   );
 }
