@@ -246,7 +246,6 @@ export default function AdminHome() {
   const [showExecutiveModal, setShowExecutiveModal] = useState(false);
   const [executiveFromDate, setExecutiveFromDate] = useState(today());
   const [executiveToDate, setExecutiveToDate] = useState(today());
-  const [executiveProjectFilter, setExecutiveProjectFilter] = useState("all");
   const [executiveLoading, setExecutiveLoading] = useState(false);
   const [executiveRows, setExecutiveRows] = useState<ExecutiveProjectRow[]>([]);
   const [executiveError, setExecutiveError] = useState("");
@@ -736,18 +735,7 @@ export default function AdminHome() {
     const currentInsufficientFine = Number(insufficientFine) || 0;
     const currentSidewalkFine = Number(sidewalkFine) || 0;
 
-    const projectsToAnalyze =
-      executiveProjectFilter === "all"
-        ? projects
-        : projects.filter((project) => project.id === executiveProjectFilter);
-
-    if (!projectsToAnalyze.length) {
-      setExecutiveError("اختر مشروعًا صحيحًا أو كل المشاريع.");
-      setExecutiveLoading(false);
-      return;
-    }
-
-    const rows: ExecutiveProjectRow[] = projectsToAnalyze.map((project) => {
+    const rows: ExecutiveProjectRow[] = projects.map((project) => {
       const projectGardens = gardens.filter(
         (garden) => garden.project_id === project.id,
       );
@@ -838,6 +826,11 @@ export default function AdminHome() {
     const achievementPercent = requiredWateringTotal
       ? Math.round((totalWatered / requiredWateringTotal) * 100)
       : 0;
+    const safeAchievementPercent = Math.max(0, Math.min(100, achievementPercent));
+    const violationPercent = requiredWateringTotal
+      ? Math.round((totalViolations / requiredWateringTotal) * 100)
+      : 0;
+    const safeViolationPercent = Math.max(0, Math.min(100, violationPercent));
 
     const reportRowsHtml = reportRows
       .map(
@@ -874,7 +867,10 @@ export default function AdminHome() {
           <meta charset="utf-8" />
           <title>تقرير ري الحدائق</title>
           <style>
-            @page { size: A4 landscape; margin: 10mm; }
+            @page {
+              size: A4 landscape;
+              margin: 10mm;
+            }
 
             * {
               box-sizing: border-box;
@@ -888,6 +884,10 @@ export default function AdminHome() {
               font-family: Arial, sans-serif;
               color: #062b24;
               background: #ffffff;
+            }
+
+            .print-page {
+              width: 100%;
             }
 
             .period-report-head {
@@ -909,35 +909,8 @@ export default function AdminHome() {
               font-weight: 700;
             }
 
-            .summary-strip {
-              display: grid;
-              grid-template-columns: repeat(5, 1fr);
-              gap: 8px;
-              margin: 10px 0 14px;
-              break-inside: avoid;
-              page-break-inside: avoid;
-            }
-
-            .summary-strip div {
-              border: 1px solid #d8c58b;
-              border-radius: 12px;
-              padding: 8px;
-              text-align: center;
-              background: #fffaf0;
-              font-weight: 900;
-            }
-
-            .summary-strip span {
-              display: block;
-              font-size: 10px;
-              color: #6b5b2a;
-              margin-bottom: 4px;
-            }
-
-            .summary-strip strong {
-              display: block;
-              font-size: 15px;
-              color: #062b24;
+            .table-wrap {
+              width: 100%;
             }
 
             table {
@@ -948,9 +921,18 @@ export default function AdminHome() {
               margin: 10px 0 18px;
             }
 
-            thead { display: table-header-group; }
-            tfoot { display: table-footer-group; }
-            tr { break-inside: avoid; page-break-inside: avoid; }
+            thead {
+              display: table-header-group;
+            }
+
+            tfoot {
+              display: table-footer-group;
+            }
+
+            tr {
+              break-inside: avoid;
+              page-break-inside: avoid;
+            }
 
             th,
             td {
@@ -968,9 +950,182 @@ export default function AdminHome() {
               font-weight: 900;
             }
 
-            .fines-section {
+            .dashboard-page {
               break-before: page;
               page-break-before: always;
+              break-inside: avoid;
+              page-break-inside: avoid;
+              padding-top: 2mm;
+            }
+
+            .executive-report-dashboard {
+              width: 100%;
+              margin: 0 0 16px;
+              padding: 18px;
+              border: 2px solid rgba(216, 180, 92, .72);
+              border-radius: 22px;
+              background: linear-gradient(135deg, #ffffff 0%, #fff8e6 48%, #f5fbf7 100%);
+              box-shadow: none;
+              overflow: visible;
+            }
+
+            .dash-head {
+              display: flex;
+              justify-content: space-between;
+              gap: 16px;
+              align-items: flex-start;
+              margin-bottom: 16px;
+            }
+
+            .dash-badge {
+              display: inline-block;
+              padding: 6px 13px;
+              border-radius: 999px;
+              background: #f8f1dc;
+              color: #8a5a11;
+              font-weight: 900;
+              font-size: 12px;
+              margin-bottom: 8px;
+            }
+
+            .dash-head h3 {
+              margin: 0;
+              font-size: 23px;
+              color: #062b24;
+            }
+
+            .dash-head p {
+              margin: 6px 0 0;
+              color: #55706a;
+              font-weight: 700;
+              font-size: 13px;
+            }
+
+            .achievement-box {
+              min-width: 145px;
+              text-align: center;
+              padding: 12px 14px;
+              border-radius: 18px;
+              background: #062b24;
+              color: white;
+            }
+
+            .achievement-box span {
+              display: block;
+              font-size: 12px;
+              opacity: .85;
+            }
+
+            .achievement-box strong {
+              display: block;
+              font-size: 34px;
+              line-height: 1.1;
+            }
+
+            .kpi-grid {
+              display: grid;
+              grid-template-columns: repeat(4, 1fr);
+              gap: 10px;
+              margin-bottom: 14px;
+            }
+
+            .kpi-card {
+              min-height: 76px;
+              padding: 13px 12px;
+              border-radius: 16px;
+              background: linear-gradient(180deg, #ffffff 0%, #fbf7ea 100%);
+              border: 1px solid rgba(216, 180, 92, .55);
+            }
+
+            .kpi-card span {
+              display: block;
+              font-weight: 900;
+              font-size: 13px;
+            }
+
+            .kpi-card strong {
+              display: block;
+              margin-top: 7px;
+              color: #062b24;
+              font-size: 25px;
+            }
+
+            .dashboard-bottom {
+              display: grid;
+              grid-template-columns: 2fr 1fr;
+              gap: 12px;
+            }
+
+            .progress-card,
+            .fines-card {
+              border-radius: 18px;
+              padding: 14px;
+              background: rgba(255,255,255,.88);
+              border: 1px solid #eadfbc;
+            }
+
+            .progress-title {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 9px;
+              font-weight: 900;
+            }
+
+            .progress-bar {
+              height: 22px;
+              border-radius: 999px;
+              overflow: hidden;
+              background: #eee7d5;
+              display: flex;
+            }
+
+            .progress-green {
+              width: ${safeAchievementPercent}%;
+              background: linear-gradient(90deg, #0f7a53, #20a36f);
+            }
+
+            .progress-red {
+              width: ${safeViolationPercent}%;
+              background: linear-gradient(90deg, #d97706, #be123c);
+            }
+
+            .progress-note {
+              display: flex;
+              justify-content: space-between;
+              margin-top: 9px;
+              font-size: 12px;
+              color: #55706a;
+              font-weight: 800;
+              gap: 10px;
+            }
+
+            .fines-card {
+              background: #fff7ed;
+              border-color: #fed7aa;
+              text-align: center;
+            }
+
+            .fines-card span {
+              color: #9a3412;
+              font-weight: 900;
+            }
+
+            .fines-card strong {
+              display: block;
+              margin-top: 9px;
+              color: #7f1d1d;
+              font-size: 25px;
+            }
+
+            .fines-card small {
+              display: block;
+              margin-top: 7px;
+              color: #9a3412;
+              font-weight: 800;
+            }
+
+            .fines-section {
+              margin-top: 10px;
             }
 
             .fines-section h3 {
@@ -988,8 +1143,6 @@ export default function AdminHome() {
               font-weight: 900;
               font-size: 16px;
               background: #fffaf0;
-              break-inside: avoid;
-              page-break-inside: avoid;
             }
 
             .total-fines-card strong {
@@ -1001,21 +1154,13 @@ export default function AdminHome() {
           </style>
         </head>
         <body>
-          <main>
+          <main class="print-page">
             <section class="period-report-head">
               <h3>تقرير ري الحدائق</h3>
               <p>${escapeHtml(reportTitle)}</p>
             </section>
 
-            <section class="summary-strip">
-              <div><span>الإجمالي المطلوب</span><strong>${formatMoney(requiredWateringTotal)}</strong></div>
-              <div><span>تم الري</span><strong>${formatMoney(totalWatered)}</strong></div>
-              <div><span>المخالفات</span><strong>${formatMoney(totalViolations)}</strong></div>
-              <div><span>نسبة الإنجاز</span><strong>${achievementPercent}%</strong></div>
-              <div><span>إجمالي الغرامات</span><strong>${formatMoney(totalFines)} ريال</strong></div>
-            </section>
-
-            <section>
+            <section class="table-wrap">
               <table>
                 <thead>
                   <tr>
@@ -1030,295 +1175,72 @@ export default function AdminHome() {
               </table>
             </section>
 
-            <section class="fines-section">
-              <h3>الغرامات</h3>
-              <table>
-                <thead>
-                  <tr>
-                    <th>الحديقة</th>
-                    <th>نوع المخالفة</th>
-                    <th>عدد المرات</th>
-                    <th>قيمة الغرامة</th>
-                    <th>الإجمالي</th>
-                  </tr>
-                </thead>
-                <tbody>${fineRowsHtml}</tbody>
-              </table>
+            <section class="dashboard-page">
+              <div class="executive-report-dashboard">
+                <div class="dash-head">
+                  <div>
+                    <span class="dash-badge">لوحة المؤشرات التنفيذية</span>
+                    <h3>ملخص أداء الري خلال الفترة</h3>
+                    <p>قراءة سريعة للإجمالي المطلوب حسب الفترة، نسبة الإنجاز، وإجمالي الغرامات.</p>
+                  </div>
+                  <div class="achievement-box">
+                    <span>نسبة الإنجاز</span>
+                    <strong>${achievementPercent}%</strong>
+                  </div>
+                </div>
 
-              <div class="total-fines-card">
-                <span>إجمالي الغرامات لكافة الحدائق</span>
-                <strong>${formatMoney(totalFines)} ريال</strong>
+                <div class="kpi-grid">
+                  <div class="kpi-card"><span style="color:#0f7a53">تم الري</span><strong>${formatMoney(totalWatered)}</strong></div>
+                  <div class="kpi-card"><span style="color:#9f1239">لم يتم الري</span><strong>${formatMoney(totalNotWatered)}</strong></div>
+                  <div class="kpi-card"><span style="color:#b45309">عدم كفاية الري</span><strong>${formatMoney(totalInsufficient)}</strong></div>
+                  <div class="kpi-card"><span style="color:#854d0e">خروج الري للرصيف</span><strong>${formatMoney(totalSidewalk)}</strong></div>
+                </div>
+
+                <div class="dashboard-bottom">
+                  <div class="progress-card">
+                    <div class="progress-title">
+                      <strong>مؤشر الإنجاز العام</strong>
+                      <span>${formatMoney(totalWatered)} / ${formatMoney(requiredWateringTotal)}</span>
+                    </div>
+                    <div class="progress-bar">
+                      <span class="progress-green"></span>
+                      <span class="progress-red"></span>
+                    </div>
+                    <div class="progress-note">
+                      <span>المطلوب للفترة: ${formatMoney(requiredWateringTotal)} (${formatMoney(reportRows.length)} حديقة × ${formatMoney(workingDays)} أيام عمل)</span>
+                      <span>الأحمر/البرتقالي: حالات تحتاج متابعة</span>
+                    </div>
+                  </div>
+
+                  <div class="fines-card">
+                    <span>إجمالي الغرامات</span>
+                    <strong>${formatMoney(totalFines)} ريال</strong>
+                    <small>عدد المخالفات: ${formatMoney(totalViolations)}</small>
+                  </div>
+                </div>
               </div>
+
+              <section class="fines-section">
+                <h3>الغرامات</h3>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>الحديقة</th>
+                      <th>نوع المخالفة</th>
+                      <th>عدد المرات</th>
+                      <th>قيمة الغرامة</th>
+                      <th>الإجمالي</th>
+                    </tr>
+                  </thead>
+                  <tbody>${fineRowsHtml}</tbody>
+                </table>
+
+                <div class="total-fines-card">
+                  <span>إجمالي الغرامات لكافة الحدائق</span>
+                  <strong>${formatMoney(totalFines)} ريال</strong>
+                </div>
+              </section>
             </section>
-          </main>
-          <script>
-            window.onload = function () {
-              window.focus();
-              window.print();
-            };
-          </script>
-        </body>
-      </html>
-    `);
-
-    printWindow.document.close();
-  }
-
-  function printExecutiveDashboard() {
-    if (!executiveRows.length) {
-      alert("حدّث لوحة المؤشرات أولًا");
-      return;
-    }
-
-    const printWindow = window.open("", "_blank", "width=1200,height=800");
-
-    if (!printWindow) {
-      alert("المتصفح منع فتح نافذة الطباعة");
-      return;
-    }
-
-    const escapeHtml = (value: unknown) =>
-      String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/\"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-    const totalRequired = executiveRows.reduce((sum, row) => sum + row.required, 0);
-    const totalWatered = executiveRows.reduce((sum, row) => sum + row.watered, 0);
-    const totalViolations = executiveRows.reduce((sum, row) => sum + row.violations, 0);
-    const totalFines = executiveRows.reduce((sum, row) => sum + row.fines, 0);
-    const overallRate = totalRequired ? Math.round((totalWatered / totalRequired) * 100) : 0;
-    const bestProject = executiveRows
-      .filter((row) => row.required > 0)
-      .sort((a, b) => b.achievementRate - a.achievementRate)[0];
-    const worstProject = executiveRows
-      .filter((row) => row.required > 0)
-      .sort((a, b) => a.achievementRate - b.achievementRate)[0];
-    const highestFineProject = [...executiveRows].sort((a, b) => b.fines - a.fines)[0];
-    const isSingleExecutiveView = executiveProjectFilter !== "all";
-    const selectedExecutiveRow = executiveRows[0];
-    const executiveGap = Math.max(0, totalRequired - totalWatered);
-
-    const rowsHtml = executiveRows
-      .map(
-        (row, index) => `
-          <tr>
-            <td>${index + 1}</td>
-            <td>${escapeHtml(row.projectName)}</td>
-            <td>${formatMoney(row.totalGardens)}</td>
-            <td>${formatMoney(row.required)}</td>
-            <td>${formatMoney(row.watered)}</td>
-            <td>${formatMoney(row.violations)}</td>
-            <td>${row.achievementRate}%</td>
-            <td>${formatMoney(row.fines)} ريال</td>
-          </tr>`,
-      )
-      .join("");
-
-    printWindow.document.write(`
-      <!doctype html>
-      <html lang="ar" dir="rtl">
-        <head>
-          <meta charset="utf-8" />
-          <title>لوحة المؤشرات التنفيذية</title>
-          <style>
-            @page { size: A4 landscape; margin: 10mm; }
-
-            * {
-              box-sizing: border-box;
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-            }
-
-            body {
-              margin: 0;
-              direction: rtl;
-              font-family: Arial, sans-serif;
-              color: #062b24;
-              background: #ffffff;
-            }
-
-            .executive-print-hero {
-              padding: 18px 22px;
-              border-radius: 22px;
-              color: #ffffff;
-              background: radial-gradient(circle at 12% 10%, rgba(255,211,105,.42), transparent 32%), linear-gradient(135deg, #062b24, #0f6f52);
-              margin-bottom: 14px;
-              break-inside: avoid;
-              page-break-inside: avoid;
-            }
-
-            .executive-print-hero span {
-              display: inline-block;
-              padding: 6px 14px;
-              border-radius: 999px;
-              background: rgba(255,255,255,.18);
-              font-weight: 900;
-              margin-bottom: 8px;
-            }
-
-            .executive-print-hero h1 {
-              margin: 0;
-              font-size: 30px;
-            }
-
-            .executive-print-hero p {
-              margin: 8px 0 0;
-              font-weight: 700;
-              opacity: .9;
-            }
-
-            .kpi-grid {
-              display: grid;
-              grid-template-columns: 1.25fr repeat(3, 1fr);
-              gap: 10px;
-              margin-bottom: 14px;
-              break-inside: avoid;
-              page-break-inside: avoid;
-            }
-
-            .kpi-card {
-              padding: 14px;
-              border-radius: 18px;
-              border: 1px solid #eadfbc;
-              background: linear-gradient(180deg, #ffffff, #fbf5e6);
-              min-height: 92px;
-            }
-
-            .kpi-card.main {
-              background: linear-gradient(135deg, #062b24, #0f6f52);
-              color: white;
-            }
-
-            .kpi-card span {
-              display: block;
-              font-weight: 900;
-              font-size: 12px;
-              color: #8a5a11;
-            }
-
-            .kpi-card.main span { color: rgba(255,255,255,.86); }
-
-            .kpi-card strong {
-              display: block;
-              margin-top: 9px;
-              font-size: 24px;
-              color: #062b24;
-            }
-
-            .kpi-card.main strong {
-              color: white;
-              font-size: 42px;
-              line-height: 1;
-            }
-
-            .progress-card {
-              padding: 14px;
-              border-radius: 18px;
-              border: 1px solid #eadfbc;
-              background: #fffaf0;
-              margin-bottom: 14px;
-              break-inside: avoid;
-              page-break-inside: avoid;
-            }
-
-            .progress-title {
-              display: flex;
-              justify-content: space-between;
-              margin-bottom: 9px;
-              font-weight: 900;
-            }
-
-            .progress-bar {
-              height: 24px;
-              border-radius: 999px;
-              overflow: hidden;
-              background: #efe7d4;
-              display: flex;
-            }
-
-            .progress-bar span:first-child {
-              width: ${Math.max(0, Math.min(100, overallRate))}%;
-              background: linear-gradient(90deg, #0f7a53, #24b47e);
-            }
-
-            .progress-bar span:last-child {
-              flex: 1;
-              background: linear-gradient(90deg, #f59e0b, #be123c);
-            }
-
-            table {
-              width: 100%;
-              border-collapse: collapse;
-              table-layout: fixed;
-              font-size: 11px;
-              margin-top: 10px;
-            }
-
-            thead { display: table-header-group; }
-            tr { break-inside: avoid; page-break-inside: avoid; }
-
-            th,
-            td {
-              border: 1px solid #d8c58b;
-              padding: 7px 5px;
-              text-align: center;
-              vertical-align: middle;
-              line-height: 1.45;
-              word-break: break-word;
-            }
-
-            th {
-              background: #07563f;
-              color: white;
-              font-weight: 900;
-            }
-          </style>
-        </head>
-        <body>
-          <main>
-            <section class="executive-print-hero">
-              <span>مركز القرار التنفيذي</span>
-              <h1>لوحة المؤشرات التنفيذية</h1>
-              <p>من ${escapeHtml(executiveFromDate)} إلى ${escapeHtml(executiveToDate)} — ${isSingleExecutiveView ? "مؤشرات المشروع المحدد: " + escapeHtml(selectedExecutiveRow?.projectName || "-") : "ترتيب المشاريع وأداء الري والغرامات"}.</p>
-            </section>
-
-            <section class="kpi-grid">
-              <div class="kpi-card main">
-                <span>نسبة الإنجاز العامة</span>
-                <strong>${overallRate}%</strong>
-                <small>${formatMoney(totalWatered)} / ${formatMoney(totalRequired)} عملية مطلوبة</small>
-              </div>
-              <div class="kpi-card"><span>${isSingleExecutiveView ? "حالة المشروع" : "أفضل مشروع"}</span><strong>${escapeHtml(isSingleExecutiveView ? (selectedExecutiveRow?.projectName || "-") : (bestProject?.projectName || "-"))}</strong><small>إنجاز ${isSingleExecutiveView ? (selectedExecutiveRow?.achievementRate || 0) : (bestProject?.achievementRate || 0)}%</small></div>
-              <div class="kpi-card"><span>${isSingleExecutiveView ? "الفجوة عن المطلوب" : "أسوأ مشروع"}</span><strong>${isSingleExecutiveView ? formatMoney(executiveGap) : escapeHtml(worstProject?.projectName || "-")}</strong><small>${isSingleExecutiveView ? "عملية ري غير منجزة" : "إنجاز " + (worstProject?.achievementRate || 0) + "%"}</small></div>
-              <div class="kpi-card"><span>${isSingleExecutiveView ? "غرامات المشروع" : "أعلى غرامات"}</span><strong>${isSingleExecutiveView ? formatMoney(totalFines) + " ريال" : escapeHtml(highestFineProject?.projectName || "-")}</strong><small>${isSingleExecutiveView ? formatMoney(totalViolations) + " مخالفة" : formatMoney(highestFineProject?.fines || 0) + " ريال"}</small></div>
-            </section>
-
-            <section class="progress-card">
-              <div class="progress-title">
-                <strong>مؤشر الأداء العام</strong>
-                <span>${formatMoney(totalViolations)} مخالفة / ${formatMoney(totalFines)} ريال</span>
-              </div>
-              <div class="progress-bar"><span></span><span></span></div>
-            </section>
-
-            <table>
-              <thead>
-                <tr>
-                  <th>الترتيب</th>
-                  <th>المشروع</th>
-                  <th>الحدائق</th>
-                  <th>المطلوب</th>
-                  <th>تم الري</th>
-                  <th>المخالفات</th>
-                  <th>الإنجاز</th>
-                  <th>الغرامات</th>
-                </tr>
-              </thead>
-              <tbody>${rowsHtml}</tbody>
-            </table>
           </main>
           <script>
             window.onload = function () {
@@ -1649,70 +1571,80 @@ export default function AdminHome() {
   }
 
   async function openDuplicateViewer(photo: Photo) {
-  let duplicatePhotoId = photo.duplicate_of_photo_id;
+    setDuplicateLoading(true);
 
-  if (!duplicatePhotoId && photo.image_hash) {
-    const { data: matchedPhoto } = await supabase
-      .from("photos")
-      .select("id")
-      .eq("image_hash", photo.image_hash)
-.neq("id", photo.id)
-.neq("report_id", photo.report_id)
-.order("created_at", { ascending: true })
-.limit(1)
-.maybeSingle();
+    try {
+      let matchedPhotos: Photo[] = [];
 
-    duplicatePhotoId = matchedPhoto?.id || null;
+      if (photo.image_hash) {
+        const { data } = await supabase
+          .from("photos")
+          .select("id, report_id, file_url, image_hash, duplicate_of_photo_id, duplicate_match_type, duplicate_match_score, created_at")
+          .eq("image_hash", photo.image_hash)
+          .neq("id", photo.id)
+          .neq("report_id", photo.report_id)
+          .order("created_at", { ascending: true });
+
+        matchedPhotos = (data || []) as Photo[];
+      }
+
+      if (!matchedPhotos.length && photo.duplicate_of_photo_id) {
+        const { data } = await supabase
+          .from("photos")
+          .select("id, report_id, file_url, image_hash, duplicate_of_photo_id, duplicate_match_type, duplicate_match_score")
+          .eq("id", photo.duplicate_of_photo_id)
+          .maybeSingle();
+
+        if (data) matchedPhotos = [data as Photo];
+      }
+
+      if (!matchedPhotos.length) {
+        alert("لا توجد صورة مطابقة محفوظة");
+        setDuplicateLoading(false);
+        return;
+      }
+
+      const reportIds = Array.from(new Set(matchedPhotos.map((item) => item.report_id)));
+      const { data: matchedReportsData } = await supabase
+        .from("reports")
+        .select("id, garden_id, report_date, created_at")
+        .in("id", reportIds);
+
+      const matchedReports = (matchedReportsData || []) as Pick<Report, "id" | "garden_id" | "report_date" | "created_at">[];
+      const currentReport = reports.find((report) => report.id === photo.report_id) || null;
+      const currentGarden = currentReport ? gardens.find((garden) => garden.id === currentReport.garden_id) || null : null;
+      const currentProject = currentGarden ? projects.find((project) => project.id === currentGarden.project_id) || null : null;
+
+      const matches = matchedPhotos.map((matchedPhoto) => {
+        const matchedReport = matchedReports.find((report) => report.id === matchedPhoto.report_id) || null;
+        const matchedGarden = matchedReport ? gardens.find((garden) => garden.id === matchedReport.garden_id) || null : null;
+        const matchedProject = matchedGarden ? projects.find((project) => project.id === matchedGarden.project_id) || null : null;
+
+        return {
+          photo: matchedPhoto,
+          report: matchedReport,
+          garden: matchedGarden,
+          project: matchedProject,
+        };
+      });
+
+      setDuplicateViewer({
+        currentPhoto: photo,
+        currentReport,
+        currentGarden,
+        currentProject,
+        matches,
+        matchCount: matches.length,
+        matchType: photo.duplicate_match_type || matches[0]?.photo?.duplicate_match_type || "exact_hash",
+        matchScore: photo.duplicate_match_score || matches[0]?.photo?.duplicate_match_score || 100,
+      });
+    } catch (error) {
+      alert("تعذر تحميل الصور المطابقة");
+    } finally {
+      setDuplicateLoading(false);
+    }
   }
 
-  if (!duplicatePhotoId) {
-    alert("لا توجد صورة مطابقة محفوظة");
-    return;
-  }
-
-  setDuplicateLoading(true);
-
-  const { data: oldPhoto } = await supabase
-    .from("photos")
-    .select("id, report_id, file_url")
-    .eq("id", duplicatePhotoId)
-    .single();
-    
-  if (!oldPhoto) {
-    setDuplicateLoading(false);
-    alert("تعذر العثور على الصورة القديمة");
-    return;
-  }
-
-  const { data: oldReport } = await supabase
-    .from("reports")
-    .select("id, garden_id, report_date")
-    .eq("id", oldPhoto.report_id)
-    .single();
-
-  let oldGarden = null;
-
-  if (oldReport?.garden_id) {
-    oldGarden = gardens.find((g) => g.id === oldReport.garden_id);
-  }
-
-  let oldProject = null;
-
-  if (oldGarden?.project_id) {
-    oldProject = projects.find((p) => p.id === oldGarden.project_id);
-  }
-
-  setDuplicateViewer({
-    currentPhoto: photo,
-    oldPhoto,
-    oldReport,
-    oldGarden,
-    oldProject,
-  });
-
-  setDuplicateLoading(false);
-}
-  
   async function escalateAiReview(report: Report) {
     if (!isManager) return;
 
@@ -2573,9 +2505,7 @@ const duplicatePhoto =
                   لوحة المؤشرات التنفيذية
                 </h2>
                 <p style={{ margin: "8px 0 0", opacity: .86, fontWeight: 700 }}>
-                  {executiveProjectFilter === "all"
-                    ? "ترتيب المشاريع، أفضل أداء، أعلى تعثر، وإجمالي الغرامات حسب الفترة المحددة."
-                    : "قراءة تنفيذية مركزة للمشروع المحدد: الإنجاز، الفجوة عن المطلوب، المخالفات، والأثر المالي."}
+                  ترتيب المشاريع، أفضل أداء، أعلى تعثر، وإجمالي الغرامات حسب الفترة المحددة.
                 </p>
               </div>
 
@@ -2608,7 +2538,7 @@ const duplicatePhoto =
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+                  gridTemplateColumns: "repeat(4, minmax(160px, 1fr))",
                   gap: 14,
                   marginBottom: 18,
                 }}
@@ -2629,25 +2559,6 @@ const duplicatePhoto =
                     onChange={(e) => setExecutiveToDate(e.target.value)}
                   />
                 </label>
-
-                <label>
-                  <span>نطاق اللوحة</span>
-                  <select
-                    value={executiveProjectFilter}
-                    onChange={(e) => {
-                      setExecutiveProjectFilter(e.target.value);
-                      setExecutiveRows([]);
-                    }}
-                  >
-                    <option value="all">كل المشاريع</option>
-                    {projects.map((project) => (
-                      <option key={project.id} value={project.id}>
-                        {project.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
                 <label>
                   <span>غرامة لم يتم الري</span>
                   <input
@@ -2673,22 +2584,6 @@ const duplicatePhoto =
                 >
                   {executiveLoading ? "جارٍ التحليل..." : "تحديث المؤشرات"}
                 </button>
-                <button
-                  onClick={printExecutiveDashboard}
-                  disabled={!executiveRows.length}
-                  style={{
-                    alignSelf: "end",
-                    border: "none",
-                    borderRadius: 16,
-                    padding: "14px 18px",
-                    background: executiveRows.length ? "#8a5a11" : "#b8b1a0",
-                    color: "white",
-                    fontWeight: 900,
-                    cursor: executiveRows.length ? "pointer" : "not-allowed",
-                  }}
-                >
-                  🖨️ طباعة اللوحة
-                </button>
               </div>
 
               {executiveError && <p className="report-error">{executiveError}</p>}
@@ -2709,9 +2604,6 @@ const duplicatePhoto =
                     .filter((row) => row.required > 0)
                     .sort((a, b) => a.achievementRate - b.achievementRate)[0];
                   const highestFineProject = [...executiveRows].sort((a, b) => b.fines - a.fines)[0];
-                  const isSingleExecutiveView = executiveProjectFilter !== "all";
-                  const selectedExecutiveRow = executiveRows[0];
-                  const executiveGap = Math.max(0, totalRequired - totalWatered);
 
                   const kpiStyle = {
                     borderRadius: 24,
@@ -2749,50 +2641,32 @@ const duplicatePhoto =
                         </div>
 
                         <div style={kpiStyle}>
-                          <span style={{ color: "#0f7a53", fontWeight: 900 }}>
-                            {isSingleExecutiveView ? "حالة المشروع" : "أفضل مشروع"}
-                          </span>
+                          <span style={{ color: "#0f7a53", fontWeight: 900 }}>أفضل مشروع</span>
                           <strong style={{ display: "block", fontSize: 22, marginTop: 10, color: "#062b24" }}>
-                            {isSingleExecutiveView
-                              ? selectedExecutiveRow?.projectName || "-"
-                              : bestProject?.projectName || "-"}
+                            {bestProject?.projectName || "-"}
                           </strong>
                           <small style={{ color: "#55706a", fontWeight: 800 }}>
-                            إنجاز {isSingleExecutiveView
-                              ? selectedExecutiveRow?.achievementRate || 0
-                              : bestProject?.achievementRate || 0}%
+                            إنجاز {bestProject?.achievementRate || 0}%
                           </small>
                         </div>
 
                         <div style={kpiStyle}>
-                          <span style={{ color: "#be123c", fontWeight: 900 }}>
-                            {isSingleExecutiveView ? "الفجوة عن المطلوب" : "أسوأ مشروع"}
-                          </span>
+                          <span style={{ color: "#be123c", fontWeight: 900 }}>أسوأ مشروع</span>
                           <strong style={{ display: "block", fontSize: 22, marginTop: 10, color: "#062b24" }}>
-                            {isSingleExecutiveView
-                              ? formatMoney(executiveGap)
-                              : worstProject?.projectName || "-"}
+                            {worstProject?.projectName || "-"}
                           </strong>
                           <small style={{ color: "#55706a", fontWeight: 800 }}>
-                            {isSingleExecutiveView
-                              ? "عملية ري غير منجزة"
-                              : `إنجاز ${worstProject?.achievementRate || 0}%`}
+                            إنجاز {worstProject?.achievementRate || 0}%
                           </small>
                         </div>
 
                         <div style={kpiStyle}>
-                          <span style={{ color: "#9a3412", fontWeight: 900 }}>
-                            {isSingleExecutiveView ? "غرامات المشروع" : "أعلى غرامات"}
-                          </span>
+                          <span style={{ color: "#9a3412", fontWeight: 900 }}>أعلى غرامات</span>
                           <strong style={{ display: "block", fontSize: 22, marginTop: 10, color: "#7f1d1d" }}>
-                            {isSingleExecutiveView
-                              ? `${formatMoney(totalFines)} ريال`
-                              : highestFineProject?.projectName || "-"}
+                            {highestFineProject?.projectName || "-"}
                           </strong>
                           <small style={{ color: "#9a3412", fontWeight: 900 }}>
-                            {isSingleExecutiveView
-                              ? `${formatMoney(totalViolations)} مخالفة`
-                              : `${formatMoney(highestFineProject?.fines || 0)} ريال`}
+                            {formatMoney(highestFineProject?.fines || 0)} ريال
                           </small>
                         </div>
                       </div>
@@ -2865,9 +2739,7 @@ const duplicatePhoto =
 
                       <div style={kpiStyle}>
                         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
-                          <h3 style={{ margin: 0 }}>
-                            {isSingleExecutiveView ? "تفصيل أداء المشروع خلال الفترة" : "ترتيب المشاريع حسب الإنجاز"}
-                          </h3>
+                          <h3 style={{ margin: 0 }}>ترتيب المشاريع حسب الإنجاز</h3>
                           <span style={{ color: "#55706a", fontWeight: 800 }}>
                             من {executiveFromDate} إلى {executiveToDate}
                           </span>
@@ -3611,137 +3483,156 @@ const duplicatePhoto =
         </div>
       )}
       {duplicateViewer && (
-  <div
-    className="image-preview-backdrop"
-    onClick={() => setDuplicateViewer(null)}
-  >
-    <section
-      className="duplicate-viewer-modal"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <button
-        className="image-preview-close"
-        onClick={() => setDuplicateViewer(null)}
-      >
-        ×
-      </button>
-
-      <div className="duplicate-viewer-head">
-        <div>
-          <span className="duplicate-badge">
-            مقارنة صورة مكررة
-          </span>
-
-          <h2>
-            {duplicateViewer.oldGarden?.name || "حديقة غير معروفة"}
-            {" ↔ "}
-            {getGardenById(
-              reports.find(
-                (r) =>
-                  r.id === duplicateViewer.currentPhoto.report_id
-              )?.garden_id || ""
-            )?.name || "الحديقة الحالية"}
-          </h2>
-
-          <p>
-            مقارنة بين السجل الحالي والسجل المطابق المكتشف بواسطة
-            التحقق الذكي.
-          </p>
-        </div>
-
-        <div className="duplicate-head-actions">
-          <button
-            onClick={() => window.print()}
-            className="duplicate-print-btn"
+        <div
+          className="image-preview-backdrop"
+          onClick={() => setDuplicateViewer(null)}
+        >
+          <section
+            className="duplicate-viewer-modal"
+            onClick={(e) => e.stopPropagation()}
           >
-            🖨️ طباعة / حفظ PDF
-          </button>
+            <button
+              className="image-preview-close"
+              onClick={() => setDuplicateViewer(null)}
+            >
+              ×
+            </button>
+
+            <div className="duplicate-viewer-head">
+              <div>
+                <span className="duplicate-badge">مقارنة الصور المكررة</span>
+                <h2>
+                  {duplicateViewer.currentGarden?.name || "الحديقة الحالية"}
+                  {" ↔ "}
+                  {duplicateViewer.matchCount || 0} سجل مطابق
+                </h2>
+                <p>
+                  تم العثور على {duplicateViewer.matchCount || 0} سجلات مطابقة لنفس بصمة الصورة.
+                  استخدم هذه النافذة لمراجعة السجل الحالي وجميع السجلات السابقة المطابقة.
+                </p>
+              </div>
+
+              <div className="duplicate-head-actions">
+                <button
+                  onClick={() => window.print()}
+                  className="duplicate-print-btn"
+                >
+                  🖨️ طباعة / حفظ PDF
+                </button>
+              </div>
+            </div>
+
+            <div className="duplicate-summary-box">
+              <div>
+                <span>السجل الحالي</span>
+                <strong>{duplicateViewer.currentGarden?.name || "غير معروف"}</strong>
+                <small>{duplicateViewer.currentProject?.name || "مشروع غير معروف"}</small>
+              </div>
+
+              <div>
+                <span>تاريخ السجل الحالي</span>
+                <strong>{duplicateViewer.currentReport?.report_date || selectedDate}</strong>
+              </div>
+
+              <div>
+                <span>عدد السجلات المطابقة</span>
+                <strong>{duplicateViewer.matchCount || 0}</strong>
+              </div>
+
+              <div>
+                <span>نوع التطابق</span>
+                <strong>
+                  {duplicateViewer.matchType?.includes("different_report")
+                    ? "تطابق كامل في سجل آخر"
+                    : duplicateViewer.matchType?.includes("same_garden")
+                      ? "تطابق كامل لنفس الحديقة"
+                      : "تطابق كامل للبصمة"}
+                </strong>
+              </div>
+            </div>
+
+            <div className="duplicate-grid">
+              <div className="duplicate-photo-box">
+                <h3>الصورة الحالية</h3>
+                <img src={duplicateViewer.currentPhoto.file_url} alt="الصورة الحالية" />
+                <div className="duplicate-photo-meta">
+                  <p>
+                    الحديقة:
+                    <strong>{duplicateViewer.currentGarden?.name || "غير معروف"}</strong>
+                  </p>
+                  <p>
+                    المشروع:
+                    <strong>{duplicateViewer.currentProject?.name || "غير معروف"}</strong>
+                  </p>
+                  <p>
+                    التاريخ:
+                    <strong>{duplicateViewer.currentReport?.report_date || selectedDate}</strong>
+                  </p>
+                </div>
+              </div>
+
+              <div className="duplicate-photo-box">
+                <h3>أول صورة مطابقة</h3>
+                <img src={duplicateViewer.matches?.[0]?.photo?.file_url} alt="أول صورة مطابقة" />
+                <div className="duplicate-photo-meta">
+                  <p>
+                    الحديقة المطابقة:
+                    <strong>{duplicateViewer.matches?.[0]?.garden?.name || "غير معروف"}</strong>
+                  </p>
+                  <p>
+                    المشروع المطابق:
+                    <strong>{duplicateViewer.matches?.[0]?.project?.name || "غير معروف"}</strong>
+                  </p>
+                  <p>
+                    تاريخ السجل:
+                    <strong>{duplicateViewer.matches?.[0]?.report?.report_date || "-"}</strong>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div
+              className="duplicate-summary-box"
+              style={{ gridTemplateColumns: "1fr", textAlign: "right" }}
+            >
+              <div>
+                <span>جميع السجلات المطابقة</span>
+                <strong>راجع كل سجل مطابق للتأكد قبل تسجيل المخالفة</strong>
+              </div>
+            </div>
+
+            <div
+              className="duplicate-grid"
+              style={{ gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}
+            >
+              {duplicateViewer.matches?.map((match: any, index: number) => (
+                <div className="duplicate-photo-box" key={match.photo.id}>
+                  <h3>مطابقة رقم {index + 1}</h3>
+                  <img src={match.photo.file_url} alt={`صورة مطابقة ${index + 1}`} />
+                  <div className="duplicate-photo-meta">
+                    <p>
+                      الحديقة:
+                      <strong>{match.garden?.name || "غير معروف"}</strong>
+                    </p>
+                    <p>
+                      المشروع:
+                      <strong>{match.project?.name || "غير معروف"}</strong>
+                    </p>
+                    <p>
+                      تاريخ السجل:
+                      <strong>{match.report?.report_date || "-"}</strong>
+                    </p>
+                    <p>
+                      التطابق:
+                      <strong>{match.photo.duplicate_match_score || duplicateViewer.matchScore || 100}%</strong>
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
-      </div>
-
-      <div className="duplicate-grid">
-        <div className="duplicate-photo-box">
-          <h3>الصورة الحالية</h3>
-
-          <img
-            src={duplicateViewer.currentPhoto.file_url}
-            alt=""
-          />
-
-          <div className="duplicate-photo-meta">
-            <p>
-              الحديقة:
-              <strong>
-                {
-                  getGardenById(
-                    reports.find(
-                      (r) =>
-                        r.id === duplicateViewer.currentPhoto.report_id
-                    )?.garden_id || ""
-                  )?.name
-                }
-              </strong>
-            </p>
-
-            <p>
-              التاريخ:
-              <strong>{selectedDate}</strong>
-            </p>
-          </div>
-        </div>
-
-        <div className="duplicate-photo-box">
-          <h3>الصورة المطابقة في سجل آخر</h3>
-
-          <img
-            src={duplicateViewer.oldPhoto.file_url}
-            alt=""
-          />
-
-          <div className="duplicate-photo-meta">
-            <p>
-              الحديقة المطابقة:
-              <strong>
-                {duplicateViewer.oldGarden?.name || "غير معروف"}
-              </strong>
-            </p>
-
-            <p>
-              المشروع المطابق:
-              <strong>
-                {duplicateViewer.oldProject?.name || "غير معروف"}
-              </strong>
-            </p>
-
-            <p>
-              تاريخ السجل:
-              <strong>
-                {duplicateViewer.oldReport?.report_date || "-"}
-              </strong>
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="duplicate-summary-box">
-        <div>
-          <span>نوع التطابق</span>
-          <strong>تطابق كامل للبصمة</strong>
-        </div>
-
-        <div>
-          <span>نسبة التطابق</span>
-          <strong>100%</strong>
-        </div>
-
-        <div>
-          <span>نتيجة التحقق</span>
-          <strong>تم اكتشاف صورة مستخدمة مسبقًا</strong>
-        </div>
-      </div>
-    </section>
-  </div>
-)}
+      )}
     </main>
   );
 }
