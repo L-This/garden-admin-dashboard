@@ -107,12 +107,16 @@ type ReportSummaryRow = {
   notWatered: number;
   insufficient: number;
   sidewalk: number;
+  notWateredDates: string[];
+  insufficientDates: string[];
+  sidewalkDates: string[];
 };
 
 type FineRow = {
   gardenName: string;
   violationType: string;
   count: number;
+  dates: string[];
   fineAmount: number;
   total: number;
 };
@@ -184,106 +188,42 @@ function isFridayDate(dateValue: string) {
   return new Date(`${dateValue}T00:00:00`).getDay() === 5;
 }
 
+function listWorkingDatesBetweenInclusive(from: string, to: string) {
+  const start = new Date(`${from}T00:00:00`);
+  const end = new Date(`${to}T00:00:00`);
+
+  if (
+    Number.isNaN(start.getTime()) ||
+    Number.isNaN(end.getTime()) ||
+    end < start
+  ) {
+    return [];
+  }
+
+  const dates: string[] = [];
+  const current = new Date(start);
+
+  while (current <= end) {
+    const dateValue = current.toISOString().slice(0, 10);
+    if (!isFridayDate(dateValue)) dates.push(dateValue);
+    current.setDate(current.getDate() + 1);
+  }
+
+  return dates;
+}
+
+function formatReportDate(value: string) {
+  if (!value) return "-";
+  return new Date(`${value}T00:00:00`).toLocaleDateString("ar-SA");
+}
+
+function joinReportDates(dates: string[]) {
+  if (!dates.length) return "-";
+  return dates.map(formatReportDate).join("، ");
+}
+
 function formatMoney(value: number) {
   return new Intl.NumberFormat("ar-SA").format(value);
-}
-
-function cleanAiReason(reason?: string | null) {
-  return (reason || "لم يتم تسجيل سبب تفصيلي").replace(/\s*\(\d+\)\s*$/g, "");
-}
-
-function duplicateCountLabel(count?: number | null) {
-  const value = Number(count || 0);
-  if (value === 1) return "سجل مطابق واحد";
-  if (value === 2) return "سجلان مطابقان";
-  return `${formatMoney(value)} سجلات مطابقة`;
-}
-
-function duplicateMatchTypeLabel(type?: string | null) {
-  const value = String(type || "");
-  if (value.includes("different_report")) return "تطابق كامل في سجل آخر";
-  if (value.includes("same_garden")) return "تطابق كامل لنفس الحديقة";
-  if (value.includes("different_garden")) return "تطابق كامل بين حدائق مختلفة";
-  return "تطابق كامل للبصمة";
-}
-
-function dayDifferenceLabel(currentDate?: string | null, matchedDate?: string | null) {
-  if (!currentDate || !matchedDate) return "غير محدد";
-  const current = new Date(`${currentDate}T00:00:00`).getTime();
-  const matched = new Date(`${matchedDate}T00:00:00`).getTime();
-  if (Number.isNaN(current) || Number.isNaN(matched)) return "غير محدد";
-  const days = Math.abs(Math.round((current - matched) / 86400000));
-  if (days === 0) return "نفس اليوم";
-  if (days === 1) return "فرق يوم واحد";
-  if (days === 2) return "فرق يومين";
-  return `فرق ${formatMoney(days)} أيام`;
-}
-
-function timeDifferenceLabel(currentTime?: string | null, matchedTime?: string | null) {
-  if (!currentTime || !matchedTime) return "غير محدد";
-  const current = new Date(currentTime).getTime();
-  const matched = new Date(matchedTime).getTime();
-  if (Number.isNaN(current) || Number.isNaN(matched)) return "غير محدد";
-
-  const minutes = Math.abs(Math.round((current - matched) / 60000));
-  if (minutes < 1) return "أقل من دقيقة";
-  if (minutes === 1) return "دقيقة واحدة";
-  if (minutes === 2) return "دقيقتان";
-  if (minutes < 60) return `${formatMoney(minutes)} دقائق`;
-
-  const hours = Math.round(minutes / 60);
-  if (hours === 1) return "ساعة واحدة";
-  if (hours === 2) return "ساعتان";
-  if (hours < 24) return `${formatMoney(hours)} ساعات`;
-
-  return dayDifferenceLabel(
-    currentTime.slice(0, 10),
-    matchedTime.slice(0, 10),
-  );
-}
-
-function duplicateRelationText(params: {
-  currentGarden?: Garden | null;
-  currentProject?: Project | null;
-  matchedGarden?: Garden | null;
-  matchedProject?: Project | null;
-}) {
-  const sameGarden =
-    params.currentGarden?.id &&
-    params.matchedGarden?.id &&
-    params.currentGarden.id === params.matchedGarden.id;
-  const sameProject =
-    params.currentProject?.id &&
-    params.matchedProject?.id &&
-    params.currentProject.id === params.matchedProject.id;
-
-  if (sameGarden) {
-    return {
-      title: "تطابق داخل نفس الحديقة",
-      detail: "تم العثور على صورة مطابقة لنفس الحديقة. راجع فرق التاريخ والوقت قبل اتخاذ القرار.",
-      color: "#0f7a53",
-      bg: "#ecfdf3",
-      border: "#86efac",
-    };
-  }
-
-  if (sameProject) {
-    return {
-      title: "تم استخدام نفس الصورة لحديقتين مختلفتين داخل نفس المشروع",
-      detail: `${params.currentGarden?.name || "الحديقة الحالية"} ←→ ${params.matchedGarden?.name || "الحديقة المطابقة"}`,
-      color: "#b45309",
-      bg: "#fff7ed",
-      border: "#fdba74",
-    };
-  }
-
-  return {
-    title: "تم استخدام نفس الصورة في مشروعين مختلفين",
-    detail: `${params.currentProject?.name || "المشروع الحالي"} ←→ ${params.matchedProject?.name || "المشروع المطابق"}`,
-    color: "#b91c1c",
-    bg: "#fef2f2",
-    border: "#fca5a5",
-  };
 }
 
 export default function AdminHome() {
@@ -708,6 +648,8 @@ export default function AdminHome() {
       | "sidewalk_runoff"
     >[];
 
+    const workingDates = listWorkingDatesBetweenInclusive(reportFromDate, reportToDate);
+
     const rows: ReportSummaryRow[] = projectGardens.map((garden) => {
       const gardenReports = reportsInPeriod.filter(
         (report) => report.garden_id === garden.id,
@@ -717,27 +659,38 @@ export default function AdminHome() {
       );
 
       let watered = 0;
-      let notWateredExplicit = 0;
-      let insufficient = 0;
-      let sidewalk = 0;
+      const notWateredDates: string[] = [];
+      const insufficientDates: string[] = [];
+      const sidewalkDates: string[] = [];
 
       gardenReports.forEach((report) => {
         const status = getReportStatus(report as Report);
-        if (status === "not_watered") notWateredExplicit += 1;
-        else if (status === "insufficient") insufficient += 1;
-        else if (status === "sidewalk_runoff") sidewalk += 1;
+        if (status === "not_watered") notWateredDates.push(report.report_date);
+        else if (status === "insufficient") insufficientDates.push(report.report_date);
+        else if (status === "sidewalk_runoff") sidewalkDates.push(report.report_date);
         else watered += 1;
       });
 
-      const missingDays = Math.max(0, numberOfDays - reportedDates.size);
+      const missingDates = workingDates.filter(
+        (dateValue) => !reportedDates.has(dateValue),
+      );
+
+      const uniqueNotWateredDates = Array.from(
+        new Set([...notWateredDates, ...missingDates]),
+      ).sort();
+      const uniqueInsufficientDates = Array.from(new Set(insufficientDates)).sort();
+      const uniqueSidewalkDates = Array.from(new Set(sidewalkDates)).sort();
 
       return {
         gardenId: garden.id,
         gardenName: garden.name,
         watered,
-        notWatered: notWateredExplicit + missingDays,
-        insufficient,
-        sidewalk,
+        notWatered: uniqueNotWateredDates.length,
+        insufficient: uniqueInsufficientDates.length,
+        sidewalk: uniqueSidewalkDates.length,
+        notWateredDates: uniqueNotWateredDates,
+        insufficientDates: uniqueInsufficientDates,
+        sidewalkDates: uniqueSidewalkDates,
       };
     });
 
@@ -752,6 +705,7 @@ export default function AdminHome() {
           gardenName: row.gardenName,
           violationType: "لم يتم الري",
           count: row.notWatered,
+          dates: row.notWateredDates,
           fineAmount: currentNotWateredFine,
           total: row.notWatered * currentNotWateredFine,
         });
@@ -761,6 +715,7 @@ export default function AdminHome() {
           gardenName: row.gardenName,
           violationType: "عدم كفاية ري",
           count: row.insufficient,
+          dates: row.insufficientDates,
           fineAmount: currentInsufficientFine,
           total: row.insufficient * currentInsufficientFine,
         });
@@ -770,6 +725,7 @@ export default function AdminHome() {
           gardenName: row.gardenName,
           violationType: "خروج الري للرصيف",
           count: row.sidewalk,
+          dates: row.sidewalkDates,
           fineAmount: currentSidewalkFine,
           total: row.sidewalk * currentSidewalkFine,
         });
@@ -898,7 +854,7 @@ export default function AdminHome() {
       return;
     }
 
-    const printWindow = window.open("", "_blank", "width=1200,height=800");
+    const printWindow = window.open("", "_blank", "width=1000,height=900");
 
     if (!printWindow) {
       alert("المتصفح منع فتح نافذة الطباعة");
@@ -919,16 +875,7 @@ export default function AdminHome() {
     const totalNotWatered = reportRows.reduce((sum, row) => sum + row.notWatered, 0);
     const totalInsufficient = reportRows.reduce((sum, row) => sum + row.insufficient, 0);
     const totalSidewalk = reportRows.reduce((sum, row) => sum + row.sidewalk, 0);
-    const totalViolations = totalNotWatered + totalInsufficient + totalSidewalk;
     const totalFines = fineRows.reduce((sum, row) => sum + row.total, 0);
-    const achievementPercent = requiredWateringTotal
-      ? Math.round((totalWatered / requiredWateringTotal) * 100)
-      : 0;
-    const safeAchievementPercent = Math.max(0, Math.min(100, achievementPercent));
-    const violationPercent = requiredWateringTotal
-      ? Math.round((totalViolations / requiredWateringTotal) * 100)
-      : 0;
-    const safeViolationPercent = Math.max(0, Math.min(100, violationPercent));
 
     const reportRowsHtml = reportRows
       .map(
@@ -951,12 +898,13 @@ export default function AdminHome() {
                 <td>${escapeHtml(row.gardenName)}</td>
                 <td>${escapeHtml(row.violationType)}</td>
                 <td>${formatMoney(row.count)}</td>
+                <td class="dates-cell">${escapeHtml(joinReportDates(row.dates))}</td>
                 <td>${formatMoney(row.fineAmount)} ريال</td>
                 <td>${formatMoney(row.total)} ريال</td>
               </tr>`,
           )
           .join("")
-      : `<tr><td colspan="5">لا توجد غرامات خلال الفترة المحددة</td></tr>`;
+      : `<tr><td colspan="6">لا توجد مخالفات أو غرامات خلال الفترة المحددة</td></tr>`;
 
     printWindow.document.write(`
       <!doctype html>
@@ -966,8 +914,8 @@ export default function AdminHome() {
           <title>تقرير ري الحدائق</title>
           <style>
             @page {
-              size: A4 landscape;
-              margin: 10mm;
+              size: A4 portrait;
+              margin: 12mm;
             }
 
             * {
@@ -990,9 +938,9 @@ export default function AdminHome() {
 
             .period-report-head {
               text-align: center;
-              margin-bottom: 12px;
-              break-after: avoid;
-              page-break-after: avoid;
+              margin-bottom: 14px;
+              padding-bottom: 10px;
+              border-bottom: 2px solid #d8c58b;
             }
 
             .period-report-head h3 {
@@ -1001,30 +949,59 @@ export default function AdminHome() {
               font-weight: 900;
             }
 
-            .period-report-head p {
-              font-size: 14px;
+            .period-report-head p,
+            .period-report-head small {
+              font-size: 13px;
               margin: 0;
               font-weight: 700;
+              color: #47625c;
             }
 
-            .table-wrap {
-              width: 100%;
+            .summary-strip {
+              display: grid;
+              grid-template-columns: repeat(5, 1fr);
+              gap: 6px;
+              margin: 10px 0 14px;
+            }
+
+            .summary-strip div {
+              border: 1px solid #eadfbc;
+              border-radius: 10px;
+              padding: 8px 6px;
+              text-align: center;
+              background: #fffaf0;
+            }
+
+            .summary-strip span {
+              display: block;
+              font-size: 10px;
+              color: #55706a;
+              font-weight: 800;
+            }
+
+            .summary-strip strong {
+              display: block;
+              margin-top: 4px;
+              font-size: 15px;
+              color: #062b24;
+            }
+
+            h4.section-title {
+              margin: 14px 0 8px;
+              font-size: 16px;
+              color: #062b24;
             }
 
             table {
               width: 100%;
               border-collapse: collapse;
               table-layout: fixed;
-              font-size: 11px;
-              margin: 10px 0 18px;
+              font-size: 10.5px;
+              margin: 8px 0 14px;
             }
 
             thead {
               display: table-header-group;
-            }
-
-            tfoot {
-              display: table-footer-group;
             }
 
             tr {
@@ -1035,7 +1012,7 @@ export default function AdminHome() {
             th,
             td {
               border: 1px solid #d8c58b;
-              padding: 7px 5px;
+              padding: 6px 5px;
               text-align: center;
               vertical-align: middle;
               word-break: break-word;
@@ -1048,198 +1025,27 @@ export default function AdminHome() {
               font-weight: 900;
             }
 
-            .dashboard-page {
-              break-before: page;
-              page-break-before: always;
-              break-inside: avoid;
-              page-break-inside: avoid;
-              padding-top: 2mm;
+            .dates-cell {
+              text-align: right;
+              font-size: 10px;
+              line-height: 1.7;
             }
 
-            .executive-report-dashboard {
-              width: 100%;
-              margin: 0 0 16px;
-              padding: 18px;
-              border: 2px solid rgba(216, 180, 92, .72);
-              border-radius: 22px;
-              background: linear-gradient(135deg, #ffffff 0%, #fff8e6 48%, #f5fbf7 100%);
-              box-shadow: none;
-              overflow: visible;
-            }
-
-            .dash-head {
-              display: flex;
-              justify-content: space-between;
-              gap: 16px;
-              align-items: flex-start;
-              margin-bottom: 16px;
-            }
-
-            .dash-badge {
-              display: inline-block;
-              padding: 6px 13px;
-              border-radius: 999px;
-              background: #f8f1dc;
-              color: #8a5a11;
-              font-weight: 900;
-              font-size: 12px;
-              margin-bottom: 8px;
-            }
-
-            .dash-head h3 {
-              margin: 0;
-              font-size: 23px;
-              color: #062b24;
-            }
-
-            .dash-head p {
-              margin: 6px 0 0;
-              color: #55706a;
-              font-weight: 700;
-              font-size: 13px;
-            }
-
-            .achievement-box {
-              min-width: 145px;
-              text-align: center;
-              padding: 12px 14px;
-              border-radius: 18px;
-              background: #062b24;
-              color: white;
-            }
-
-            .achievement-box span {
-              display: block;
-              font-size: 12px;
-              opacity: .85;
-            }
-
-            .achievement-box strong {
-              display: block;
-              font-size: 34px;
-              line-height: 1.1;
-            }
-
-            .kpi-grid {
-              display: grid;
-              grid-template-columns: repeat(4, 1fr);
-              gap: 10px;
-              margin-bottom: 14px;
-            }
-
-            .kpi-card {
-              min-height: 76px;
-              padding: 13px 12px;
-              border-radius: 16px;
-              background: linear-gradient(180deg, #ffffff 0%, #fbf7ea 100%);
-              border: 1px solid rgba(216, 180, 92, .55);
-            }
-
-            .kpi-card span {
-              display: block;
-              font-weight: 900;
-              font-size: 13px;
-            }
-
-            .kpi-card strong {
-              display: block;
-              margin-top: 7px;
-              color: #062b24;
-              font-size: 25px;
-            }
-
-            .dashboard-bottom {
-              display: grid;
-              grid-template-columns: 2fr 1fr;
-              gap: 12px;
-            }
-
-            .progress-card,
-            .fines-card {
-              border-radius: 18px;
-              padding: 14px;
-              background: rgba(255,255,255,.88);
-              border: 1px solid #eadfbc;
-            }
-
-            .progress-title {
-              display: flex;
-              justify-content: space-between;
-              margin-bottom: 9px;
-              font-weight: 900;
-            }
-
-            .progress-bar {
-              height: 22px;
-              border-radius: 999px;
-              overflow: hidden;
-              background: #eee7d5;
-              display: flex;
-            }
-
-            .progress-green {
-              width: ${safeAchievementPercent}%;
-              background: linear-gradient(90deg, #0f7a53, #20a36f);
-            }
-
-            .progress-red {
-              width: ${safeViolationPercent}%;
-              background: linear-gradient(90deg, #d97706, #be123c);
-            }
-
-            .progress-note {
-              display: flex;
-              justify-content: space-between;
-              margin-top: 9px;
-              font-size: 12px;
-              color: #55706a;
-              font-weight: 800;
-              gap: 10px;
-            }
-
-            .fines-card {
-              background: #fff7ed;
-              border-color: #fed7aa;
-              text-align: center;
-            }
-
-            .fines-card span {
-              color: #9a3412;
-              font-weight: 900;
-            }
-
-            .fines-card strong {
-              display: block;
-              margin-top: 9px;
-              color: #7f1d1d;
-              font-size: 25px;
-            }
-
-            .fines-card small {
-              display: block;
-              margin-top: 7px;
-              color: #9a3412;
-              font-weight: 800;
-            }
-
-            .fines-section {
-              margin-top: 10px;
-            }
-
-            .fines-section h3 {
-              text-align: center;
-              margin: 0 0 10px;
-              font-size: 20px;
-            }
+            .violations-table th:nth-child(1) { width: 18%; }
+            .violations-table th:nth-child(2) { width: 16%; }
+            .violations-table th:nth-child(3) { width: 10%; }
+            .violations-table th:nth-child(4) { width: 30%; }
+            .violations-table th:nth-child(5) { width: 13%; }
+            .violations-table th:nth-child(6) { width: 13%; }
 
             .total-fines-card {
               margin-top: 12px;
               padding: 12px;
               border: 2px solid #d8c58b;
-              border-radius: 16px;
+              border-radius: 14px;
               text-align: center;
               font-weight: 900;
-              font-size: 16px;
+              font-size: 15px;
               background: #fffaf0;
             }
 
@@ -1247,7 +1053,7 @@ export default function AdminHome() {
               color: #b91c1c;
               display: block;
               margin-top: 7px;
-              font-size: 22px;
+              font-size: 21px;
             }
           </style>
         </head>
@@ -1256,89 +1062,50 @@ export default function AdminHome() {
             <section class="period-report-head">
               <h3>تقرير ري الحدائق</h3>
               <p>${escapeHtml(reportTitle)}</p>
+              <small>أيام العمل المحتسبة: ${formatMoney(workingDays)} يوم — الإجمالي المطلوب: ${formatMoney(requiredWateringTotal)} عملية ري</small>
             </section>
 
-            <section class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>الحديقة</th>
-                    <th>تم الري</th>
-                    <th>لم يتم الري</th>
-                    <th>عدم كفاية ري</th>
-                    <th>خروج الري</th>
-                  </tr>
-                </thead>
-                <tbody>${reportRowsHtml}</tbody>
-              </table>
+            <section class="summary-strip">
+              <div><span>تم الري</span><strong>${formatMoney(totalWatered)}</strong></div>
+              <div><span>لم يتم الري</span><strong>${formatMoney(totalNotWatered)}</strong></div>
+              <div><span>عدم كفاية الري</span><strong>${formatMoney(totalInsufficient)}</strong></div>
+              <div><span>خروج الري للرصيف</span><strong>${formatMoney(totalSidewalk)}</strong></div>
+              <div><span>إجمالي الغرامات</span><strong>${formatMoney(totalFines)} ريال</strong></div>
             </section>
 
-            <section class="dashboard-page">
-              <div class="executive-report-dashboard">
-                <div class="dash-head">
-                  <div>
-                    <span class="dash-badge">لوحة المؤشرات التنفيذية</span>
-                    <h3>ملخص أداء الري خلال الفترة</h3>
-                    <p>قراءة سريعة للإجمالي المطلوب حسب الفترة، نسبة الإنجاز، وإجمالي الغرامات.</p>
-                  </div>
-                  <div class="achievement-box">
-                    <span>نسبة الإنجاز</span>
-                    <strong>${achievementPercent}%</strong>
-                  </div>
-                </div>
+            <h4 class="section-title">ملخص الحدائق</h4>
+            <table>
+              <thead>
+                <tr>
+                  <th>الحديقة</th>
+                  <th>تم الري</th>
+                  <th>لم يتم الري</th>
+                  <th>عدم كفاية ري</th>
+                  <th>خروج الري</th>
+                </tr>
+              </thead>
+              <tbody>${reportRowsHtml}</tbody>
+            </table>
 
-                <div class="kpi-grid">
-                  <div class="kpi-card"><span style="color:#0f7a53">تم الري</span><strong>${formatMoney(totalWatered)}</strong></div>
-                  <div class="kpi-card"><span style="color:#9f1239">لم يتم الري</span><strong>${formatMoney(totalNotWatered)}</strong></div>
-                  <div class="kpi-card"><span style="color:#b45309">عدم كفاية الري</span><strong>${formatMoney(totalInsufficient)}</strong></div>
-                  <div class="kpi-card"><span style="color:#854d0e">خروج الري للرصيف</span><strong>${formatMoney(totalSidewalk)}</strong></div>
-                </div>
+            <h4 class="section-title">تفاصيل المخالفات بالتواريخ</h4>
+            <table class="violations-table">
+              <thead>
+                <tr>
+                  <th>الحديقة</th>
+                  <th>نوع المخالفة</th>
+                  <th>عدد المرات</th>
+                  <th>التواريخ</th>
+                  <th>قيمة الغرامة</th>
+                  <th>الإجمالي</th>
+                </tr>
+              </thead>
+              <tbody>${fineRowsHtml}</tbody>
+            </table>
 
-                <div class="dashboard-bottom">
-                  <div class="progress-card">
-                    <div class="progress-title">
-                      <strong>مؤشر الإنجاز العام</strong>
-                      <span>${formatMoney(totalWatered)} / ${formatMoney(requiredWateringTotal)}</span>
-                    </div>
-                    <div class="progress-bar">
-                      <span class="progress-green"></span>
-                      <span class="progress-red"></span>
-                    </div>
-                    <div class="progress-note">
-                      <span>المطلوب للفترة: ${formatMoney(requiredWateringTotal)} (${formatMoney(reportRows.length)} حديقة × ${formatMoney(workingDays)} أيام عمل)</span>
-                      <span>الأحمر/البرتقالي: حالات تحتاج متابعة</span>
-                    </div>
-                  </div>
-
-                  <div class="fines-card">
-                    <span>إجمالي الغرامات</span>
-                    <strong>${formatMoney(totalFines)} ريال</strong>
-                    <small>عدد المخالفات: ${formatMoney(totalViolations)}</small>
-                  </div>
-                </div>
-              </div>
-
-              <section class="fines-section">
-                <h3>الغرامات</h3>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>الحديقة</th>
-                      <th>نوع المخالفة</th>
-                      <th>عدد المرات</th>
-                      <th>قيمة الغرامة</th>
-                      <th>الإجمالي</th>
-                    </tr>
-                  </thead>
-                  <tbody>${fineRowsHtml}</tbody>
-                </table>
-
-                <div class="total-fines-card">
-                  <span>إجمالي الغرامات لكافة الحدائق</span>
-                  <strong>${formatMoney(totalFines)} ريال</strong>
-                </div>
-              </section>
-            </section>
+            <div class="total-fines-card">
+              <span>إجمالي الغرامات لكافة الحدائق</span>
+              <strong>${formatMoney(totalFines)} ريال</strong>
+            </div>
           </main>
           <script>
             window.onload = function () {
@@ -2070,7 +1837,7 @@ const duplicatePhoto =
                       <li>
                         السبب:{" "}
                         <strong>
-                          {cleanAiReason(report.ai_review_reason)}
+                          {report.ai_review_reason || "لم يتم تسجيل سبب تفصيلي"}
                         </strong>
                       </li>
                     </ul>
@@ -3018,7 +2785,7 @@ const duplicatePhoto =
                 {reportLoading ? "جارٍ إنشاء التقرير..." : "إنشاء التقرير"}
               </button>
               <button onClick={printReportOnly} disabled={!reportRows.length}>
-                📄 تحميل التقرير الرسمي PDF
+                📄 طباعة التقرير الطولي PDF
               </button>
             </div>
 
@@ -3056,211 +2823,6 @@ const duplicatePhoto =
                   </table>
                 </div>
 
-                {(() => {
-                  const totalWatered = reportRows.reduce((sum, row) => sum + row.watered, 0);
-                  const totalNotWatered = reportRows.reduce((sum, row) => sum + row.notWatered, 0);
-                  const totalInsufficient = reportRows.reduce((sum, row) => sum + row.insufficient, 0);
-                  const totalSidewalk = reportRows.reduce((sum, row) => sum + row.sidewalk, 0);
-                  const workingDays = workingDaysBetweenInclusive(reportFromDate, reportToDate);
-                  const requiredWateringTotal = reportRows.length * workingDays;
-                  const totalCases = totalWatered + totalNotWatered + totalInsufficient + totalSidewalk;
-                  const totalViolations = totalNotWatered + totalInsufficient + totalSidewalk;
-                  const totalFines = fineRows.reduce((sum, row) => sum + row.total, 0);
-                  const achievementPercent = requiredWateringTotal
-                    ? Math.round((totalWatered / requiredWateringTotal) * 100)
-                    : 0;
-                  const violationPercent = requiredWateringTotal
-                    ? Math.round((totalViolations / requiredWateringTotal) * 100)
-                    : 0;
-
-                  const cardBase = {
-                    border: "1px solid rgba(216, 180, 92, .45)",
-                    borderRadius: 18,
-                    padding: "16px 14px",
-                    background: "linear-gradient(180deg, #ffffff 0%, #fbf7ea 100%)",
-                    boxShadow: "0 10px 26px rgba(6, 43, 36, .08)",
-                    minHeight: 86,
-                  };
-
-                  return (
-                    <section
-                      className="executive-report-dashboard"
-                      style={{
-                        margin: "22px 0 26px",
-                        padding: 22,
-                        borderRadius: 26,
-                        border: "2px solid rgba(216, 180, 92, .55)",
-                        background:
-                          "linear-gradient(135deg, #ffffff 0%, #fff8e6 48%, #f5fbf7 100%)",
-                        boxShadow: "0 16px 40px rgba(6, 43, 36, .10)",
-                        breakInside: "avoid",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "flex-start",
-                          gap: 16,
-                          marginBottom: 18,
-                        }}
-                      >
-                        <div>
-                          <span
-                            style={{
-                              display: "inline-flex",
-                              padding: "7px 14px",
-                              borderRadius: 999,
-                              background: "#f8f1dc",
-                              color: "#8a5a11",
-                              fontWeight: 900,
-                              fontSize: 13,
-                              marginBottom: 8,
-                            }}
-                          >
-                            لوحة المؤشرات التنفيذية
-                          </span>
-                          <h3 style={{ margin: 0, fontSize: 24, color: "#062b24" }}>
-                            ملخص أداء الري خلال الفترة
-                          </h3>
-                          <p style={{ margin: "6px 0 0", color: "#55706a", fontWeight: 700 }}>
-                            قراءة سريعة للإجمالي المطلوب حسب الفترة، نسبة الإنجاز، وإجمالي الغرامات.
-                          </p>
-                        </div>
-
-                        <div
-                          style={{
-                            minWidth: 150,
-                            textAlign: "center",
-                            padding: "12px 14px",
-                            borderRadius: 20,
-                            background: "#062b24",
-                            color: "white",
-                            boxShadow: "0 12px 28px rgba(6, 43, 36, .22)",
-                          }}
-                        >
-                          <span style={{ display: "block", fontSize: 12, opacity: .85 }}>
-                            نسبة الإنجاز
-                          </span>
-                          <strong style={{ display: "block", fontSize: 34, lineHeight: 1.1 }}>
-                            {achievementPercent}%
-                          </strong>
-                        </div>
-                      </div>
-
-                      <div
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns: "repeat(4, minmax(130px, 1fr))",
-                          gap: 12,
-                          marginBottom: 18,
-                        }}
-                      >
-                        <div style={cardBase}>
-                          <span style={{ color: "#0f7a53", fontWeight: 900 }}>تم الري</span>
-                          <strong style={{ display: "block", fontSize: 30, marginTop: 8, color: "#062b24" }}>
-                            {formatMoney(totalWatered)}
-                          </strong>
-                        </div>
-                        <div style={cardBase}>
-                          <span style={{ color: "#9f1239", fontWeight: 900 }}>لم يتم الري</span>
-                          <strong style={{ display: "block", fontSize: 30, marginTop: 8, color: "#062b24" }}>
-                            {formatMoney(totalNotWatered)}
-                          </strong>
-                        </div>
-                        <div style={cardBase}>
-                          <span style={{ color: "#b45309", fontWeight: 900 }}>عدم كفاية الري</span>
-                          <strong style={{ display: "block", fontSize: 30, marginTop: 8, color: "#062b24" }}>
-                            {formatMoney(totalInsufficient)}
-                          </strong>
-                        </div>
-                        <div style={cardBase}>
-                          <span style={{ color: "#854d0e", fontWeight: 900 }}>خروج الري للرصيف</span>
-                          <strong style={{ display: "block", fontSize: 30, marginTop: 8, color: "#062b24" }}>
-                            {formatMoney(totalSidewalk)}
-                          </strong>
-                        </div>
-                      </div>
-
-                      <div
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns: "2fr 1fr",
-                          gap: 16,
-                          alignItems: "stretch",
-                        }}
-                      >
-                        <div
-                          style={{
-                            borderRadius: 20,
-                            padding: 16,
-                            background: "rgba(255,255,255,.82)",
-                            border: "1px solid #eadfbc",
-                          }}
-                        >
-                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-                            <strong>مؤشر الإنجاز العام</strong>
-                            <span style={{ fontWeight: 900 }}>{formatMoney(totalWatered)} / {formatMoney(requiredWateringTotal)}</span>
-                          </div>
-                          <div
-                            style={{
-                              height: 22,
-                              borderRadius: 999,
-                              overflow: "hidden",
-                              background: "#eee7d5",
-                              display: "flex",
-                            }}
-                          >
-                            <span
-                              style={{
-                                width: `${achievementPercent}%`,
-                                background: "linear-gradient(90deg, #0f7a53, #20a36f)",
-                              }}
-                            />
-                            <span
-                              style={{
-                                width: `${violationPercent}%`,
-                                background: "linear-gradient(90deg, #d97706, #be123c)",
-                              }}
-                            />
-                          </div>
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              marginTop: 10,
-                              fontSize: 13,
-                              color: "#55706a",
-                              fontWeight: 800,
-                            }}
-                          >
-                            <span>المطلوب للفترة: {formatMoney(requiredWateringTotal)} ({reportRows.length} حديقة × {workingDays} أيام عمل)</span>
-                            <span>الأحمر/البرتقالي: حالات تحتاج متابعة</span>
-                          </div>
-                        </div>
-
-                        <div
-                          style={{
-                            borderRadius: 20,
-                            padding: 16,
-                            background: "#fff7ed",
-                            border: "1px solid #fed7aa",
-                            textAlign: "center",
-                          }}
-                        >
-                          <span style={{ color: "#9a3412", fontWeight: 900 }}>إجمالي الغرامات</span>
-                          <strong style={{ display: "block", fontSize: 28, marginTop: 10, color: "#7f1d1d" }}>
-                            {formatMoney(totalFines)} ريال
-                          </strong>
-                          <small style={{ display: "block", marginTop: 8, color: "#9a3412", fontWeight: 800 }}>
-                            عدد المخالفات: {formatMoney(totalViolations)}
-                          </small>
-                        </div>
-                      </div>
-                    </section>
-                  );
-                })()}
-
                 <div className="fines-report-box">
                   <h3>الغرامات</h3>
                   <div className="report-table-wrap">
@@ -3270,6 +2832,7 @@ const duplicatePhoto =
                           <th>الحديقة</th>
                           <th>نوع المخالفة</th>
                           <th>عدد المرات</th>
+                          <th>التواريخ</th>
                           <th>قيمة الغرامة</th>
                           <th>الإجمالي</th>
                         </tr>
@@ -3283,14 +2846,15 @@ const duplicatePhoto =
                               <td>{row.gardenName}</td>
                               <td>{row.violationType}</td>
                               <td>{row.count}</td>
+                              <td className="violation-dates-cell">{joinReportDates(row.dates)}</td>
                               <td>{formatMoney(row.fineAmount)} ريال</td>
                               <td>{formatMoney(row.total)} ريال</td>
                             </tr>
                           ))
                         ) : (
                           <tr>
-                            <td colSpan={5}>
-                              لا توجد غرامات خلال الفترة المحددة
+                            <td colSpan={6}>
+                              لا توجد مخالفات أو غرامات خلال الفترة المحددة
                             </td>
                           </tr>
                         )}
@@ -3580,33 +3144,7 @@ const duplicatePhoto =
           </section>
         </div>
       )}
-      {duplicateViewer && (() => {
-        const matches = duplicateViewer.matches || [];
-        const primaryMatch = matches[0];
-        const matchCount = duplicateViewer.matchCount || matches.length || 0;
-        const currentDate = duplicateViewer.currentReport?.report_date || selectedDate;
-        const primaryDate = primaryMatch?.report?.report_date || null;
-        const relation = primaryMatch
-          ? duplicateRelationText({
-              currentGarden: duplicateViewer.currentGarden,
-              currentProject: duplicateViewer.currentProject,
-              matchedGarden: primaryMatch.garden,
-              matchedProject: primaryMatch.project,
-            })
-          : {
-              title: "لا يوجد سجل مطابق",
-              detail: "لم يتم العثور على بيانات سجل مطابق قابلة للعرض.",
-              color: "#6b7280",
-              bg: "#f9fafb",
-              border: "#d1d5db",
-            };
-        const primaryTimeDiff = timeDifferenceLabel(
-          duplicateViewer.currentReport?.created_at,
-          primaryMatch?.report?.created_at,
-        );
-        const primaryDayDiff = dayDifferenceLabel(currentDate, primaryDate);
-
-        return (
+      {duplicateViewer && (
         <div
           className="image-preview-backdrop"
           onClick={() => setDuplicateViewer(null)}
@@ -3627,14 +3165,12 @@ const duplicatePhoto =
                 <span className="duplicate-badge">مقارنة الصور المكررة</span>
                 <h2>
                   {duplicateViewer.currentGarden?.name || "الحديقة الحالية"}
-                  {" ↔ الصور المطابقة"}
+                  {" ↔ "}
+                  {duplicateViewer.matchCount || 0} سجل مطابق
                 </h2>
                 <p>
-                  {matchCount === 1
-                    ? "تم العثور على سجل مطابق واحد لنفس بصمة الصورة."
-                    : `تم العثور على ${duplicateCountLabel(matchCount)} لنفس بصمة الصورة.`}
-                  {" "}
-                  راجع نوع المخالفة وفرق التاريخ ووقت الرفع قبل اتخاذ القرار.
+                  تم العثور على {duplicateViewer.matchCount || 0} سجلات مطابقة لنفس بصمة الصورة.
+                  استخدم هذه النافذة لمراجعة السجل الحالي وجميع السجلات السابقة المطابقة.
                 </p>
               </div>
 
@@ -3648,12 +3184,7 @@ const duplicatePhoto =
               </div>
             </div>
 
-            <div
-              className="duplicate-summary-box"
-              style={{
-                gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
-              }}
-            >
+            <div className="duplicate-summary-box">
               <div>
                 <span>السجل الحالي</span>
                 <strong>{duplicateViewer.currentGarden?.name || "غير معروف"}</strong>
@@ -3662,47 +3193,25 @@ const duplicatePhoto =
 
               <div>
                 <span>تاريخ السجل الحالي</span>
-                <strong>{currentDate}</strong>
+                <strong>{duplicateViewer.currentReport?.report_date || selectedDate}</strong>
               </div>
 
               <div>
                 <span>عدد السجلات المطابقة</span>
-                <strong>{duplicateCountLabel(matchCount)}</strong>
+                <strong>{duplicateViewer.matchCount || 0}</strong>
               </div>
 
               <div>
                 <span>نوع التطابق</span>
                 <strong>
-                  {duplicateMatchTypeLabel(duplicateViewer.matchType)}
+                  {duplicateViewer.matchType?.includes("different_report")
+                    ? "تطابق كامل في سجل آخر"
+                    : duplicateViewer.matchType?.includes("same_garden")
+                      ? "تطابق كامل لنفس الحديقة"
+                      : "تطابق كامل للبصمة"}
                 </strong>
               </div>
             </div>
-
-            {primaryMatch && (
-              <div
-                className="duplicate-summary-box"
-                style={{
-                  gridTemplateColumns: "1fr",
-                  background: relation.bg,
-                  borderColor: relation.border,
-                  marginTop: 12,
-                }}
-              >
-                <div>
-                  <span>نوع المخالفة / نتيجة المقارنة</span>
-                  <strong style={{ color: relation.color, fontSize: 23 }}>
-                    {relation.title}
-                  </strong>
-                  <small style={{ color: relation.color, fontWeight: 900 }}>
-                    {relation.detail}
-                    {" — "}
-                    {primaryDayDiff}
-                    {" — فرق وقت الرفع: "}
-                    {primaryTimeDiff}
-                  </small>
-                </div>
-              </div>
-            )}
 
             <div className="duplicate-grid">
               <div className="duplicate-photo-box">
@@ -3718,135 +3227,74 @@ const duplicatePhoto =
                     <strong>{duplicateViewer.currentProject?.name || "غير معروف"}</strong>
                   </p>
                   <p>
-                    تاريخ السجل:
-                    <strong>{currentDate}</strong>
-                  </p>
-                  <p>
-                    وقت الرفع:
-                    <strong>{formatDateTime(duplicateViewer.currentReport?.created_at)}</strong>
+                    التاريخ:
+                    <strong>{duplicateViewer.currentReport?.report_date || selectedDate}</strong>
                   </p>
                 </div>
               </div>
 
               <div className="duplicate-photo-box">
-                <h3>{matchCount === 1 ? "الصورة المطابقة" : "أقرب صورة مطابقة"}</h3>
-                {primaryMatch?.photo?.file_url ? (
-                  <img src={primaryMatch.photo.file_url} alt="الصورة المطابقة" />
-                ) : (
-                  <div className="no-image">لا توجد صورة</div>
-                )}
+                <h3>أول صورة مطابقة</h3>
+                <img src={duplicateViewer.matches?.[0]?.photo?.file_url} alt="أول صورة مطابقة" />
                 <div className="duplicate-photo-meta">
                   <p>
                     الحديقة المطابقة:
-                    <strong>{primaryMatch?.garden?.name || "غير معروف"}</strong>
+                    <strong>{duplicateViewer.matches?.[0]?.garden?.name || "غير معروف"}</strong>
                   </p>
                   <p>
                     المشروع المطابق:
-                    <strong>{primaryMatch?.project?.name || "غير معروف"}</strong>
+                    <strong>{duplicateViewer.matches?.[0]?.project?.name || "غير معروف"}</strong>
                   </p>
                   <p>
                     تاريخ السجل:
-                    <strong>{primaryDate || "-"}</strong>
-                  </p>
-                  <p>
-                    وقت الرفع:
-                    <strong>{formatDateTime(primaryMatch?.report?.created_at)}</strong>
-                  </p>
-                  <p>
-                    فرق وقت الرفع:
-                    <strong>{primaryTimeDiff}</strong>
-                  </p>
-                  <p>
-                    فرق التاريخ:
-                    <strong>{primaryDayDiff}</strong>
-                  </p>
-                  <p>
-                    نوع التطابق:
-                    <strong>{duplicateMatchTypeLabel(primaryMatch?.photo?.duplicate_match_type || duplicateViewer.matchType)}</strong>
-                  </p>
-                  <p>
-                    درجة التطابق:
-                    <strong>{primaryMatch?.photo?.duplicate_match_score || duplicateViewer.matchScore || 100}%</strong>
+                    <strong>{duplicateViewer.matches?.[0]?.report?.report_date || "-"}</strong>
                   </p>
                 </div>
               </div>
             </div>
 
-            {matchCount > 1 && (
-              <>
-                <div
-                  className="duplicate-summary-box"
-                  style={{ gridTemplateColumns: "1fr", textAlign: "right" }}
-                >
-                  <div>
-                    <span>جميع السجلات المطابقة ({formatMoney(matchCount)})</span>
-                    <strong>راجع كل سجل مطابق للتأكد قبل تسجيل المخالفة</strong>
+            <div
+              className="duplicate-summary-box"
+              style={{ gridTemplateColumns: "1fr", textAlign: "right" }}
+            >
+              <div>
+                <span>جميع السجلات المطابقة</span>
+                <strong>راجع كل سجل مطابق للتأكد قبل تسجيل المخالفة</strong>
+              </div>
+            </div>
+
+            <div
+              className="duplicate-grid"
+              style={{ gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}
+            >
+              {duplicateViewer.matches?.map((match: any, index: number) => (
+                <div className="duplicate-photo-box" key={match.photo.id}>
+                  <h3>مطابقة رقم {index + 1}</h3>
+                  <img src={match.photo.file_url} alt={`صورة مطابقة ${index + 1}`} />
+                  <div className="duplicate-photo-meta">
+                    <p>
+                      الحديقة:
+                      <strong>{match.garden?.name || "غير معروف"}</strong>
+                    </p>
+                    <p>
+                      المشروع:
+                      <strong>{match.project?.name || "غير معروف"}</strong>
+                    </p>
+                    <p>
+                      تاريخ السجل:
+                      <strong>{match.report?.report_date || "-"}</strong>
+                    </p>
+                    <p>
+                      التطابق:
+                      <strong>{match.photo.duplicate_match_score || duplicateViewer.matchScore || 100}%</strong>
+                    </p>
                   </div>
                 </div>
-
-                <div
-                  className="duplicate-grid"
-                  style={{ gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}
-                >
-                  {matches.map((match: any, index: number) => (
-                    <div className="duplicate-photo-box" key={match.photo.id}>
-                      <h3>السجل المطابق رقم {index + 1} من {matchCount}</h3>
-                      <img src={match.photo.file_url} alt={`صورة مطابقة ${index + 1}`} />
-                      <div className="duplicate-photo-meta">
-                        <p>
-                          الحديقة:
-                          <strong>{match.garden?.name || "غير معروف"}</strong>
-                        </p>
-                        <p>
-                          المشروع:
-                          <strong>{match.project?.name || "غير معروف"}</strong>
-                        </p>
-                        <p>
-                          تاريخ السجل:
-                          <strong>{match.report?.report_date || "-"}</strong>
-                        </p>
-                        <p>
-                          وقت الرفع:
-                          <strong>{formatDateTime(match.report?.created_at)}</strong>
-                        </p>
-                        <p>
-                          العلاقة:
-                          <strong>
-                            {duplicateRelationText({
-                              currentGarden: duplicateViewer.currentGarden,
-                              currentProject: duplicateViewer.currentProject,
-                              matchedGarden: match.garden,
-                              matchedProject: match.project,
-                            }).title}
-                          </strong>
-                        </p>
-                        <p>
-                          فرق وقت الرفع:
-                          <strong>
-                            {timeDifferenceLabel(
-                              duplicateViewer.currentReport?.created_at,
-                              match.report?.created_at,
-                            )}
-                          </strong>
-                        </p>
-                        <p>
-                          فرق التاريخ:
-                          <strong>{dayDifferenceLabel(currentDate, match.report?.report_date)}</strong>
-                        </p>
-                        <p>
-                          التطابق:
-                          <strong>{match.photo.duplicate_match_score || duplicateViewer.matchScore || 100}%</strong>
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
+              ))}
+            </div>
           </section>
         </div>
-        );
-      })()}
+      )}
     </main>
   );
 }
