@@ -219,6 +219,73 @@ function dayDifferenceLabel(currentDate?: string | null, matchedDate?: string | 
   return `فرق ${formatMoney(days)} أيام`;
 }
 
+function timeDifferenceLabel(currentTime?: string | null, matchedTime?: string | null) {
+  if (!currentTime || !matchedTime) return "غير محدد";
+  const current = new Date(currentTime).getTime();
+  const matched = new Date(matchedTime).getTime();
+  if (Number.isNaN(current) || Number.isNaN(matched)) return "غير محدد";
+
+  const minutes = Math.abs(Math.round((current - matched) / 60000));
+  if (minutes < 1) return "أقل من دقيقة";
+  if (minutes === 1) return "دقيقة واحدة";
+  if (minutes === 2) return "دقيقتان";
+  if (minutes < 60) return `${formatMoney(minutes)} دقائق`;
+
+  const hours = Math.round(minutes / 60);
+  if (hours === 1) return "ساعة واحدة";
+  if (hours === 2) return "ساعتان";
+  if (hours < 24) return `${formatMoney(hours)} ساعات`;
+
+  return dayDifferenceLabel(
+    currentTime.slice(0, 10),
+    matchedTime.slice(0, 10),
+  );
+}
+
+function duplicateRelationText(params: {
+  currentGarden?: Garden | null;
+  currentProject?: Project | null;
+  matchedGarden?: Garden | null;
+  matchedProject?: Project | null;
+}) {
+  const sameGarden =
+    params.currentGarden?.id &&
+    params.matchedGarden?.id &&
+    params.currentGarden.id === params.matchedGarden.id;
+  const sameProject =
+    params.currentProject?.id &&
+    params.matchedProject?.id &&
+    params.currentProject.id === params.matchedProject.id;
+
+  if (sameGarden) {
+    return {
+      title: "تطابق داخل نفس الحديقة",
+      detail: "تم العثور على صورة مطابقة لنفس الحديقة. راجع فرق التاريخ والوقت قبل اتخاذ القرار.",
+      color: "#0f7a53",
+      bg: "#ecfdf3",
+      border: "#86efac",
+    };
+  }
+
+  if (sameProject) {
+    return {
+      title: "تم استخدام نفس الصورة لحديقتين مختلفتين داخل نفس المشروع",
+      detail: `${params.currentGarden?.name || "الحديقة الحالية"} ←→ ${params.matchedGarden?.name || "الحديقة المطابقة"}`,
+      color: "#b45309",
+      bg: "#fff7ed",
+      border: "#fdba74",
+    };
+  }
+
+  return {
+    title: "تم استخدام نفس الصورة في مشروعين مختلفين",
+    detail: `${params.currentProject?.name || "المشروع الحالي"} ←→ ${params.matchedProject?.name || "المشروع المطابق"}`,
+    color: "#b91c1c",
+    bg: "#fef2f2",
+    border: "#fca5a5",
+  };
+}
+
 export default function AdminHome() {
   const [user, setUser] = useState<AdminUser | null>(null);
   const [username, setUsername] = useState("");
@@ -3517,25 +3584,27 @@ const duplicatePhoto =
         const matches = duplicateViewer.matches || [];
         const primaryMatch = matches[0];
         const matchCount = duplicateViewer.matchCount || matches.length || 0;
-        const sameGarden =
-          primaryMatch?.garden?.id &&
-          duplicateViewer.currentGarden?.id &&
-          primaryMatch.garden.id === duplicateViewer.currentGarden.id;
-        const sameProject =
-          primaryMatch?.project?.id &&
-          duplicateViewer.currentProject?.id &&
-          primaryMatch.project.id === duplicateViewer.currentProject.id;
-        const relationLabel = !primaryMatch
-          ? "لا يوجد سجل مطابق"
-          : sameGarden
-            ? "نفس الحديقة"
-            : sameProject
-              ? "حديقة مختلفة داخل نفس المشروع"
-              : "مشروع مختلف";
-        const relationColor = sameGarden ? "#0f7a53" : sameProject ? "#b45309" : "#b91c1c";
-        const relationBg = sameGarden ? "#ecfdf3" : sameProject ? "#fff7ed" : "#fef2f2";
         const currentDate = duplicateViewer.currentReport?.report_date || selectedDate;
         const primaryDate = primaryMatch?.report?.report_date || null;
+        const relation = primaryMatch
+          ? duplicateRelationText({
+              currentGarden: duplicateViewer.currentGarden,
+              currentProject: duplicateViewer.currentProject,
+              matchedGarden: primaryMatch.garden,
+              matchedProject: primaryMatch.project,
+            })
+          : {
+              title: "لا يوجد سجل مطابق",
+              detail: "لم يتم العثور على بيانات سجل مطابق قابلة للعرض.",
+              color: "#6b7280",
+              bg: "#f9fafb",
+              border: "#d1d5db",
+            };
+        const primaryTimeDiff = timeDifferenceLabel(
+          duplicateViewer.currentReport?.created_at,
+          primaryMatch?.report?.created_at,
+        );
+        const primaryDayDiff = dayDifferenceLabel(currentDate, primaryDate);
 
         return (
         <div
@@ -3565,7 +3634,7 @@ const duplicatePhoto =
                     ? "تم العثور على سجل مطابق واحد لنفس بصمة الصورة."
                     : `تم العثور على ${duplicateCountLabel(matchCount)} لنفس بصمة الصورة.`}
                   {" "}
-                  راجع السجل الحالي والسجل المطابق قبل اتخاذ القرار.
+                  راجع نوع المخالفة وفرق التاريخ ووقت الرفع قبل اتخاذ القرار.
                 </p>
               </div>
 
@@ -3614,22 +3683,22 @@ const duplicatePhoto =
                 className="duplicate-summary-box"
                 style={{
                   gridTemplateColumns: "1fr",
-                  background: relationBg,
-                  borderColor: relationColor,
+                  background: relation.bg,
+                  borderColor: relation.border,
                   marginTop: 12,
                 }}
               >
                 <div>
-                  <span>نتيجة المقارنة</span>
-                  <strong style={{ color: relationColor, fontSize: 24 }}>
-                    {relationLabel}
+                  <span>نوع المخالفة / نتيجة المقارنة</span>
+                  <strong style={{ color: relation.color, fontSize: 23 }}>
+                    {relation.title}
                   </strong>
-                  <small style={{ color: relationColor, fontWeight: 900 }}>
-                    {duplicateViewer.currentGarden?.name || "الحديقة الحالية"}
-                    {" ←→ "}
-                    {primaryMatch.garden?.name || "الحديقة المطابقة"}
+                  <small style={{ color: relation.color, fontWeight: 900 }}>
+                    {relation.detail}
                     {" — "}
-                    {dayDifferenceLabel(currentDate, primaryDate)}
+                    {primaryDayDiff}
+                    {" — فرق وقت الرفع: "}
+                    {primaryTimeDiff}
                   </small>
                 </div>
               </div>
@@ -3684,6 +3753,14 @@ const duplicatePhoto =
                     <strong>{formatDateTime(primaryMatch?.report?.created_at)}</strong>
                   </p>
                   <p>
+                    فرق وقت الرفع:
+                    <strong>{primaryTimeDiff}</strong>
+                  </p>
+                  <p>
+                    فرق التاريخ:
+                    <strong>{primaryDayDiff}</strong>
+                  </p>
+                  <p>
                     نوع التطابق:
                     <strong>{duplicateMatchTypeLabel(primaryMatch?.photo?.duplicate_match_type || duplicateViewer.matchType)}</strong>
                   </p>
@@ -3735,12 +3812,26 @@ const duplicatePhoto =
                         <p>
                           العلاقة:
                           <strong>
-                            {match.garden?.id === duplicateViewer.currentGarden?.id
-                              ? "نفس الحديقة"
-                              : match.project?.id === duplicateViewer.currentProject?.id
-                                ? "حديقة مختلفة داخل نفس المشروع"
-                                : "مشروع مختلف"}
+                            {duplicateRelationText({
+                              currentGarden: duplicateViewer.currentGarden,
+                              currentProject: duplicateViewer.currentProject,
+                              matchedGarden: match.garden,
+                              matchedProject: match.project,
+                            }).title}
                           </strong>
+                        </p>
+                        <p>
+                          فرق وقت الرفع:
+                          <strong>
+                            {timeDifferenceLabel(
+                              duplicateViewer.currentReport?.created_at,
+                              match.report?.created_at,
+                            )}
+                          </strong>
+                        </p>
+                        <p>
+                          فرق التاريخ:
+                          <strong>{dayDifferenceLabel(currentDate, match.report?.report_date)}</strong>
                         </p>
                         <p>
                           التطابق:
