@@ -1108,23 +1108,33 @@ export default function AdminHome() {
   .violations-table th:nth-child(6) { width: 13%; }
 
   .total-fines-card {
-    margin-top: 12px;
-    padding: 13px;
-    border: 2px solid #18b7c9;
-    border-radius: 16px;
-    text-align: center;
-    font-weight: 900;
-    font-size: 15px;
-    background: linear-gradient(135deg, #f8fcfd, #ffffff);
-    color: #3d2c8d;
-  }
+  margin-top: 8px;
+  padding: 10px;
+  border: 2px solid #18b7c9;
+  border-radius: 16px;
+  text-align: center;
+  font-weight: 900;
+  font-size: 15px;
+  background: linear-gradient(135deg, #f8fcfd, #ffffff);
+  color: #3d2c8d;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
 
   .total-fines-card strong {
-    color: #3d2c8d;
-    display: block;
-    margin-top: 7px;
-    font-size: 21px;
-  }
+  color: #3d2c8d;
+  display: block;
+  margin-top: 5px;
+  font-size: 19px;
+}
+
+.report-footer {
+  margin-top: 14px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 10px;
+  font-weight: 700;
+}
 </style>
         </head>
         <body>
@@ -1161,19 +1171,6 @@ export default function AdminHome() {
               <div><span>إجمالي الغرامات</span><strong>${formatMoney(totalFines)} ريال</strong></div>
             </section>
 
-            <h4 class="section-title">ملخص الحدائق</h4>
-            <table>
-              <thead>
-                <tr>
-                  <th>الحديقة</th>
-                  <th>تم الري</th>
-                  <th>لم يتم الري</th>
-                  <th>عدم كفاية ري</th>
-                  <th>خروج الري</th>
-                </tr>
-              </thead>
-              <tbody>${reportRowsHtml}</tbody>
-            </table>
 
             <h4 class="section-title">تفاصيل الحدائق غير المروية والمخالفات</h4>
             <table class="violations-table">
@@ -1194,6 +1191,9 @@ export default function AdminHome() {
               <span>إجمالي الغرامات لكافة الحدائق</span>
               <strong>${formatMoney(totalFines)} ريال</strong>
             </div>
+            <div class="report-footer">
+  تم إنشاء التقرير آلياً بواسطة نظام متابعة ري الحدائق
+</div>
           </main>
           <script>
             window.onload = function () {
