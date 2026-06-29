@@ -1165,10 +1165,7 @@ export default function AdminHome() {
 
   <p>${escapeHtml(reportTitle)}</p>
 
-  <p class="report-period">
-    من ${escapeHtml(startDate)}
-    إلى ${escapeHtml(endDate)}
-  </p>
+ 
 
   <small>
     أيام العمل المحتسبة:
