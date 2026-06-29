@@ -1211,41 +1211,22 @@ export default function AdminHome() {
               <span>إجمالي الغرامات لكافة الحدائق</span>
               <strong>${formatMoney(totalFines)} ريال</strong>
             </div>
-            <div class="signatures-section">
+            <div class="signatures">
   <div class="signature-box">
-    <div class="signature-title">
-      مدير المشروع (المقاول)
-    </div>
-
-    <div class="signature-space"></div>
-
-    <div class="signature-name">
-      ..........................
-    </div>
+    <strong>مدير المشروع (المقاول)</strong>
+    <div class="signature-line"></div>
   </div>
 
   <div class="signature-box">
-    <div class="signature-title">
-      مشرف المشروع (الاستشاري)
-    </div>
-
-    <div class="signature-space"></div>
-
-    <div class="signature-name">
-      اسلام عطية
-    </div>
+    <strong>مشرف المشروع (الاستشاري)</strong>
+    <span>اسلام عطية</span>
+    <div class="signature-line"></div>
   </div>
 
   <div class="signature-box">
-    <div class="signature-title">
-      مدير المشروع (الأمانة)
-    </div>
-
-    <div class="signature-space"></div>
-
-    <div class="signature-name">
-      أحمد صالح الشهري
-    </div>
+    <strong>مدير المشروع (الأمانة)</strong>
+    <span>احمد صالح الشهري</span>
+    <div class="signature-line"></div>
   </div>
 </div>
             <div class="report-footer">
