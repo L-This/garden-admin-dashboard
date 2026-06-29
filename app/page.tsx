@@ -951,11 +951,12 @@ export default function AdminHome() {
 
   .report-logo-box {
     text-align: right;
+    padding-right: 8px;
   }
 
   .report-logo-box img,
   .jeddah-logo {
-    width: 105px;
+    width: 135px;
     height: auto;
     object-fit: contain;
     display: block;
@@ -1174,7 +1175,7 @@ export default function AdminHome() {
               <tbody>${reportRowsHtml}</tbody>
             </table>
 
-            <h4 class="section-title">تفاصيل المخالفات بالتواريخ</h4>
+            <h4 class="section-title">تفاصيل الحدائق غير المروية والمخالفات</h4>
             <table class="violations-table">
               <thead>
                 <tr>
