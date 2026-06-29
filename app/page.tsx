@@ -936,20 +936,23 @@ export default function AdminHome() {
   }
 
   body {
+  margin: 0;
+  direction: rtl;
+  font-family: Arial, sans-serif;
+  color: #16113f;
+  background: #ffffff;
+}
 
-    zoom: 0.96;
-    
-    margin: 0;
-    direction: rtl;
-    font-family: Arial, sans-serif;
-    color: #16113f;
-    background: #ffffff;
-  }
+ .print-page {
+  width: 100%;
+  min-height: auto;
+}
 
-  .print-page {
-    width: 100%;
-    min-height:auto;
-  }
+html,
+body {
+  height: auto !important;
+  min-height: auto !important;
+}
 
   .period-report-head {
     margin-bottom: 18px;
