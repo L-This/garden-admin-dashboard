@@ -735,8 +735,8 @@ export default function AdminHome() {
     setReportRows(rows);
     setFineRows(fines);
     setReportTitle(
-      `${selectedProject.name} من ${reportFromDate} إلى ${reportToDate}`,
-    );
+  `${selectedProject.name}<br/>من ${reportFromDate} إلى ${reportToDate}`,
+);
   }
 
   async function loadExecutiveDashboard() {
@@ -1163,7 +1163,7 @@ export default function AdminHome() {
     <div class="report-title-box">
   <h3>تقرير متابعة ري الحدائق</h3>
 
-  <p>${escapeHtml(reportTitle)}</p>
+  <p>${escapeHtml(reportTitle).replace("&lt;br/&gt;", "<br/>")}</p>
 
  
 
