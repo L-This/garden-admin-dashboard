@@ -4174,12 +4174,36 @@ button[data-status="runoff"],
 }
 
 
-.signatures{
-  display:flex;
-  justify-content:space-between;
-  gap:20px;
-  margin-top:30px;
-  text-align:center;
+.signatures-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 35px;
+  margin-top: 35px;
+  align-items: start;
+}
+
+.signature-item {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: #16113f;
+}
+
+.signature-item strong {
+  display: block;
+  color: #3d2c8d;
+  margin-bottom: 8px;
+}
+
+.signature-item span {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.signature-line {
+  height: 42px;
+  border-bottom: 1px solid #777;
 }
 
 .signature-box{
