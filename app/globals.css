@@ -4149,10 +4149,12 @@ button[data-status="runoff"],
 }
 
 .signatures-section {
-  margin-top: 35px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 40px;
+  margin-top: 25px;
+  margin-bottom: 12px;
   text-align: center;
 }
 
@@ -4206,24 +4208,28 @@ button[data-status="runoff"],
   border-bottom: 1px solid #777;
 }
 
-.signature-box{
-  flex:1;
+.signature-box {
+  flex: 1;
+  text-align: center;
 }
 
-.signature-box strong{
-  display:block;
-  margin-bottom:8px;
-  color:#3d2c8d;
+.signature-box strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #3d2c8d;
 }
 
-.signature-box span{
-  display:block;
-  margin-bottom:12px;
+.signature-box span {
+  display: block;
+  margin-bottom: 8px;
 }
 
-.signature-line{
-  border-bottom:1px solid #999;
-  height:40px;
+.signature-line {
+  margin-top: 28px;
+  border-top: 1px solid #555;
+  width: 85%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 
