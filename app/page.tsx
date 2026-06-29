@@ -735,7 +735,7 @@ export default function AdminHome() {
     setReportRows(rows);
     setFineRows(fines);
     setReportTitle(
-  `${selectedProject.name}<br/>من ${reportFromDate} إلى ${reportToDate}`,
+  `${selectedProject.name} من ${reportFromDate} إلى ${reportToDate}`,
 );
   }
 
@@ -1165,7 +1165,7 @@ export default function AdminHome() {
   <h3>تقرير متابعة ري الحدائق</h3>
 
   <div class="project-period">
-  ${escapeHtml(reportTitle)}
+  ${escapeHtml(reportTitle).replace(/&lt;br\s*\/?&gt;/g, " - ")}
 </div>
 
  
