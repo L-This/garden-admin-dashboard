@@ -944,6 +944,7 @@ export default function AdminHome() {
 
   .print-page {
     width: 100%;
+    min-height:auto;
   }
 
   .period-report-head {
@@ -1163,7 +1164,9 @@ export default function AdminHome() {
     <div class="report-title-box">
   <h3>تقرير متابعة ري الحدائق</h3>
 
-  <p>${escapeHtml(reportTitle).replace("&lt;br/&gt;", "<br/>")}</p>
+  <div class="project-period">
+  ${escapeHtml(reportTitle)}
+</div>
 
  
 
