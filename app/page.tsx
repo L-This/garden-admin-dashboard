@@ -913,9 +913,16 @@ export default function AdminHome() {
           <meta charset="utf-8" />
           <title>تقرير ري الحدائق</title>
           <style>
+  .report-period {
+  margin: 6px 0 !important;
+  font-size: 13px;
+  font-weight: 900;
+  color: #18b7c9 !important;
+}
+          
   @page {
     size: A4 portrait;
-    margin: 12mm;
+    margin: 8mm;
   }
 
   * {
@@ -925,6 +932,9 @@ export default function AdminHome() {
   }
 
   body {
+
+    zoom: 0.96;
+    
     margin: 0;
     direction: rtl;
     font-family: Arial, sans-serif;
@@ -1108,24 +1118,24 @@ export default function AdminHome() {
   .violations-table th:nth-child(6) { width: 13%; }
 
   .total-fines-card {
-  margin-top: 8px;
-  padding: 10px;
+  margin-top: 10px;
+  padding: 16px;
   border: 2px solid #18b7c9;
-  border-radius: 16px;
+  border-radius: 18px;
   text-align: center;
-  font-weight: 900;
-  font-size: 15px;
-  background: linear-gradient(135deg, #f8fcfd, #ffffff);
-  color: #3d2c8d;
-  break-inside: avoid;
-  page-break-inside: avoid;
+  background: linear-gradient(
+    135deg,
+    rgba(24,183,201,.08),
+    rgba(61,44,141,.05)
+  );
+  box-shadow: 0 8px 20px rgba(0,0,0,.08);
 }
 
   .total-fines-card strong {
-  color: #3d2c8d;
   display: block;
-  margin-top: 5px;
-  font-size: 19px;
+  margin-top: 6px;
+  font-size: 26px;
+  color: #3d2c8d;
 }
 
 .report-footer {
@@ -1151,10 +1161,23 @@ export default function AdminHome() {
     </div>
 
     <div class="report-title-box">
-      <h3>تقرير متابعة ري الحدائق</h3>
-      <p>${escapeHtml(reportTitle)}</p>
-      <small>أيام العمل المحتسبة: ${formatMoney(workingDays)} يوم — الإجمالي المطلوب: ${formatMoney(requiredWateringTotal)} عملية ري</small>
-    </div>
+  <h3>تقرير متابعة ري الحدائق</h3>
+
+  <p>${escapeHtml(reportTitle)}</p>
+
+  <p class="report-period">
+    من ${escapeHtml(startDate)}
+    إلى ${escapeHtml(endDate)}
+  </p>
+
+  <small>
+    أيام العمل المحتسبة:
+    ${formatMoney(workingDays)} يوم
+    —
+    الإجمالي المطلوب:
+    ${formatMoney(requiredWateringTotal)} عملية ري
+  </small>
+</div>
 
     <div class="report-date-box">
       <span>تاريخ التقرير</span>
@@ -1191,6 +1214,43 @@ export default function AdminHome() {
               <span>إجمالي الغرامات لكافة الحدائق</span>
               <strong>${formatMoney(totalFines)} ريال</strong>
             </div>
+            <div class="signatures-section">
+  <div class="signature-box">
+    <div class="signature-title">
+      مدير المشروع (المقاول)
+    </div>
+
+    <div class="signature-space"></div>
+
+    <div class="signature-name">
+      ..........................
+    </div>
+  </div>
+
+  <div class="signature-box">
+    <div class="signature-title">
+      مشرف المشروع (الاستشاري)
+    </div>
+
+    <div class="signature-space"></div>
+
+    <div class="signature-name">
+      اسلام عطية
+    </div>
+  </div>
+
+  <div class="signature-box">
+    <div class="signature-title">
+      مدير المشروع (الأمانة)
+    </div>
+
+    <div class="signature-space"></div>
+
+    <div class="signature-name">
+      أحمد صالح الشهري
+    </div>
+  </div>
+</div>
             <div class="report-footer">
   تم إنشاء التقرير آلياً بواسطة نظام متابعة ري الحدائق
 </div>
