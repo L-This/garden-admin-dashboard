@@ -4147,3 +4147,28 @@ button[data-status="runoff"],
   color:#062b24;
   font-size:18px;
 }
+
+.signatures-section {
+  margin-top: 35px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+  text-align: center;
+}
+
+.signature-title {
+  color: #3d2c8d;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.signature-space {
+  height: 60px;
+}
+
+.signature-name {
+  border-top: 1px solid #999;
+  padding-top: 8px;
+  font-size: 12px;
+  font-weight: 800;
+}
