@@ -913,231 +913,225 @@ export default function AdminHome() {
           <meta charset="utf-8" />
           <title>تقرير ري الحدائق</title>
           <style>
-            @page {
-              size: A4 portrait;
-              margin: 12mm;
-            }
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
 
-            * {
-              box-sizing: border-box;
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-            }
+  * {
+    box-sizing: border-box;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
 
-            body {
-              margin: 0;
-              direction: rtl;
-              font-family: Arial, sans-serif;
-              color: #062b24;
-              background: #ffffff;
-            }
+  body {
+    margin: 0;
+    direction: rtl;
+    font-family: Arial, sans-serif;
+    color: #16113f;
+    background: #ffffff;
+  }
 
-            .print-page {
-              width: 100%;
-            }
+  .print-page {
+    width: 100%;
+  }
 
-            .period-report-head {
-  margin-bottom: 18px;
-  padding-bottom: 14px;
-  border-bottom: 3px solid #18b7c9;
-}
+  .period-report-head {
+    margin-bottom: 18px;
+    padding-bottom: 16px;
+    border-bottom: 4px solid #18b7c9;
+  }
 
-.report-top {
-  display: grid;
-  grid-template-columns: 220px 1fr 170px;
-  align-items: center;
-  gap: 18px;
-}
+  .report-top {
+    display: grid;
+    grid-template-columns: 210px 1fr 170px;
+    align-items: center;
+    gap: 18px;
+  }
 
-.report-logo-box {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-align: right;
-}
+  .report-logo-box {
+    text-align: right;
+  }
 
-.report-logo-box img {
-  width: 72px;
-  height: auto;
-  object-fit: contain;
-}
+  .report-logo-box img,
+  .jeddah-logo {
+    width: 105px;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    margin-bottom: 8px;
+  }
 
-.authority-text {
-  color: #3d2c8d;
-  font-weight: 800;
-  line-height: 1.55;
-  font-size: 11px;
-}
+  .authority-text {
+    color: #3d2c8d;
+    font-size: 11px;
+    font-weight: 900;
+    line-height: 1.7;
+  }
 
-.authority-text strong,
-.authority-text span {
-  display: block;
-}
+  .authority-text strong,
+  .authority-text span {
+    display: block;
+  }
 
-.report-title-box {
-  text-align: center;
-}
+  .report-title-box {
+    text-align: center;
+  }
 
-.report-title-box h3 {
-  margin: 0 0 6px;
-  font-size: 25px;
-  font-weight: 900;
-  color: #3d2c8d;
-}
+  .report-title-box h3 {
+    margin: 0 0 6px;
+    font-size: 28px;
+    font-weight: 900;
+    color: #3d2c8d;
+  }
 
-.report-title-box p {
-  margin: 0 0 4px;
-  font-size: 13px;
-  font-weight: 800;
-  color: #123047;
-}
+  .report-title-box p {
+    margin: 0 0 5px;
+    font-size: 13px;
+    font-weight: 900;
+    color: #123047;
+  }
 
-.report-title-box small {
-  font-size: 11px;
-  color: #5b6472;
-}
+  .report-title-box small {
+    font-size: 11px;
+    color: #56616f;
+  }
 
-.report-date-box {
-  border: 1px solid #d7e4ea;
-  border-radius: 14px;
-  padding: 10px;
-  text-align: center;
-  background: #f8fcfd;
-}
+  .report-date-box {
+    border: 1px solid #cfe7ee;
+    border-radius: 16px;
+    padding: 12px;
+    text-align: center;
+    background: #f8fcfd;
+  }
 
-.report-date-box span {
-  display: block;
-  color: #3d2c8d;
-  font-size: 11px;
-  font-weight: 900;
-  margin-bottom: 6px;
-}
+  .report-date-box span {
+    display: block;
+    color: #3d2c8d;
+    font-size: 11px;
+    font-weight: 900;
+    margin-bottom: 7px;
+  }
 
-.report-date-box strong {
-  color: #18b7c9;
-  font-size: 14px;
-}
+  .report-date-box strong {
+    color: #18b7c9;
+    font-size: 15px;
+    font-weight: 900;
+  }
 
-            .period-report-head h3 {
-              font-size: 24px;
-              margin: 0 0 6px;
-              font-weight: 900;
-            }
+  .summary-strip {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 7px;
+    margin: 12px 0 16px;
+  }
 
-            .period-report-head p,
-            .period-report-head small {
-              font-size: 13px;
-              margin: 0;
-              font-weight: 700;
-              color: #47625c;
-            }
+  .summary-strip div {
+    border: 1px solid #d9d3ef;
+    border-radius: 12px;
+    padding: 9px 6px;
+    text-align: center;
+    background: linear-gradient(180deg, #ffffff, #fbfbff);
+  }
 
-            .summary-strip {
-              display: grid;
-              grid-template-columns: repeat(5, 1fr);
-              gap: 6px;
-              margin: 10px 0 14px;
-            }
+  .summary-strip span {
+    display: block;
+    font-size: 10px;
+    color: #3d2c8d;
+    font-weight: 900;
+  }
 
-            .summary-strip div {
-              border: 1px solid #eadfbc;
-              border-radius: 10px;
-              padding: 8px 6px;
-              text-align: center;
-              background: #fffaf0;
-            }
+  .summary-strip strong {
+    display: block;
+    margin-top: 5px;
+    font-size: 15px;
+    color: #18a8b8;
+  }
 
-            .summary-strip span {
-              display: block;
-              font-size: 10px;
-              color: #55706a;
-              font-weight: 800;
-            }
+  h4.section-title {
+    margin: 16px 0 8px;
+    font-size: 16px;
+    color: #3d2c8d;
+    border-right: 5px solid #18b7c9;
+    padding-right: 8px;
+  }
 
-            .summary-strip strong {
-              display: block;
-              margin-top: 4px;
-              font-size: 15px;
-              color: #062b24;
-            }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 10.5px;
+    margin: 8px 0 14px;
+  }
 
-            h4.section-title {
-              margin: 14px 0 8px;
-              font-size: 16px;
-              color: #062b24;
-            }
+  thead {
+    display: table-header-group;
+  }
 
-            table {
-              width: 100%;
-              border-collapse: collapse;
-              table-layout: fixed;
-              font-size: 10.5px;
-              margin: 8px 0 14px;
-            }
+  tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
 
-            thead {
-              display: table-header-group;
-            }
+  th,
+  td {
+    border: 1px solid #d9d3ef;
+    padding: 6px 5px;
+    text-align: center;
+    vertical-align: middle;
+    word-break: break-word;
+    line-height: 1.45;
+  }
 
-            tr {
-              break-inside: avoid;
-              page-break-inside: avoid;
-            }
+  th {
+    background: #3d2c8d;
+    color: #ffffff;
+    font-weight: 900;
+  }
 
-            th,
-            td {
-              border: 1px solid #d8c58b;
-              padding: 6px 5px;
-              text-align: center;
-              vertical-align: middle;
-              word-break: break-word;
-              line-height: 1.45;
-            }
+  tbody tr:nth-child(even) td {
+    background: #fbfbff;
+  }
 
-            th {
-              background: #07563f;
-              color: #ffffff;
-              font-weight: 900;
-            }
+  .dates-cell {
+    text-align: right;
+    font-size: 10px;
+    line-height: 1.7;
+  }
 
-            .dates-cell {
-              text-align: right;
-              font-size: 10px;
-              line-height: 1.7;
-            }
+  .violations-table th:nth-child(1) { width: 18%; }
+  .violations-table th:nth-child(2) { width: 16%; }
+  .violations-table th:nth-child(3) { width: 10%; }
+  .violations-table th:nth-child(4) { width: 30%; }
+  .violations-table th:nth-child(5) { width: 13%; }
+  .violations-table th:nth-child(6) { width: 13%; }
 
-            .violations-table th:nth-child(1) { width: 18%; }
-            .violations-table th:nth-child(2) { width: 16%; }
-            .violations-table th:nth-child(3) { width: 10%; }
-            .violations-table th:nth-child(4) { width: 30%; }
-            .violations-table th:nth-child(5) { width: 13%; }
-            .violations-table th:nth-child(6) { width: 13%; }
+  .total-fines-card {
+    margin-top: 12px;
+    padding: 13px;
+    border: 2px solid #18b7c9;
+    border-radius: 16px;
+    text-align: center;
+    font-weight: 900;
+    font-size: 15px;
+    background: linear-gradient(135deg, #f8fcfd, #ffffff);
+    color: #3d2c8d;
+  }
 
-            .total-fines-card {
-              margin-top: 12px;
-              padding: 12px;
-              border: 2px solid #d8c58b;
-              border-radius: 14px;
-              text-align: center;
-              font-weight: 900;
-              font-size: 15px;
-              background: #fffaf0;
-            }
-
-            .total-fines-card strong {
-              color: #b91c1c;
-              display: block;
-              margin-top: 7px;
-              font-size: 21px;
-            }
-          </style>
+  .total-fines-card strong {
+    color: #3d2c8d;
+    display: block;
+    margin-top: 7px;
+    font-size: 21px;
+  }
+</style>
         </head>
         <body>
           <main class="print-page">
             <section class="period-report-head">
   <div class="report-top">
     <div class="report-logo-box">
-      <img src="/logo-jeddah.png" alt="أمانة جدة" />
+      <img class="jeddah-logo" src="/logo-jeddah.png?v=1" alt="أمانة جدة" />
       <div class="authority-text">
         <strong>أمانة محافظة جدة</strong>
         <span>وكالة المشاريع</span>
