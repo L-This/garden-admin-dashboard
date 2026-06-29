@@ -937,11 +937,86 @@ export default function AdminHome() {
             }
 
             .period-report-head {
-              text-align: center;
-              margin-bottom: 14px;
-              padding-bottom: 10px;
-              border-bottom: 2px solid #d8c58b;
-            }
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 3px solid #18b7c9;
+}
+
+.report-top {
+  display: grid;
+  grid-template-columns: 220px 1fr 170px;
+  align-items: center;
+  gap: 18px;
+}
+
+.report-logo-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: right;
+}
+
+.report-logo-box img {
+  width: 72px;
+  height: auto;
+  object-fit: contain;
+}
+
+.authority-text {
+  color: #3d2c8d;
+  font-weight: 800;
+  line-height: 1.55;
+  font-size: 11px;
+}
+
+.authority-text strong,
+.authority-text span {
+  display: block;
+}
+
+.report-title-box {
+  text-align: center;
+}
+
+.report-title-box h3 {
+  margin: 0 0 6px;
+  font-size: 25px;
+  font-weight: 900;
+  color: #3d2c8d;
+}
+
+.report-title-box p {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #123047;
+}
+
+.report-title-box small {
+  font-size: 11px;
+  color: #5b6472;
+}
+
+.report-date-box {
+  border: 1px solid #d7e4ea;
+  border-radius: 14px;
+  padding: 10px;
+  text-align: center;
+  background: #f8fcfd;
+}
+
+.report-date-box span {
+  display: block;
+  color: #3d2c8d;
+  font-size: 11px;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.report-date-box strong {
+  color: #18b7c9;
+  font-size: 14px;
+}
 
             .period-report-head h3 {
               font-size: 24px;
@@ -1060,10 +1135,28 @@ export default function AdminHome() {
         <body>
           <main class="print-page">
             <section class="period-report-head">
-              <h3>تقرير ري الحدائق</h3>
-              <p>${escapeHtml(reportTitle)}</p>
-              <small>أيام العمل المحتسبة: ${formatMoney(workingDays)} يوم — الإجمالي المطلوب: ${formatMoney(requiredWateringTotal)} عملية ري</small>
-            </section>
+  <div class="report-top">
+    <div class="report-logo-box">
+      <img src="/logo-jeddah.png" alt="أمانة جدة" />
+      <div class="authority-text">
+        <strong>أمانة محافظة جدة</strong>
+        <span>وكالة المشاريع</span>
+        <span>الوكالة المساعدة للحدائق والتشجير</span>
+      </div>
+    </div>
+
+    <div class="report-title-box">
+      <h3>تقرير متابعة ري الحدائق</h3>
+      <p>${escapeHtml(reportTitle)}</p>
+      <small>أيام العمل المحتسبة: ${formatMoney(workingDays)} يوم — الإجمالي المطلوب: ${formatMoney(requiredWateringTotal)} عملية ري</small>
+    </div>
+
+    <div class="report-date-box">
+      <span>تاريخ التقرير</span>
+      <strong>${new Date().toLocaleDateString("ar-SA")}</strong>
+    </div>
+  </div>
+</section>
 
             <section class="summary-strip">
               <div><span>تم الري</span><strong>${formatMoney(totalWatered)}</strong></div>
