@@ -1170,18 +1170,17 @@ body {
     display: grid !important;
     grid-template-columns: repeat(3, 1fr) !important;
     gap: 35px !important;
-    margin-top: 35px !important;
+    margin-top: 20px !important;
     direction: rtl !important;
     clear: both !important;
   }
 
   .signature-item {
     text-align: center !important;
-    font-size: 12px !important;
+    font-size: 13px !important;
     font-weight: 800 !important;
     color: #16113f !important;
-    min-height: 86px !important;
-  }
+}
 
   .signature-item strong {
     display: block !important;
@@ -1196,11 +1195,6 @@ body {
     font-weight: 900 !important;
   }
 
-  .signature-line {
-    height: 42px !important;
-    border-bottom: 1px solid #777 !important;
-    margin-top: 10px !important;
-  }
 
 .report-footer {
   margin-top: 14px;
@@ -1285,20 +1279,16 @@ body {
             <div class="signatures-row">
               <div class="signature-item">
                 <strong>مدير المشروع (المقاول)</strong>
-                <div class="signature-line"></div>
-              </div>
+                
 
               <div class="signature-item">
                 <strong>مشرف المشروع (الاستشاري)</strong>
                 <span>اسلام عطية</span>
-                <div class="signature-line"></div>
-              </div>
+                
 
               <div class="signature-item">
                 <strong>مدير المشروع (الأمانة)</strong>
                 <span>احمد صالح الشهري</span>
-                <div class="signature-line"></div>
-              </div>
             </div>
             <div class="report-footer">
   تم إنشاء التقرير آلياً بواسطة نظام متابعة ري الحدائق
