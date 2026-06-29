@@ -4172,3 +4172,32 @@ button[data-status="runoff"],
   font-size: 12px;
   font-weight: 800;
 }
+
+
+.signatures{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  margin-top:30px;
+  text-align:center;
+}
+
+.signature-box{
+  flex:1;
+}
+
+.signature-box strong{
+  display:block;
+  margin-bottom:8px;
+  color:#3d2c8d;
+}
+
+.signature-box span{
+  display:block;
+  margin-bottom:12px;
+}
+
+.signature-line{
+  border-bottom:1px solid #999;
+  height:40px;
+}
