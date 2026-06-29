@@ -1165,7 +1165,7 @@ export default function AdminHome() {
   <h3>تقرير متابعة ري الحدائق</h3>
 
   <div class="project-period">
-  ${escapeHtml(reportTitle).replace(/&lt;br\s*\/?&gt;/g, " - ")}
+  ${escapeHtml(reportTitle).replace(" من ", "<br/>من ")}
 </div>
 
  
@@ -1214,19 +1214,19 @@ export default function AdminHome() {
               <span>إجمالي الغرامات لكافة الحدائق</span>
               <strong>${formatMoney(totalFines)} ريال</strong>
             </div>
-            <div class="signatures">
-  <div class="signature-box">
+            <div class="signatures-row">
+  <div class="signature-item signature-right">
     <strong>مدير المشروع (المقاول)</strong>
     <div class="signature-line"></div>
   </div>
 
-  <div class="signature-box">
+  <div class="signature-item signature-center">
     <strong>مشرف المشروع (الاستشاري)</strong>
     <span>اسلام عطية</span>
     <div class="signature-line"></div>
   </div>
 
-  <div class="signature-box">
+  <div class="signature-item signature-left">
     <strong>مدير المشروع (الأمانة)</strong>
     <span>احمد صالح الشهري</span>
     <div class="signature-line"></div>
