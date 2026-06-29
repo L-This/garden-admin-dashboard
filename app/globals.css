@@ -4201,3 +4201,12 @@ button[data-status="runoff"],
   border-bottom:1px solid #999;
   height:40px;
 }
+
+
+.project-period{
+  margin-top:6px;
+  font-size:15px;
+  font-weight:800;
+  color:#062b24;
+  line-height:1.8;
+}
