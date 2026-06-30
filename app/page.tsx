@@ -1203,6 +1203,11 @@ body {
     font-weight: 900 !important;
   }
 
+  .signature-space {
+  height: 55px;
+  border-bottom: 1px solid #777;
+  margin: 8px 20px 12px;
+  }
 
 </style>
         </head>
@@ -1278,19 +1283,22 @@ body {
               <strong>${formatMoney(totalFines)} ريال</strong>
             </div>
 
-            <div class="signatures-row">
+           <div class="signatures-row">
   <div class="signature-item">
     <strong>مدير المشروع (المقاول)</strong>
+    <div class="signature-space"></div>
     <span>${escapeHtml(selectedReportProject?.contractor_project_manager || "يكتب لاحقاً")}</span>
   </div>
 
   <div class="signature-item">
     <strong>مشرف المشروع (الاستشاري)</strong>
+    <div class="signature-space"></div>
     <span>${escapeHtml(selectedReportProject?.consultant_supervisor || "إسلام أحمد عطية")}</span>
   </div>
 
   <div class="signature-item">
     <strong>مدير المشروع (الأمانة)</strong>
+    <div class="signature-space"></div>
     <span>${escapeHtml(selectedReportProject?.municipality_project_manager || "أحمد صالح الشهري")}</span>
   </div>
 </div>
