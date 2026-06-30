@@ -277,9 +277,9 @@ export default function AdminHome() {
   const [reportRows, setReportRows] = useState<ReportSummaryRow[]>([]);
   const [fineRows, setFineRows] = useState<FineRow[]>([]);
   const [reportTitle, setReportTitle] = useState("");
-  const [notWateredFine, setNotWateredFine] = useState(1000);
+  const [notWateredFine, setNotWateredFine] = useState(500);
   const [insufficientFine, setInsufficientFine] = useState(500);
-  const [sidewalkFine, setSidewalkFine] = useState(300);
+  const [sidewalkFine, setSidewalkFine] = useState(500);
 
   const [showExecutiveModal, setShowExecutiveModal] = useState(false);
   const [executiveFromDate, setExecutiveFromDate] = useState(today());
