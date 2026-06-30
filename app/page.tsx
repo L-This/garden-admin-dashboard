@@ -20,6 +20,9 @@ type Project = {
   district: string | null;
   manager_name?: string | null;
   contractor_code?: string | null;
+  contractor_project_manager?: string | null;
+  consultant_supervisor?: string | null;
+  municipality_project_manager?: string | null;
 };
 
 type Garden = {
@@ -876,6 +879,7 @@ export default function AdminHome() {
     const totalInsufficient = reportRows.reduce((sum, row) => sum + row.insufficient, 0);
     const totalSidewalk = reportRows.reduce((sum, row) => sum + row.sidewalk, 0);
     const totalFines = fineRows.reduce((sum, row) => sum + row.total, 0);
+    const selectedReportProject = projects.find((project) => project.id === reportProjectId,);
     const reportTitleParts = reportTitle.split(" من ");
     const reportProjectName = reportTitleParts[0] || reportTitle;
     const reportPeriodText =
@@ -1275,20 +1279,21 @@ body {
             </div>
 
             <div class="signatures-row">
-              <div class="signature-item">
-                <strong>مدير المشروع (المقاول)</strong>
-              </div>
+  <div class="signature-item">
+    <strong>مدير المشروع (المقاول)</strong>
+    <span>${escapeHtml(selectedReportProject?.contractor_project_manager || "يكتب لاحقاً")}</span>
+  </div>
 
-              <div class="signature-item">
-                <strong>مشرف المشروع (الاستشاري)</strong>
-                <span>اسلام عطية</span>
-              </div>
+  <div class="signature-item">
+    <strong>مشرف المشروع (الاستشاري)</strong>
+    <span>${escapeHtml(selectedReportProject?.consultant_supervisor || "إسلام أحمد عطية")}</span>
+  </div>
 
-              <div class="signature-item">
-                <strong>مدير المشروع (الأمانة)</strong>
-                <span>احمد صالح الشهري</span>
-              </div>
-            </div>
+  <div class="signature-item">
+    <strong>مدير المشروع (الأمانة)</strong>
+    <span>${escapeHtml(selectedReportProject?.municipality_project_manager || "أحمد صالح الشهري")}</span>
+  </div>
+</div>
 
           </main>
           <script>
@@ -1309,7 +1314,17 @@ body {
 
     const { data: projectsData } = await supabase
       .from("projects")
-      .select("id, slug, name, district, manager_name, contractor_code")
+      .select(`
+  id,
+  slug,
+  name,
+  district,
+  manager_name,
+  contractor_code,
+  contractor_project_manager,
+  consultant_supervisor,
+  municipality_project_manager
+`)
       .order("created_at", { ascending: true });
 
     const { data: gardensData } = await supabase
