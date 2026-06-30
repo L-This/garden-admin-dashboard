@@ -1199,13 +1199,7 @@ body {
     font-weight: 900 !important;
   }
 
-.report-footer {
-  margin-top: 14px;
-  text-align: center;
-  color: #6b7280;
-  font-size: 10px;
-  font-weight: 700;
-}
+
 </style>
         </head>
         <body>
@@ -1296,9 +1290,6 @@ body {
               </div>
             </div>
 
-            <div class="report-footer">
-              تم إنشاء التقرير آلياً بواسطة نظام متابعة ري الحدائق
-            </div>
           </main>
           <script>
             window.onload = function () {
