@@ -868,7 +868,8 @@ const missingDates = requiredDatesForGarden.filter(
         else if (status === "sidewalk_runoff") sidewalk += 1;
         else watered += 1;
       });
-
+      const workingDates = [selectedDate];
+      
       const requiredDates = projectGardens.flatMap((garden) =>
   workingDates
     .filter((dateValue) => isScheduledForDate(garden.id, dateValue))
