@@ -269,6 +269,7 @@ export default function AdminHome() {
   const [editStatus, setEditStatus] = useState<ReportStatus>("watered");
   const [editNote, setEditNote] = useState("");
   const [showWateringScheduleModal, setShowWateringScheduleModal] = useState(false);
+  const [selectedScheduleGarden, setSelectedScheduleGarden] = useState<any>(null);
   const [showGardensModal, setShowGardensModal] = useState(false);
   const [newGardenName, setNewGardenName] = useState("");
   const [newGardenProjectId, setNewGardenProjectId] = useState("");
@@ -3296,7 +3297,10 @@ const duplicatePhoto =
       {showWateringScheduleModal && isManager && (
   <div
     className="edit-modal-backdrop"
-    onClick={() => setShowWateringScheduleModal(false)}
+    onClick={() => {
+  setShowWateringScheduleModal(false);
+  setSelectedScheduleGarden(null);
+}}
   >
     <section
       className="edit-modal contractor-links-modal"
@@ -3305,7 +3309,10 @@ const duplicatePhoto =
       <div className="edit-modal-header">
         <h2>📅 إدارة جدول الري</h2>
         <button
-          onClick={() => setShowWateringScheduleModal(false)}
+          onClick={() => {
+  setShowWateringScheduleModal(false);
+  setSelectedScheduleGarden(null);
+}}
         >
           ×
         </button>
@@ -3346,7 +3353,11 @@ const duplicatePhoto =
 
         {isOpen && (
           <div style={{ display: "grid", gap: "12px", marginTop: "16px" }}>
-            {projectGardens.map((garden) => {
+            {projectGardens
+  .filter((garden) =>
+    selectedScheduleGarden ? garden.id === selectedScheduleGarden.id : true
+  )
+  .map((garden) => {
               const schedule = getGardenSchedule(garden.id);
 
               const days = [
@@ -3677,7 +3688,15 @@ const duplicatePhoto =
                 تعديل
               </button>
             )}
-
+            <button
+  type="button"
+  onClick={() => {
+    setSelectedScheduleGarden(garden);
+    setShowWateringScheduleModal(true);
+  }}
+>
+  📅 جدول الري
+</button>
             <button
               style={{ background: "#dc2626", color: "#fff" }}
               onClick={async () => {
@@ -3713,6 +3732,7 @@ const duplicatePhoto =
             >
               حذف
             </button>
+            
           </div>
         ))}
     </div>
