@@ -3692,6 +3692,7 @@ const duplicatePhoto =
   type="button"
   onClick={() => {
     setSelectedScheduleGarden(garden);
+    setShowGardensModal(false);
     setShowWateringScheduleModal(true);
   }}
 >
