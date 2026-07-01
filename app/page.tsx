@@ -2235,7 +2235,7 @@ const duplicatePhoto =
   if (!schedule) return false;
   if (schedule.daily_watering) return !isFridayDate(selectedDate);
 
-  const day = new Date(`${selectedDate}T00:00:00+03:00`).getDay();
+  const day = new Date(selectedDate).getUTCDay();
 
   if (day === 0) return schedule.sunday;
   if (day === 1) return schedule.monday;
