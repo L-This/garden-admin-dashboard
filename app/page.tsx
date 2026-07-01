@@ -872,7 +872,26 @@ const missingDates = requiredDatesForGarden.filter(
       
       const requiredDates = projectGardens.flatMap((garden) =>
   workingDates
-    .filter((dateValue) => isScheduledOnDate(garden.id, dateValue))
+    .filter((dateValue) => {
+  const schedule = wateringSchedules.find(
+    (item) => item.garden_id === garden.id
+  );
+
+  if (!schedule) return false;
+  if (schedule.daily_watering) return !isFridayDate(dateValue);
+
+  const day = new Date(`${dateValue}T00:00:00`).getDay();
+
+  if (day === 0) return schedule.sunday;
+  if (day === 1) return schedule.monday;
+  if (day === 2) return schedule.tuesday;
+  if (day === 3) return schedule.wednesday;
+  if (day === 4) return schedule.thursday;
+  if (day === 5) return schedule.friday;
+  if (day === 6) return schedule.saturday;
+
+  return false;
+})
     .map((dateValue) => `${garden.id}-${dateValue}`)
 );
 
