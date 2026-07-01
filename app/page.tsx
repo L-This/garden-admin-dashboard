@@ -256,6 +256,7 @@ export default function AdminHome() {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showContractorLinksModal, setShowContractorLinksModal] =
     useState(false);
+  const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [contractorDrafts, setContractorDrafts] = useState<
     Record<string, ContractorDraft>
   >({});
@@ -1174,7 +1175,7 @@ body {
     display: grid !important;
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     gap: 35px !important;
-    margin-top: 18px !important;
+    margin-top: 70px !important;
     margin-bottom: 10px !important;
     direction: rtl !important;
     clear: both !important;
@@ -1205,9 +1206,8 @@ body {
 
   .signature-space {
   height: 55px;
-  border-bottom: 1px solid #777;
   margin: 8px 20px 12px;
-  }
+}
 
 </style>
         </head>
@@ -1286,19 +1286,19 @@ body {
            <div class="signatures-row">
   <div class="signature-item">
     <strong>مدير المشروع (المقاول)</strong>
-    <div class="signature-space"></div>
+    
     <span>${escapeHtml(selectedReportProject?.contractor_project_manager ?? "")}</span>
   </div>
 
   <div class="signature-item">
     <strong>مشرف المشروع (الاستشاري)</strong>
-    <div class="signature-space"></div>
+    
     <span>${escapeHtml(selectedReportProject?.consultant_supervisor || "إسلام أحمد عطية")}</span>
   </div>
 
   <div class="signature-item">
     <strong>مدير المشروع (الأمانة)</strong>
-    <div class="signature-space"></div>
+    
     <span>${escapeHtml(selectedReportProject?.municipality_project_manager || "أحمد صالح الشهري")}</span>
   </div>
 </div>
@@ -1924,6 +1924,11 @@ body {
             <button onClick={() => setShowContractorLinksModal(true)}>
               🔗 روابط المقاولين
             </button>
+          )}
+          {isManager && (
+            <button onClick={() => setShowSignatureModal(true)}>
+             ✍ إدارة بيانات التوقيع
+             </button>
           )}
           <button onClick={logout}>↩ خروج</button>
         </div>
@@ -3173,7 +3178,32 @@ const duplicatePhoto =
           </section>
         </div>
       )}
+      {showSignatureModal && isManager && (
+  <div
+    className="edit-modal-backdrop"
+    onClick={() => setShowSignatureModal(false)}
+  >
+    <section
+      className="edit-modal"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="edit-modal-header">
+        <h2>✍ إدارة بيانات التوقيع</h2>
+        <button onClick={() => setShowSignatureModal(false)}>
+          ×
+        </button>
+      </div>
 
+      <p className="edit-modal-subtitle">
+        إدارة أسماء المسؤولين المستخدمة في التقارير.
+      </p>
+
+      <div style={{padding:"20px"}}>
+        سيتم إضافة الحقول هنا لاحقاً
+      </div>
+    </section>
+  </div>
+)}
       {showPasswordModal && isManager && (
         <div
           className="edit-modal-backdrop"
