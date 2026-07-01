@@ -274,6 +274,8 @@ export default function AdminHome() {
   const [newGardenProjectId, setNewGardenProjectId] = useState("");
   const [editingGardenId, setEditingGardenId] = useState<string | null>(null);
   const [editingGardenName, setEditingGardenName] = useState("");
+  const [selectedGardenProjectId, setSelectedGardenProjectId] = useState("");
+  const [showAddGardenForm, setShowAddGardenForm] = useState(false);
   const [openScheduleProjectId, setOpenScheduleProjectId] = useState<string | null>(null);
   const [wateringSchedules, setWateringSchedules] = useState<WateringSchedule[]>([]);
   const [selectedScheduleProject, setSelectedScheduleProject] = useState("");
@@ -3513,9 +3515,178 @@ const duplicatePhoto =
         إضافة وتعديل وتعطيل الحدائق والشوارع التابعة لكل مشروع.
       </p>
 
-      <div style={{ padding: "20px" }}>
-        سيتم إضافة إدارة الحدائق هنا.
-      </div>
+      <div className="contractor-links-list">
+  <label>
+    <span>اختر المشروع</span>
+    <select
+      value={selectedGardenProjectId}
+      onChange={(e) => {
+        setSelectedGardenProjectId(e.target.value);
+        setNewGardenProjectId(e.target.value);
+      }}
+    >
+      <option value="">اختر المشروع</option>
+      {projects.map((project) => (
+        <option key={project.id} value={project.id}>
+          {project.name}
+        </option>
+      ))}
+    </select>
+  </label>
+
+  {selectedGardenProjectId && (
+    <div className="contractor-link-card">
+      <h3>إضافة حديقة / شارع</h3>
+
+      <input
+        value={newGardenName}
+        onChange={(e) => setNewGardenName(e.target.value)}
+        placeholder="اكتب اسم الحديقة أو الشارع"
+      />
+
+      <button
+        onClick={async () => {
+          if (!newGardenName.trim()) {
+            alert("اكتب اسم الحديقة أو الشارع");
+            return;
+          }
+
+          const { data, error } = await supabase
+            .from("gardens")
+            .insert({
+              project_id: selectedGardenProjectId,
+              name: newGardenName.trim(),
+              active: true,
+            })
+            .select()
+            .single();
+
+          if (error) {
+            alert("تعذر إضافة الحديقة: " + error.message);
+            return;
+          }
+
+          setGardens((current) => [...current, data]);
+          setNewGardenName("");
+          alert("تمت إضافة الحديقة / الشارع");
+        }}
+      >
+        + إضافة
+      </button>
+    </div>
+  )}
+
+  {selectedGardenProjectId && (
+    <div className="contractor-link-card">
+      <h3>الحدائق والمواقع</h3>
+
+      {gardens
+        .filter((garden) => garden.project_id === selectedGardenProjectId)
+        .map((garden) => (
+          <div
+            key={garden.id}
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr auto auto",
+              gap: "10px",
+              alignItems: "center",
+              padding: "10px 0",
+              borderBottom: "1px solid #eee",
+            }}
+          >
+            {editingGardenId === garden.id ? (
+              <input
+                value={editingGardenName}
+                onChange={(e) => setEditingGardenName(e.target.value)}
+              />
+            ) : (
+              <strong>{garden.name}</strong>
+            )}
+
+            {editingGardenId === garden.id ? (
+              <button
+                onClick={async () => {
+                  if (!editingGardenName.trim()) {
+                    alert("اكتب اسم الموقع");
+                    return;
+                  }
+
+                  const { error } = await supabase
+                    .from("gardens")
+                    .update({ name: editingGardenName.trim() })
+                    .eq("id", garden.id);
+
+                  if (error) {
+                    alert("تعذر تعديل الاسم: " + error.message);
+                    return;
+                  }
+
+                  setGardens((current) =>
+                    current.map((item) =>
+                      item.id === garden.id
+                        ? { ...item, name: editingGardenName.trim() }
+                        : item,
+                    ),
+                  );
+
+                  setEditingGardenId(null);
+                  setEditingGardenName("");
+                  alert("تم تعديل الاسم");
+                }}
+              >
+                حفظ
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  setEditingGardenId(garden.id);
+                  setEditingGardenName(garden.name);
+                }}
+              >
+                تعديل
+              </button>
+            )}
+
+            <button
+              style={{ background: "#dc2626", color: "#fff" }}
+              onClick={async () => {
+                const ok = confirm(
+                  "هل تريد حذف هذا الموقع؟ سيتم حذف جدول الري المرتبط به أيضاً.",
+                );
+                if (!ok) return;
+
+                await supabase
+                  .from("watering_schedules")
+                  .delete()
+                  .eq("garden_id", garden.id);
+
+                const { error } = await supabase
+                  .from("gardens")
+                  .delete()
+                  .eq("id", garden.id);
+
+                if (error) {
+                  alert("تعذر حذف الموقع: " + error.message);
+                  return;
+                }
+
+                setGardens((current) =>
+                  current.filter((item) => item.id !== garden.id),
+                );
+                setWateringSchedules((current) =>
+                  current.filter((item) => item.garden_id !== garden.id),
+                );
+
+                alert("تم حذف الموقع");
+              }}
+            >
+              حذف
+            </button>
+          </div>
+        ))}
+    </div>
+  )}
+</div>
     </section>
   </div>
 )}
