@@ -253,9 +253,9 @@ export default function AdminHome() {
   const [editState, setEditState] = useState<EditState | null>(null);
   const [editStatus, setEditStatus] = useState<ReportStatus>("watered");
   const [editNote, setEditNote] = useState("");
+  const [showWateringScheduleModal, setShowWateringScheduleModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [showContractorLinksModal, setShowContractorLinksModal] =
-    useState(false);
+  const [showContractorLinksModal, setShowContractorLinksModal] = useState(false);
   const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [contractorDrafts, setContractorDrafts] = useState<
     Record<string, ContractorDraft>
@@ -1900,6 +1900,11 @@ body {
           <button onClick={() => setShowReportModal(true)}>
             📊 إعداد تقرير
           </button>
+          {isManager && (
+           <button onClick={() => setShowWateringScheduleModal(true)}>
+           📅 إدارة جدول الري
+          </button>
+              )}
           {isManager && (
             <button
               onClick={() => {
