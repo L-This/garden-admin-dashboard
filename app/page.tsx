@@ -678,6 +678,30 @@ export default function AdminHome() {
     >[];
 
     const workingDates = listWorkingDatesBetweenInclusive(reportFromDate, reportToDate);
+    const isScheduledForDate = (
+  gardenId: string,
+  dateValue: string,
+) => {
+  const schedule = wateringSchedules.find(
+    (item) => item.garden_id === gardenId,
+  );
+
+  if (!schedule) return !isFridayDate(dateValue);
+
+  if (schedule.daily_watering) return !isFridayDate(dateValue);
+
+  const day = new Date(`${dateValue}T00:00:00`).getDay();
+
+  if (day === 0) return schedule.sunday;
+  if (day === 1) return schedule.monday;
+  if (day === 2) return schedule.tuesday;
+  if (day === 3) return schedule.wednesday;
+  if (day === 4) return schedule.thursday;
+  if (day === 5) return schedule.friday;
+  if (day === 6) return schedule.saturday;
+
+  return false;
+};
 
     const rows: ReportSummaryRow[] = projectGardens.map((garden) => {
       const gardenReports = reportsInPeriod.filter(
@@ -700,9 +724,13 @@ export default function AdminHome() {
         else watered += 1;
       });
 
-      const missingDates = workingDates.filter(
-        (dateValue) => !reportedDates.has(dateValue),
-      );
+      const requiredDatesForGarden = workingDates.filter((dateValue) =>
+  isScheduledForDate(garden.id, dateValue),
+);
+
+const missingDates = requiredDatesForGarden.filter(
+  (dateValue) => !reportedDates.has(dateValue),
+);
 
       const uniqueNotWateredDates = Array.from(
         new Set([...notWateredDates, ...missingDates]),
