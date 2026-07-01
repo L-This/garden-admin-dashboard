@@ -1407,7 +1407,9 @@ body {
   setWateringSchedules(data || []);
 }
   function getGardenSchedule(gardenId: string) {
-  return wateringSchedules.find((item) => item.garden_id === gardenId);
+  return wateringSchedules.find(
+  (item) => String(item.garden_id) === String(gardenId)
+);
 }
   async function saveGardenSchedule(
   projectId: string,
@@ -2232,7 +2234,7 @@ const duplicatePhoto =
     (item) => String(item.garden_id) === String(garden.id)
   );
 
-  if (!schedule) return !isFridayDate(selectedDate);
+  if (!schedule) return false;
   if (schedule.daily_watering) return !isFridayDate(selectedDate);
 
   const day = new Date(selectedDate).getUTCDay();
@@ -2248,6 +2250,8 @@ const duplicatePhoto =
   return false;
 });
             const friday = isFridayDate(selectedDate);
+            console.log("wateringSchedules", wateringSchedules.length);
+            console.log("scheduledGardens", scheduledGardens.length);
             const wateredGardens = friday
               ? []
               : scheduledGardens.filter((garden) =>
