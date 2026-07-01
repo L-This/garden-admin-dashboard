@@ -872,7 +872,7 @@ const missingDates = requiredDatesForGarden.filter(
       
       const requiredDates = projectGardens.flatMap((garden) =>
   workingDates
-    .filter((dateValue) => isScheduledForDate(garden.id, dateValue))
+    .filter((dateValue) => isScheduledOnDate(garden.id, dateValue))
     .map((dateValue) => `${garden.id}-${dateValue}`)
 );
 
