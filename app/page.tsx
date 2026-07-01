@@ -3181,6 +3181,34 @@ const duplicatePhoto =
           </section>
         </div>
       )}
+      {showWateringScheduleModal && isManager && (
+  <div
+    className="edit-modal-backdrop"
+    onClick={() => setShowWateringScheduleModal(false)}
+  >
+    <section
+      className="edit-modal contractor-links-modal"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="edit-modal-header">
+        <h2>📅 إدارة جدول الري</h2>
+        <button
+          onClick={() => setShowWateringScheduleModal(false)}
+        >
+          ×
+        </button>
+      </div>
+
+      <p className="edit-modal-subtitle">
+        إدارة أيام الري لكل مشروع وحديقة.
+      </p>
+
+      <div style={{ padding: "20px" }}>
+        سيتم إضافة الجدول هنا لاحقاً
+      </div>
+    </section>
+  </div>
+)}
       {showSignatureModal && isManager && (
   <div
     className="edit-modal-backdrop"
