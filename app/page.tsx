@@ -1204,8 +1204,7 @@ body {
   }
 
   .signature-space {
-  height: 55px;
-  margin: 8px 20px 12px;
+  height: 70px !important;
 }
 
 </style>
@@ -1285,20 +1284,20 @@ body {
            <div class="signatures-row">
   <div class="signature-item">
     <strong>مدير المشروع (المقاول)</strong>
-    
+    <div class="signature-space"></div>
     <span>${escapeHtml(selectedReportProject?.contractor_project_manager ?? "")}</span>
   </div>
 
   <div class="signature-item">
     <strong>مشرف المشروع (الاستشاري)</strong>
-    
-    <span>${escapeHtml(selectedReportProject?.consultant_supervisor || "إسلام أحمد عطية")}</span>
+    <div class="signature-space"></div>
+    <span>${escapeHtml(selectedReportProject?.consultant_supervisor ?? "")}</span>
   </div>
 
   <div class="signature-item">
     <strong>مدير المشروع (الأمانة)</strong>
-    
-    <span>${escapeHtml(selectedReportProject?.municipality_project_manager || "أحمد صالح الشهري")}</span>
+    <div class="signature-space"></div>
+    <span>${escapeHtml(selectedReportProject?.municipality_project_manager ?? "")}</span>
   </div>
 </div>
 
