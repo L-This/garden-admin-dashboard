@@ -388,9 +388,8 @@ export default function AdminHome() {
   }
 
   function getContractorLink(project: Project) {
-    if (typeof window === "undefined") return `/project/${project.slug}`;
-    return `${window.location.origin}/project/${project.slug}`;
-  }
+  return `https://garden-field-registration.vercel.app/project/${project.slug}`;
+}
 
   function updateContractorDraft(
     projectId: string,
