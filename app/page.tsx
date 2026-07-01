@@ -1287,7 +1287,7 @@ body {
   <div class="signature-item">
     <strong>مدير المشروع (المقاول)</strong>
     <div class="signature-space"></div>
-    <span>${escapeHtml(selectedReportProject?.contractor_project_manager || "يكتب لاحقاً")}</span>
+    <span>${escapeHtml(selectedReportProject?.contractor_project_manager ?? "")}</span>
   </div>
 
   <div class="signature-item">
