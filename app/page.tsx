@@ -2232,7 +2232,7 @@ const duplicatePhoto =
     (item) => String(item.garden_id) === String(garden.id)
   );
 
-  if (!schedule) return false;
+  if (!schedule) return !isFridayDate(selectedDate);
   if (schedule.daily_watering) return !isFridayDate(selectedDate);
 
   const day = new Date(selectedDate).getUTCDay();
