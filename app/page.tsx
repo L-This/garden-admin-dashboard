@@ -254,6 +254,9 @@ export default function AdminHome() {
   const [editStatus, setEditStatus] = useState<ReportStatus>("watered");
   const [editNote, setEditNote] = useState("");
   const [showWateringScheduleModal, setShowWateringScheduleModal] = useState(false);
+  const [wateringSchedules, setWateringSchedules] = useState<any[]>([]);
+const [selectedScheduleProject, setSelectedScheduleProject] = useState("");
+const [savingSchedule, setSavingSchedule] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showContractorLinksModal, setShowContractorLinksModal] = useState(false);
   const [showSignatureModal, setShowSignatureModal] = useState(false);
@@ -1314,7 +1317,14 @@ body {
 
     printWindow.document.close();
   }
+  async function loadWateringSchedules() {
+  const { data } = await supabase
+    .from("watering_schedules")
+    .select("*")
+    .order("project_name", { ascending: true });
 
+  setWateringSchedules(data || []);
+}
   async function loadData() {
     setLoading(true);
 
@@ -1371,6 +1381,7 @@ body {
     setReports((reportsData || []) as Report[]);
     setPhotos(photosData);
     setLoading(false);
+    await loadWateringSchedules();
   }
 
   function openProject(projectId: string) {
@@ -3204,7 +3215,7 @@ const duplicatePhoto =
       </p>
 
       <div style={{ padding: "20px" }}>
-        سيتم إضافة الجدول هنا لاحقاً
+  عدد الجداول الحالية: {wateringSchedules.length}
       </div>
     </section>
   </div>
