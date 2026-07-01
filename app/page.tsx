@@ -684,7 +684,7 @@ export default function AdminHome() {
   dateValue: string,
 ) => {
   const schedule = wateringSchedules.find(
-    (item) => String(item.garden_id) === String(garden.id)
+    (item) => String(item.garden_id) === String(gardenId)
   );
 
   if (!schedule) return false;
