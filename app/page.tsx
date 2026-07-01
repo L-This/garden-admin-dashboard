@@ -269,6 +269,11 @@ export default function AdminHome() {
   const [editStatus, setEditStatus] = useState<ReportStatus>("watered");
   const [editNote, setEditNote] = useState("");
   const [showWateringScheduleModal, setShowWateringScheduleModal] = useState(false);
+  const [showGardensModal, setShowGardensModal] = useState(false);
+  const [newGardenName, setNewGardenName] = useState("");
+  const [newGardenProjectId, setNewGardenProjectId] = useState("");
+  const [editingGardenId, setEditingGardenId] = useState<string | null>(null);
+  const [editingGardenName, setEditingGardenName] = useState("");
   const [openScheduleProjectId, setOpenScheduleProjectId] = useState<string | null>(null);
   const [wateringSchedules, setWateringSchedules] = useState<WateringSchedule[]>([]);
   const [selectedScheduleProject, setSelectedScheduleProject] = useState("");
@@ -1970,6 +1975,11 @@ body {
             📊 إعداد تقرير
           </button>
           {isManager && (
+         <button onClick={() => setShowGardensModal(true)}>
+           🌿 إدارة الحدائق والمواقع
+         </button>
+              )}
+          {isManager && (
            <button onClick={() => setShowWateringScheduleModal(true)}>
            📅 إدارة جدول الري
           </button>
@@ -3482,6 +3492,30 @@ const duplicatePhoto =
     );
   })}
 </div>
+    </section>
+  </div>
+)}
+      {showGardensModal && isManager && (
+  <div
+    className="edit-modal-backdrop"
+    onClick={() => setShowGardensModal(false)}
+  >
+    <section
+      className="edit-modal contractor-links-modal"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="edit-modal-header">
+        <h2>🌿 إدارة الحدائق والمواقع</h2>
+        <button onClick={() => setShowGardensModal(false)}>×</button>
+      </div>
+
+      <p className="edit-modal-subtitle">
+        إضافة وتعديل وتعطيل الحدائق والشوارع التابعة لكل مشروع.
+      </p>
+
+      <div style={{ padding: "20px" }}>
+        سيتم إضافة إدارة الحدائق هنا.
+      </div>
     </section>
   </div>
 )}
