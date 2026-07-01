@@ -5,6 +5,19 @@ import { supabase } from "@/lib/supabase";
 
 type UserRole = "مشرف" | "مدير";
 
+type WateringSchedule = {
+  id?: string;
+  project_id: string;
+  garden_id: string;
+  sunday: boolean;
+  monday: boolean;
+  tuesday: boolean;
+  wednesday: boolean;
+  thursday: boolean;
+  friday: boolean;
+  saturday: boolean;
+};
+
 type AdminUser = {
   id: string;
   username: string;
@@ -254,9 +267,9 @@ export default function AdminHome() {
   const [editStatus, setEditStatus] = useState<ReportStatus>("watered");
   const [editNote, setEditNote] = useState("");
   const [showWateringScheduleModal, setShowWateringScheduleModal] = useState(false);
-  const [wateringSchedules, setWateringSchedules] = useState<any[]>([]);
-const [selectedScheduleProject, setSelectedScheduleProject] = useState("");
-const [savingSchedule, setSavingSchedule] = useState(false);
+  const [wateringSchedules, setWateringSchedules] = useState<WateringSchedule[]>([]);
+  const [selectedScheduleProject, setSelectedScheduleProject] = useState("");
+  const [savingSchedule, setSavingSchedule] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showContractorLinksModal, setShowContractorLinksModal] = useState(false);
   const [showSignatureModal, setShowSignatureModal] = useState(false);
@@ -1324,6 +1337,48 @@ body {
     .order("project_name", { ascending: true });
 
   setWateringSchedules(data || []);
+}
+  function getGardenSchedule(gardenId: string) {
+  return wateringSchedules.find((item) => item.garden_id === gardenId);
+}
+  async function saveGardenSchedule(
+  projectId: string,
+  gardenId: string,
+  patch: Partial<WateringSchedule>,
+) {
+  const current = getGardenSchedule(gardenId);
+
+  const payload = {
+    project_id: projectId,
+    garden_id: gardenId,
+    sunday: current?.sunday || false,
+    monday: current?.monday || false,
+    tuesday: current?.tuesday || false,
+    wednesday: current?.wednesday || false,
+    thursday: current?.thursday || false,
+    friday: current?.friday || false,
+    saturday: current?.saturday || false,
+    ...patch,
+  };
+
+  const { data, error } = await supabase
+    .from("watering_schedules")
+    .upsert(payload, { onConflict: "garden_id" })
+    .select()
+    .single();
+
+  if (error) {
+    alert("تعذر حفظ جدول الري: " + error.message);
+    return;
+  }
+
+  setWateringSchedules((items) => {
+    const exists = items.some((item) => item.garden_id === gardenId);
+    if (exists) {
+      return items.map((item) => (item.garden_id === gardenId ? data : item));
+    }
+    return [...items, data];
+  });
 }
   async function loadData() {
     setLoading(true);
