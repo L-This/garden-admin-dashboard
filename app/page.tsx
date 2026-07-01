@@ -869,11 +869,17 @@ const missingDates = requiredDatesForGarden.filter(
         else watered += 1;
       });
 
-      const required = projectGardens.length * workingDays;
+      const requiredDates = projectGardens.flatMap((garden) =>
+  workingDates
+    .filter((dateValue) => isScheduledForDate(garden.id, dateValue))
+    .map((dateValue) => `${garden.id}-${dateValue}`)
+);
+
+const required = requiredDates.length;
       const reportedKeys = new Set(
         projectReports.map((report) => `${report.garden_id}-${report.report_date}`),
       );
-      const missing = Math.max(0, required - reportedKeys.size);
+      const missing = requiredDates.filter((key) => !reportedKeys.has(key)).length;
       const notWatered = notWateredExplicit + missing;
       const violations = notWatered + insufficient + sidewalk;
       const fines =
