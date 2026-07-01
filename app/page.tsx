@@ -6,6 +6,8 @@ import { supabase } from "@/lib/supabase";
 type UserRole = "مشرف" | "مدير";
 
 type WateringSchedule = {
+  daily_watering?: boolean;
+  required_zones?: number;
   id?: string;
   project_id: string;
   garden_id: string;
@@ -267,6 +269,7 @@ export default function AdminHome() {
   const [editStatus, setEditStatus] = useState<ReportStatus>("watered");
   const [editNote, setEditNote] = useState("");
   const [showWateringScheduleModal, setShowWateringScheduleModal] = useState(false);
+  const [openScheduleProjectId, setOpenScheduleProjectId] = useState<string | null>(null);
   const [wateringSchedules, setWateringSchedules] = useState<WateringSchedule[]>([]);
   const [selectedScheduleProject, setSelectedScheduleProject] = useState("");
   const [savingSchedule, setSavingSchedule] = useState(false);
@@ -3271,80 +3274,210 @@ const duplicatePhoto =
 
       <div className="contractor-links-list">
   {projects.map((project) => {
+    const isOpen = openScheduleProjectId === project.id;
     const projectGardens = gardens.filter(
-      (garden) => garden.project_id === project.id
+      (garden) => garden.project_id === project.id,
     );
 
     return (
       <div key={project.id} className="contractor-link-card">
-        <h3>{project.name}</h3>
-        <p>{project.district || "بدون نطاق"}</p>
+        <div
+          onClick={() =>
+            setOpenScheduleProjectId(isOpen ? null : project.id)
+          }
+          style={{
+            cursor: "pointer",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: "12px",
+          }}
+        >
+          <div>
+            <h3>{project.name}</h3>
+            <p>{project.district || "بدون نطاق"}</p>
+          </div>
 
-        <div style={{ display: "grid", gap: "12px", marginTop: "16px" }}>
-          {projectGardens.map((garden) => {
-            const schedule = getGardenSchedule(garden.id);
+          <strong>{isOpen ? "إخفاء" : "عرض الجدول"}</strong>
+        </div>
 
-            const days = [
-              ["saturday", "السبت"],
-              ["sunday", "الأحد"],
-              ["monday", "الاثنين"],
-              ["tuesday", "الثلاثاء"],
-              ["wednesday", "الأربعاء"],
-              ["thursday", "الخميس"],
-              ["friday", "الجمعة"],
-            ] as const;
+        {isOpen && (
+          <div style={{ display: "grid", gap: "12px", marginTop: "16px" }}>
+            {projectGardens.map((garden) => {
+              const schedule = getGardenSchedule(garden.id);
 
-            return (
-              <div
-                key={garden.id}
-                style={{
-                  border: "1px solid #e5d7b5",
-                  borderRadius: "16px",
-                  padding: "14px",
-                  background: "#fff",
-                }}
-              >
-                <strong>{garden.name}</strong>
+              const days = [
+                ["saturday", "السبت"],
+                ["sunday", "الأحد"],
+                ["monday", "الاثنين"],
+                ["tuesday", "الثلاثاء"],
+                ["wednesday", "الأربعاء"],
+                ["thursday", "الخميس"],
+                ["friday", "الجمعة"],
+              ] as const;
 
+              return (
                 <div
+                  key={garden.id}
                   style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(95px, 1fr))",
-                    gap: "8px",
-                    marginTop: "12px",
+                    border: "1px solid #e5d7b5",
+                    borderRadius: "16px",
+                    padding: "14px",
+                    background: "#fff",
                   }}
                 >
-                  {days.map(([key, label]) => (
-                    <label
-                      key={key}
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      gap: "12px",
+                      alignItems: "center",
+                      marginBottom: "12px",
+                    }}
+                  >
+                    <strong>{garden.name}</strong>
+
+                    <button
                       style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        background: "#f8fffb",
-                        border: "1px solid #d8f3e7",
-                        borderRadius: "12px",
-                        padding: "8px",
+                        background: "#dc2626",
+                        color: "#fff",
+                        border: 0,
+                        borderRadius: "999px",
+                        padding: "8px 12px",
+                        cursor: "pointer",
                         fontWeight: 800,
                       }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={Boolean(schedule?.[key])}
-                        onChange={(e) =>
-                          saveGardenSchedule(project.id, garden.id, {
-                            [key]: e.target.checked,
-                          })
+                      onClick={async () => {
+                        const ok = confirm(
+                          "حذف جدول الري لهذه الحديقة؟ لن يتم حذف الحديقة نفسها.",
+                        );
+
+                        if (!ok) return;
+
+                        const { error } = await supabase
+                          .from("watering_schedules")
+                          .delete()
+                          .eq("garden_id", garden.id);
+
+                        if (error) {
+                          alert("تعذر حذف جدول الري: " + error.message);
+                          return;
                         }
-                      />
-                      {label}
-                    </label>
-                  ))}
+
+                        setWateringSchedules((items) =>
+                          items.filter((item) => item.garden_id !== garden.id),
+                        );
+
+                        alert("تم حذف جدول الري");
+                      }}
+                    >
+                      حذف الجدول
+                    </button>
+                  </div>
+
+                  <label
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      background: "#ecfdf5",
+                      border: "1px solid #d8f3e7",
+                      borderRadius: "12px",
+                      padding: "10px",
+                      fontWeight: 900,
+                      marginBottom: "12px",
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={Boolean(schedule?.daily_watering)}
+                      onChange={(e) =>
+                        saveGardenSchedule(project.id, garden.id, {
+                          daily_watering: e.target.checked,
+                          saturday: e.target.checked,
+                          sunday: e.target.checked,
+                          monday: e.target.checked,
+                          tuesday: e.target.checked,
+                          wednesday: e.target.checked,
+                          thursday: e.target.checked,
+                          friday: false,
+                        })
+                      }
+                    />
+                    ري يومي
+                  </label>
+
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns:
+                        "repeat(auto-fit, minmax(95px, 1fr))",
+                      gap: "8px",
+                      marginTop: "12px",
+                    }}
+                  >
+                    {days.map(([key, label]) => (
+                      <label
+                        key={key}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          background: "#f8fffb",
+                          border: "1px solid #d8f3e7",
+                          borderRadius: "12px",
+                          padding: "8px",
+                          fontWeight: 800,
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={Boolean(schedule?.[key])}
+                          disabled={Boolean(schedule?.daily_watering)}
+                          onChange={(e) =>
+                            saveGardenSchedule(project.id, garden.id, {
+                              [key]: e.target.checked,
+                              daily_watering: false,
+                            })
+                          }
+                        />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
+
+                  <label
+                    style={{
+                      display: "block",
+                      marginTop: "12px",
+                      fontWeight: 900,
+                    }}
+                  >
+                    <span>عدد الزونات المطلوب ريها في اليوم</span>
+                    <input
+                      type="number"
+                      min={1}
+                      value={schedule?.required_zones || 1}
+                      onChange={(e) =>
+                        saveGardenSchedule(project.id, garden.id, {
+                          required_zones: Number(e.target.value) || 1,
+                        })
+                      }
+                      style={{
+                        width: "100%",
+                        marginTop: "8px",
+                        padding: "12px",
+                        borderRadius: "12px",
+                        border: "1px solid #d8f3e7",
+                        fontWeight: 900,
+                      }}
+                    />
+                  </label>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     );
   })}
