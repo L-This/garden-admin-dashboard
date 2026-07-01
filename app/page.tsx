@@ -3198,9 +3198,86 @@ const duplicatePhoto =
         إدارة أسماء المسؤولين المستخدمة في التقارير.
       </p>
 
-      <div style={{padding:"20px"}}>
-        سيتم إضافة الحقول هنا لاحقاً
-      </div>
+      <div className="contractor-links-list">
+  {projects.map((project) => (
+    <div key={project.id} className="contractor-link-card">
+      <h3>{project.name}</h3>
+
+      <label>
+        <span>مدير المشروع (المقاول)</span>
+        <input
+          value={project.contractor_project_manager || ""}
+          onChange={(e) =>
+            setProjects((current) =>
+              current.map((item) =>
+                item.id === project.id
+                  ? { ...item, contractor_project_manager: e.target.value }
+                  : item,
+              ),
+            )
+          }
+        />
+      </label>
+
+      <label>
+        <span>مشرف المشروع (الاستشاري)</span>
+        <input
+          value={project.consultant_supervisor || ""}
+          onChange={(e) =>
+            setProjects((current) =>
+              current.map((item) =>
+                item.id === project.id
+                  ? { ...item, consultant_supervisor: e.target.value }
+                  : item,
+              ),
+            )
+          }
+        />
+      </label>
+
+      <label>
+        <span>مدير المشروع (الأمانة)</span>
+        <input
+          value={project.municipality_project_manager || ""}
+          onChange={(e) =>
+            setProjects((current) =>
+              current.map((item) =>
+                item.id === project.id
+                  ? { ...item, municipality_project_manager: e.target.value }
+                  : item,
+              ),
+            )
+          }
+        />
+      </label>
+
+      <button
+        onClick={async () => {
+          const { error } = await supabase
+            .from("projects")
+            .update({
+              contractor_project_manager:
+                project.contractor_project_manager || null,
+              consultant_supervisor:
+                project.consultant_supervisor || null,
+              municipality_project_manager:
+                project.municipality_project_manager || null,
+            })
+            .eq("id", project.id);
+
+          if (error) {
+            alert("تعذر حفظ بيانات التوقيع: " + error.message);
+            return;
+          }
+
+          alert("تم حفظ بيانات التوقيع");
+        }}
+      >
+        حفظ بيانات التوقيع
+      </button>
+    </div>
+  ))}
+</div>
     </section>
   </div>
 )}
