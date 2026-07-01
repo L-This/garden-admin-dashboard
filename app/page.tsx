@@ -2229,7 +2229,7 @@ const duplicatePhoto =
             );
           const scheduledGardens = projectGardens.filter((garden) => {
   const schedule = wateringSchedules.find(
-    (item) => item.garden_id === garden.id
+    (item) => String(item.garden_id) === String(garden.id)
   );
 
   if (!schedule) return false;
