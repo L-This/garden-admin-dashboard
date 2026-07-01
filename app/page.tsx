@@ -927,7 +927,10 @@ const missingDates = requiredDatesForGarden.filter(
         .replace(/'/g, "&#039;");
 
     const workingDays = workingDaysBetweenInclusive(reportFromDate, reportToDate);
-    const requiredWateringTotal = reportRows.length * workingDays;
+    const requiredWateringTotal = reportRows.reduce(
+  (sum, row) => sum + row.watered + row.notWatered,
+  0,
+);
     const totalWatered = reportRows.reduce((sum, row) => sum + row.watered, 0);
     const totalNotWatered = reportRows.reduce((sum, row) => sum + row.notWatered, 0);
     const totalInsufficient = reportRows.reduce((sum, row) => sum + row.insufficient, 0);
