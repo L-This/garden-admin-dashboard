@@ -687,7 +687,7 @@ export default function AdminHome() {
     (item) => item.garden_id === gardenId,
   );
 
-  if (!schedule) return !isFridayDate(dateValue);
+  if (!schedule) return false;
 
   if (schedule.daily_watering) return !isFridayDate(dateValue);
 
