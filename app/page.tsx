@@ -3269,9 +3269,86 @@ const duplicatePhoto =
         إدارة أيام الري لكل مشروع وحديقة.
       </p>
 
-      <div style={{ padding: "20px" }}>
-  عدد الجداول الحالية: {wateringSchedules.length}
+      <div className="contractor-links-list">
+  {projects.map((project) => {
+    const projectGardens = gardens.filter(
+      (garden) => garden.project_id === project.id
+    );
+
+    return (
+      <div key={project.id} className="contractor-link-card">
+        <h3>{project.name}</h3>
+        <p>{project.district || "بدون نطاق"}</p>
+
+        <div style={{ display: "grid", gap: "12px", marginTop: "16px" }}>
+          {projectGardens.map((garden) => {
+            const schedule = getGardenSchedule(garden.id);
+
+            const days = [
+              ["saturday", "السبت"],
+              ["sunday", "الأحد"],
+              ["monday", "الاثنين"],
+              ["tuesday", "الثلاثاء"],
+              ["wednesday", "الأربعاء"],
+              ["thursday", "الخميس"],
+              ["friday", "الجمعة"],
+            ] as const;
+
+            return (
+              <div
+                key={garden.id}
+                style={{
+                  border: "1px solid #e5d7b5",
+                  borderRadius: "16px",
+                  padding: "14px",
+                  background: "#fff",
+                }}
+              >
+                <strong>{garden.name}</strong>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(95px, 1fr))",
+                    gap: "8px",
+                    marginTop: "12px",
+                  }}
+                >
+                  {days.map(([key, label]) => (
+                    <label
+                      key={key}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        background: "#f8fffb",
+                        border: "1px solid #d8f3e7",
+                        borderRadius: "12px",
+                        padding: "8px",
+                        fontWeight: 800,
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={Boolean(schedule?.[key])}
+                        onChange={(e) =>
+                          saveGardenSchedule(project.id, garden.id, {
+                            [key]: e.target.checked,
+                          })
+                        }
+                      />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
+    );
+  })}
+</div>
     </section>
   </div>
 )}
