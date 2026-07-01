@@ -1948,29 +1948,6 @@ body {
   );
 
   const totals = useMemo(() => {
-    const scheduledGardens = projectGardens.filter((garden) => {
-  const schedule = wateringSchedules.find(
-    (item) => item.garden_id === garden.id
-  );
-
-  if (!schedule) return false;
-
-  if (schedule.daily_watering) {
-    return !isFridayDate(selectedDate);
-  }
-
-  const day = new Date(`${selectedDate}T00:00:00`).getDay();
-
-  if (day === 0) return schedule.sunday;
-  if (day === 1) return schedule.monday;
-  if (day === 2) return schedule.tuesday;
-  if (day === 3) return schedule.wednesday;
-  if (day === 4) return schedule.thursday;
-  if (day === 5) return schedule.friday;
-  if (day === 6) return schedule.saturday;
-
-  return false;
-});
     const friday = isFridayDate(selectedDate);
     const totalGardens = gardens.length;
     const watered = friday
@@ -2250,6 +2227,26 @@ const duplicatePhoto =
             const projectGardens = gardens.filter(
               (garden) => garden.project_id === project.id,
             );
+          const scheduledGardens = projectGardens.filter((garden) => {
+  const schedule = wateringSchedules.find(
+    (item) => item.garden_id === garden.id
+  );
+
+  if (!schedule) return false;
+  if (schedule.daily_watering) return !isFridayDate(selectedDate);
+
+  const day = new Date(`${selectedDate}T00:00:00`).getDay();
+
+  if (day === 0) return schedule.sunday;
+  if (day === 1) return schedule.monday;
+  if (day === 2) return schedule.tuesday;
+  if (day === 3) return schedule.wednesday;
+  if (day === 4) return schedule.thursday;
+  if (day === 5) return schedule.friday;
+  if (day === 6) return schedule.saturday;
+
+  return false;
+});
             const friday = isFridayDate(selectedDate);
             const wateredGardens = friday
               ? []
