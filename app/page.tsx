@@ -2227,7 +2227,7 @@ const duplicatePhoto =
             const projectGardens = gardens.filter(
               (garden) => garden.project_id === project.id,
             );
-          const scheduledGardens = projectGardens.filter((garden) => {
+  const scheduledGardens = projectGardens.filter((garden) => {
   const schedule = wateringSchedules.find(
     (item) => String(item.garden_id) === String(garden.id)
   );
@@ -2297,25 +2297,25 @@ const duplicatePhoto =
                     <span
                       className="meter-segment meter-watered"
                       style={{
-                        width: `${projectGardens.length ? (wateredGardens.length / projectGardens.length) * 100 : 0}%`,
+                        width: `${scheduledGardens.length ? (wateredGardens.length / scheduledGardens.length) * 100 : 0}%`,
                       }}
                     />
                     <span
                       className="meter-segment meter-not-watered"
                       style={{
-                        width: `${projectGardens.length ? (notWateredGardens.length / projectGardens.length) * 100 : 0}%`,
+                        width: `${scheduledGardens.length ? (notWateredGardens.length / scheduledGardens.length) * 100 : 0}%`,
                       }}
                     />
                     <span
                       className="meter-segment meter-insufficient"
                       style={{
-                        width: `${projectGardens.length ? (insufficientGardens.length / projectGardens.length) * 100 : 0}%`,
+                        width: `${scheduledGardens.length ? (insufficientGardens.length / scheduledGardens.length) * 100 : 0}%`,
                       }}
                     />
                     <span
                       className="meter-segment meter-sidewalk"
                       style={{
-                        width: `${projectGardens.length ? (sidewalkGardens.length / projectGardens.length) * 100 : 0}%`,
+                        width: `${scheduledGardens.length ? (sidewalkGardens.length / scheduledGardens.length) * 100 : 0}%`,
                       }}
                     />
                   </div>
