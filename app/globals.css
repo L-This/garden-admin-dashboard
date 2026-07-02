@@ -4511,3 +4511,352 @@ button[data-status="runoff"],
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 }
+
+
+/* =========================================================
+   FINAL OVERRIDES - Main Dashboard Header / Overview / Projects
+   Keep this block at the VERY END of globals.css
+========================================================= */
+
+.admin-page {
+  padding: 20px 24px 42px !important;
+  overflow-x: hidden !important;
+}
+
+/* Hero/header layout */
+.admin-hero.professional {
+  min-height: 270px !important;
+  padding: 34px 42px !important;
+  border-radius: 28px !important;
+  display: grid !important;
+  grid-template-columns: minmax(320px, 1fr) minmax(680px, 1.75fr) !important;
+  align-items: center !important;
+  gap: 28px !important;
+  background:
+    linear-gradient(90deg, rgba(3, 40, 30, .22), rgba(3, 40, 30, .62)),
+    url("/backgrounds/hero-bg.png") center / cover no-repeat !important;
+}
+
+.hero-copy {
+  order: 1 !important;
+  text-align: right !important;
+  justify-self: end !important;
+}
+
+.hero-copy h1 {
+  margin: 12px 0 10px !important;
+  font-size: clamp(38px, 4.1vw, 64px) !important;
+  line-height: 1.15 !important;
+  color: #fff !important;
+}
+
+.hero-copy p {
+  color: #fff7d6 !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+}
+
+.admin-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 44px !important;
+  padding: 0 24px !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,.14) !important;
+  border: 1px solid rgba(246,231,184,.42) !important;
+  color: #fff7d6 !important;
+  box-shadow: 0 10px 26px rgba(0,0,0,.13), inset 0 1px 0 rgba(255,255,255,.18) !important;
+}
+
+.hero-controls {
+  order: 2 !important;
+  justify-self: stretch !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  padding: 18px !important;
+  border-radius: 24px !important;
+  background: rgba(255,255,255,.13) !important;
+  border: 1px solid rgba(246,231,184,.28) !important;
+  backdrop-filter: blur(12px) !important;
+  box-shadow: 0 18px 42px rgba(2, 30, 22, .20), inset 0 1px 0 rgba(255,255,255,.16) !important;
+}
+
+.hero-controls label {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  min-width: 190px !important;
+}
+
+.hero-controls label span {
+  margin: 0 !important;
+  padding-inline: 10px !important;
+  color: #fff !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+}
+
+.hero-controls input[type="date"] {
+  width: 190px !important;
+  height: 58px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(216,180,92,.40) !important;
+  background: rgba(255,255,255,.96) !important;
+  color: #062b24 !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  text-align: center !important;
+}
+
+.hero-controls button {
+  width: 96px !important;
+  min-height: 62px !important;
+  padding: 8px 12px !important;
+  border: 1px solid rgba(216,180,92,.38) !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,.96) !important;
+  color: #062b24 !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 1.25 !important;
+  white-space: normal !important;
+  box-shadow: 0 12px 24px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.75) !important;
+}
+
+.hero-controls button:hover {
+  transform: translateY(-3px) !important;
+  background: linear-gradient(135deg, #063b33, #0b8f63) !important;
+  color: #fff7d6 !important;
+  box-shadow: 0 18px 34px rgba(6,43,36,.26), 0 0 0 3px rgba(216,180,92,.12) !important;
+}
+
+/* Top public indicators */
+.admin-overview.elite-overview {
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+}
+
+.elite-overview-card {
+  min-height: 150px !important;
+  border-radius: 26px !important;
+  background:
+    radial-gradient(circle at 25% 35%, rgba(216,180,92,.12), transparent 22%),
+    linear-gradient(145deg, rgba(255,255,255,.97), rgba(255,250,240,.90)) !important;
+  border: 1px solid rgba(216,180,92,.38) !important;
+  box-shadow: 0 20px 45px rgba(6,43,36,.10) !important;
+}
+
+.elite-overview-card::before,
+.elite-overview-card::after {
+  content: "" !important;
+  position: absolute !important;
+  border-radius: 50% !important;
+  border: 1px solid rgba(216,180,92,.28) !important;
+  pointer-events: none !important;
+}
+
+.elite-overview-card::before {
+  width: 74px !important;
+  height: 74px !important;
+  left: 28px !important;
+  top: 34px !important;
+  background: rgba(255,255,255,.36) !important;
+}
+
+.elite-overview-card::after {
+  width: 64px !important;
+  height: 64px !important;
+  left: 34px !important;
+  bottom: 20px !important;
+  background: rgba(255,250,240,.50) !important;
+}
+
+/* Projects: one full-width row, background image stays wide */
+.projects-admin-grid {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 30px !important;
+  width: 100% !important;
+}
+
+.admin-project-card.project-click-card {
+  width: 100% !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 30px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+.admin-project-card.project-click-card::before,
+.admin-project-card.project-click-card::after {
+  display: none !important;
+}
+
+.project-header-luxury {
+  width: 100% !important;
+  min-height: 315px !important;
+  padding: 34px 52px !important;
+  display: grid !important;
+  grid-template-columns: 130px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 34px !important;
+  border-radius: 30px !important;
+  background:
+    linear-gradient(90deg, rgba(255,250,240,.14), rgba(255,255,255,.38), rgba(255,250,240,.10)),
+    url("/backgrounds/project-bg.png") center center / cover no-repeat !important;
+  border: 1px solid rgba(216,180,92,.46) !important;
+  box-shadow: 0 20px 48px rgba(6,43,36,.12), inset 0 1px 0 rgba(255,255,255,.35) !important;
+  overflow: hidden !important;
+}
+
+.project-header-luxury::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background:
+    radial-gradient(circle at 12% 34%, rgba(255,255,255,.24), transparent 20%),
+    linear-gradient(90deg, rgba(255,255,255,.18), rgba(255,255,255,.04), rgba(255,255,255,.18)) !important;
+  pointer-events: none !important;
+}
+
+.project-header-luxury > * {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.luxury-project-badge {
+  justify-self: center !important;
+  align-self: center !important;
+  flex: 0 0 auto !important;
+}
+
+.project-luxury-content {
+  width: 100% !important;
+  max-width: 1040px !important;
+  justify-self: center !important;
+  justify-items: center !important;
+  gap: 20px !important;
+}
+
+.project-luxury-content h2 {
+  font-size: clamp(30px, 2.8vw, 44px) !important;
+  color: #062b24 !important;
+  text-align: center !important;
+}
+
+.project-inside-indicators {
+  width: min(980px, 92%) !important;
+  margin: 0 auto !important;
+  padding: 18px 22px !important;
+  border-radius: 24px !important;
+  background: rgba(255,255,255,.78) !important;
+  border: 1px solid rgba(216,180,92,.48) !important;
+  box-shadow: 0 18px 38px rgba(6,43,36,.13) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.project-inside-indicators > div:first-child {
+  grid-template-columns: repeat(5, minmax(88px, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.project-daily-meter {
+  width: 100% !important;
+}
+
+.meter-track {
+  width: 100% !important;
+  height: 18px !important;
+  display: flex !important;
+  overflow: hidden !important;
+  border-radius: 999px !important;
+  background: rgba(230,218,190,.78) !important;
+  box-shadow: inset 0 2px 5px rgba(6,43,36,.08) !important;
+}
+
+.meter-segment {
+  display: block !important;
+  min-width: 0 !important;
+  height: 100% !important;
+  transition: width .35s ease !important;
+}
+
+.meter-watered {
+  background: linear-gradient(90deg, #0b7d57, #22c084) !important;
+}
+
+.meter-not-watered {
+  background: linear-gradient(90deg, #991b1b, #dc2626) !important;
+}
+
+.meter-insufficient {
+  background: linear-gradient(90deg, #b8871f, #e5b84c) !important;
+}
+
+.meter-sidewalk {
+  background: linear-gradient(90deg, #1d4ed8, #60a5fa) !important;
+}
+
+.project-stats {
+  margin: 20px 0 0 !important;
+}
+
+@media (max-width: 1200px) {
+  .admin-hero.professional {
+    grid-template-columns: 1fr !important;
+  }
+
+  .hero-copy {
+    justify-self: stretch !important;
+    text-align: center !important;
+  }
+
+  .hero-controls {
+    justify-content: center !important;
+  }
+
+  .admin-overview.elite-overview {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .admin-page {
+    padding: 14px !important;
+  }
+
+  .admin-hero.professional {
+    padding: 24px !important;
+    min-height: auto !important;
+  }
+
+  .hero-controls button,
+  .hero-controls label,
+  .hero-controls input[type="date"] {
+    width: 100% !important;
+  }
+
+  .admin-overview.elite-overview {
+    grid-template-columns: 1fr !important;
+  }
+
+  .project-header-luxury {
+    grid-template-columns: 1fr !important;
+    min-height: auto !important;
+    padding: 28px 18px !important;
+  }
+
+  .project-inside-indicators {
+    width: 100% !important;
+  }
+
+  .project-inside-indicators > div:first-child {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
