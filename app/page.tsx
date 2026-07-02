@@ -2030,38 +2030,16 @@ body {
   }
 
   return (
-    <main dir="rtl" className="admin-page">
-      <section className="admin-hero professional">
-        <div className="hero-copy">
-          <span className="admin-badge">♛ مرحبًا {user.username}</span>
-          <h1>لوحة إدارة ري الحدائق</h1>
-          <p>الصلاحية الحالية: {user.role}</p>
-        </div>
+    <main dir="rtl" className="design1-shell">
+      <aside className="design1-sidebar">
+        <div className="design1-sidebar-logo">⌘</div>
+        <h2>لوحة الإدارة</h2>
+        <p>الصلاحية الحالية: {user.role}</p>
 
-        <div className="hero-controls">
-          <label>
-            <span>تحديد التاريخ</span>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(event) => setSelectedDate(event.target.value)}
-            />
-          </label>
-
-          <button onClick={loadData}>↻ تحديث البيانات</button>
-          <button onClick={() => setShowReportModal(true)}>
-            📊 إعداد تقرير
-          </button>
-          {isManager && (
-         <button onClick={() => setShowGardensModal(true)}>
-           🌿 إدارة الحدائق والمواقع
-         </button>
-              )}
-          {isManager && (
-           <button onClick={() => setShowWateringScheduleModal(true)}>
-           📅 إدارة جدول الري
-          </button>
-              )}
+        <nav className="design1-sidebar-nav">
+          <button className="active">⌂ الرئيسية</button>
+          <button onClick={() => setShowGardensModal(true)}>☘ الحدائق والمواقع</button>
+          <button onClick={() => setShowReportModal(true)}>▣ التقارير</button>
           {isManager && (
             <button
               onClick={() => {
@@ -2069,63 +2047,98 @@ body {
                 if (!executiveRows.length) loadExecutiveDashboard();
               }}
             >
-              📈 لوحة المؤشرات التنفيذية
+              ◲ المؤشرات التنفيذية
             </button>
           )}
           {isManager && (
-            <button onClick={openAuditLogModal}>↩ سجل التعديلات</button>
+            <button onClick={() => setShowWateringScheduleModal(true)}>▦ جدول الري</button>
           )}
           {isManager && (
-            <button onClick={() => setShowPasswordModal(true)}>
-              ⚿ إدارة كلمة المرور
-            </button>
+            <button onClick={() => setShowPasswordModal(true)}>⚿ كلمة المرور</button>
           )}
-          {isManager && (
-            <button onClick={() => setShowContractorLinksModal(true)}>
-              🔗 روابط المقاولين
-            </button>
-          )}
-          {isManager && (
-            <button onClick={() => setShowSignatureModal(true)}>
-             ✍ إدارة بيانات التوقيع
-             </button>
-          )}
-          <button onClick={logout}>↩ خروج</button>
-        </div>
-      </section>
+          <button onClick={logout}>↩ تسجيل الخروج</button>
+        </nav>
+      </aside>
 
-      <section className="admin-overview">
-        <div>
-          <span>إجمالي الحدائق</span>
-          <strong>{totals.totalGardens}</strong>
-          <em>◌</em>
-        </div>
-        <div>
-          <span>تم ريها</span>
-          <strong>{totals.watered}</strong>
-          <em>♢</em>
-        </div>
-        <div>
-          <span>لم يتم ريها</span>
-          <strong>{totals.notWatered}</strong>
-          <em>⌁</em>
-        </div>
-        <div>
-          <span>عدم كفاية ري</span>
-          <strong>{totals.insufficient}</strong>
-          <em>−</em>
-        </div>
-        <div>
-          <span>خروج الري للرصيف</span>
-          <strong>{totals.sidewalk}</strong>
-          <em>↪</em>
-        </div>
-        <div className="ai-overview-card">
-          <span>تنبيهات التحقق الذكي</span>
-          <strong>{aiAlertReports.length}</strong>
-          <em>⚠</em>
-        </div>
-      </section>
+      <section className="design1-content">
+        <header className="design1-topbar">
+          <div>
+            <span className="design1-welcome">مرحبًا {user.username}</span>
+            <h1>لوحة إدارة ري الحدائق</h1>
+          </div>
+
+          <div className="hero-controls design1-actions">
+            <label>
+              <span>تحديد التاريخ</span>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(event) => setSelectedDate(event.target.value)}
+              />
+            </label>
+
+            <button onClick={loadData}>↻ تحديث البيانات</button>
+            <button onClick={() => setShowReportModal(true)}>📊 إعداد تقرير</button>
+            {isManager && (
+              <button onClick={() => setShowGardensModal(true)}>🌿 إدارة الحدائق والمواقع</button>
+            )}
+            {isManager && (
+              <button onClick={() => setShowWateringScheduleModal(true)}>📅 إدارة جدول الري</button>
+            )}
+            {isManager && (
+              <button
+                onClick={() => {
+                  setShowExecutiveModal(true);
+                  if (!executiveRows.length) loadExecutiveDashboard();
+                }}
+              >
+                📈 لوحة المؤشرات التنفيذية
+              </button>
+            )}
+            {isManager && (
+              <button onClick={openAuditLogModal}>↩ سجل التعديلات</button>
+            )}
+            {isManager && (
+              <button onClick={() => setShowContractorLinksModal(true)}>🔗 روابط المقاولين</button>
+            )}
+            {isManager && (
+              <button onClick={() => setShowSignatureModal(true)}>✍ إدارة بيانات التوقيع</button>
+            )}
+          </div>
+        </header>
+
+        <section className="admin-overview design1-overview">
+          <div>
+            <em>◌</em>
+            <span>إجمالي الحدائق</span>
+            <strong>{totals.totalGardens}</strong>
+          </div>
+          <div>
+            <em>♢</em>
+            <span>تم ريها</span>
+            <strong>{totals.watered}</strong>
+          </div>
+          <div>
+            <em>⌁</em>
+            <span>لم يتم ريها</span>
+            <strong>{totals.notWatered}</strong>
+          </div>
+          <div>
+            <em>−</em>
+            <span>عدم كفاية ري</span>
+            <strong>{totals.insufficient}</strong>
+          </div>
+          <div>
+            <em>↪</em>
+            <span>خروج الري للرصيف</span>
+            <strong>{totals.sidewalk}</strong>
+          </div>
+          <div className="ai-overview-card">
+            <em>⚠</em>
+            <span>تنبيهات التحقق الذكي</span>
+            <strong>{aiAlertReports.length}</strong>
+          </div>
+        </section>
 
       {isFridayDate(selectedDate) && (
         <section className="friday-off-notice">
@@ -4229,6 +4242,7 @@ const duplicatePhoto =
           </section>
         </div>
       )}
+      </section>
     </main>
   );
 }
