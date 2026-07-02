@@ -2316,13 +2316,15 @@ const duplicatePhoto =
   : 'url(/backgrounds/project-bg.png)',
   } as React.CSSProperties}
 >
+                <div className="project-rate-circle">
+                  <strong>{projectCompletionRate}%</strong>
+                  <span>نسبة الإنجاز</span>
+                </div>
+
                 <div
                   className="project-header"
                   onClick={() => openProject(project.id)}
                 >
-                  <div className="project-number-badge">
-                    {projectCompletionRate}%
-                  </div>
                   <div>
                     <h2>{project.name}</h2>
                     <p>{project.district || "بدون نطاق"}</p>
