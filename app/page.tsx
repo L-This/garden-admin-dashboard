@@ -2249,6 +2249,12 @@ const duplicatePhoto =
 
   return false;
 });
+          console.log("DEBUG PROJECT", project.name, {
+  projectGardens: projectGardens.length,
+  wateringSchedules: wateringSchedules.length,
+  scheduledGardens: scheduledGardens.length,
+  selectedDate,
+});
             const friday = isFridayDate(selectedDate);
             console.log("wateringSchedules", wateringSchedules.length);
             console.log("scheduledGardens", scheduledGardens.length);
