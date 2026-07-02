@@ -2302,7 +2302,15 @@ const duplicatePhoto =
   key={project.id}
   className="admin-project-card project-click-card project-card"
   style={{
-    "--project-bg": `url("${getProjectBackgroundImage(project.name)}")`,
+    "--project-bg": project.name.includes("بريمان")
+  ? 'url("/backgrounds/buraiman-bg.png")'
+  : project.name.includes("الغابة")
+  ? 'url("/backgrounds/eastern-forest-bg.png")'
+  : project.name.includes("المخططات")
+  ? 'url("/backgrounds/private-plans-bg.png")'
+  : project.name.includes("السلم") || project.name.includes("الرغامة")
+  ? 'url("/backgrounds/umm-al-salam-bg.png")'
+  : 'url("/backgrounds/project-bg.png")',
   } as React.CSSProperties}
 >
                 <div
