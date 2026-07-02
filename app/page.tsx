@@ -2296,6 +2296,9 @@ const duplicatePhoto =
             });
 
             const isOpen = openProjectId === project.id;
+            const projectCompletionRate = scheduledGardens.length
+              ? Math.round((wateredGardens.length / scheduledGardens.length) * 100)
+              : 0;
 
             return (
               <article
@@ -2318,7 +2321,7 @@ const duplicatePhoto =
                   onClick={() => openProject(project.id)}
                 >
                   <div className="project-number-badge">
-                    {wateredGardens.length}
+                    {projectCompletionRate}%
                   </div>
                   <div>
                     <h2>{project.name}</h2>
@@ -2330,6 +2333,34 @@ const duplicatePhoto =
                   className="project-daily-meter"
                   aria-label="مؤشر حالة الري اليومي"
                 >
+                  <div className="project-mini-stats">
+                    <div className="project-mini-stat watered-stat">
+                      <span>تم ريها</span>
+                      <em>♢</em>
+                      <strong>{wateredGardens.length}</strong>
+                    </div>
+                    <div className="project-mini-stat not-watered-stat">
+                      <span>لم يتم ريها</span>
+                      <em>⌘</em>
+                      <strong>{notWateredGardens.length}</strong>
+                    </div>
+                    <div className="project-mini-stat insufficient-stat">
+                      <span>عدم كفاية ري</span>
+                      <em>−</em>
+                      <strong>{insufficientGardens.length}</strong>
+                    </div>
+                    <div className="project-mini-stat sidewalk-stat">
+                      <span>خروج للرصيف</span>
+                      <em>↪</em>
+                      <strong>{sidewalkGardens.length}</strong>
+                    </div>
+                    <div className="project-mini-stat total-stat">
+                      <span>إجمالي الحدائق</span>
+                      <em>♧</em>
+                      <strong>{projectGardens.length}</strong>
+                    </div>
+                  </div>
+
                   <div className="meter-track">
                     <span
                       className="meter-segment meter-watered"
@@ -2355,24 +2386,6 @@ const duplicatePhoto =
                         width: `${scheduledGardens.length ? (sidewalkGardens.length / scheduledGardens.length) * 100 : 0}%`,
                       }}
                     />
-                  </div>
-                  <div className="meter-legend">
-                    <span>
-                      <i className="legend-watered" />
-                      تم الري {wateredGardens.length}
-                    </span>
-                    <span>
-                      <i className="legend-not-watered" />
-                      لم يتم {notWateredGardens.length}
-                    </span>
-                    <span>
-                      <i className="legend-insufficient" />
-                      عدم كفاية {insufficientGardens.length}
-                    </span>
-                    <span>
-                      <i className="legend-sidewalk" />
-                      خروج للرصيف {sidewalkGardens.length}
-                    </span>
                   </div>
                 </div>
 
