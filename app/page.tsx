@@ -1505,8 +1505,8 @@ body {
     setGardens(gardensData || []);
     setReports((reportsData || []) as Report[]);
     setPhotos(photosData);
-    setLoading(false);
     await loadWateringSchedules();
+    setLoading(false);
   }
 
   function openProject(projectId: string) {
@@ -2234,7 +2234,7 @@ const duplicatePhoto =
     (item) => String(item.garden_id) === String(garden.id)
   );
 
-  if (!schedule) return true;
+  if (!schedule) return false;
   if (schedule.daily_watering) return !isFridayDate(selectedDate);
 
   const day = new Date(selectedDate).getUTCDay();
