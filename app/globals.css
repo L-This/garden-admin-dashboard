@@ -2589,3 +2589,160 @@ body {
     grid-template-columns: 1fr !important;
   }
 }
+
+
+/* =========================================================
+   BACKGROUND ASSETS LINKING — FINAL SAFE OVERRIDE
+   الصور المرفوعة داخل:
+   /public/backgrounds/
+   header-bg.png
+   projects-bg.png
+   project-card.png
+   metric-card.png
+   sidebar-bg.png
+========================================================= */
+
+/* الخلفية العامة تبقى هادئة حول لوحة العمل */
+.design1-shell {
+  background:
+    radial-gradient(circle at 16% 8%, rgba(216,180,92,.10), transparent 28%),
+    radial-gradient(circle at 78% 0%, rgba(11,143,99,.14), transparent 34%),
+    linear-gradient(135deg, #f7fbf6 0%, #edf8f2 50%, #fffaf0 100%) !important;
+}
+
+/* 1) خلفية السايد بار */
+.design1-sidebar {
+  background:
+    linear-gradient(180deg, rgba(3, 48, 38, .74), rgba(3, 31, 26, .88)),
+    url("/backgrounds/sidebar-bg.png") center / cover no-repeat !important;
+  border: 1px solid rgba(216,180,92,.42) !important;
+  box-shadow:
+    0 28px 70px rgba(6,43,36,.24),
+    inset 0 1px 0 rgba(255,255,255,.14) !important;
+}
+
+.design1-sidebar-nav button {
+  background: rgba(3, 48, 38, .46) !important;
+  border: 1px solid rgba(255,255,255,.10) !important;
+  backdrop-filter: blur(6px);
+}
+
+.design1-sidebar-nav button.active,
+.design1-sidebar-nav button:hover {
+  background:
+    linear-gradient(135deg, rgba(216,180,92,.20), rgba(255,250,240,.10)) !important;
+  border-color: rgba(216,180,92,.48) !important;
+}
+
+/* 2) خلفية الهيدر */
+.design1-main-header {
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.72), rgba(255,250,240,.72)),
+    url("/backgrounds/header-bg.png") center / cover no-repeat !important;
+  border: 1px solid rgba(216,180,92,.32) !important;
+  box-shadow:
+    0 20px 48px rgba(6,43,36,.08),
+    inset 0 1px 0 rgba(255,255,255,.92) !important;
+}
+
+/* 3) خلفية بطاقة المؤشر */
+.design1-overview > div,
+.design1-overview .ai-overview-card {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.70), rgba(255,250,240,.62)),
+    url("/backgrounds/metric-card.png") center / cover no-repeat !important;
+  border: 1px solid rgba(216,180,92,.30) !important;
+  box-shadow:
+    0 18px 42px rgba(6,43,36,.08),
+    inset 0 1px 0 rgba(255,255,255,.92) !important;
+}
+
+/* 4) خلفية مساحة المشاريع */
+.projects-workspace,
+.project-picker-panel,
+.project-empty-state,
+.project-detail-shell {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,250,240,.66)),
+    url("/backgrounds/projects-bg.png") center / cover no-repeat !important;
+  border: 1px solid rgba(216,180,92,.30) !important;
+  box-shadow:
+    0 18px 44px rgba(6,43,36,.07),
+    inset 0 1px 0 rgba(255,255,255,.84) !important;
+}
+
+/* مساحة المشاريع نفسها بدون ضغط زائد */
+.projects-workspace {
+  min-height: calc(100vh - 140px) !important;
+  padding: 0 !important;
+  border-radius: 28px !important;
+  overflow: hidden !important;
+}
+
+/* لوحة اختيار المشاريع فوق الخلفية */
+.project-picker-panel {
+  margin: 0 !important;
+  border-radius: 28px 28px 0 0 !important;
+  background-position: top center !important;
+}
+
+/* منطقة التفاصيل / الحالة الفارغة */
+.project-empty-state,
+.project-detail-shell {
+  margin-top: 0 !important;
+  border-radius: 0 0 28px 28px !important;
+  background-position: center !important;
+}
+
+/* 5) خلفية بطاقة المشروع المحدد */
+.project-detail-hero {
+  background:
+    linear-gradient(135deg, rgba(3,48,38,.78), rgba(6,43,36,.88)),
+    url("/backgrounds/project-card.png") center / cover no-repeat !important;
+  border: 1px solid rgba(216,180,92,.38) !important;
+  box-shadow:
+    0 18px 42px rgba(6,43,36,.18),
+    inset 0 1px 0 rgba(255,255,255,.20) !important;
+}
+
+/* تبويبات المشاريع تكون أخف فوق خلفية مساحة المشاريع */
+.project-tab {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.86), rgba(255,250,240,.76)) !important;
+  border: 1px solid rgba(216,180,92,.26) !important;
+  box-shadow: 0 10px 24px rgba(6,43,36,.05) !important;
+}
+
+.project-tab.active {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.90), rgba(236,253,245,.82)),
+    url("/backgrounds/project-card.png") center / cover no-repeat !important;
+  border-color: rgba(11,143,99,.58) !important;
+  box-shadow:
+    0 16px 34px rgba(11,143,99,.14),
+    inset 0 -3px 0 rgba(11,143,99,.55) !important;
+}
+
+/* مؤشرات المشروع داخل التفاصيل تستخدم خلفية بطاقة المؤشر */
+.project-detail-stats button,
+.project-detail-stats div {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,250,240,.64)),
+    url("/backgrounds/metric-card.png") center / cover no-repeat !important;
+  border: 1px solid rgba(216,180,92,.26) !important;
+}
+
+/* تحسين بسيط حتى لا تتعارض الصور مع القراءة */
+.design1-main-header h1,
+.project-picker-title h2,
+.project-detail-hero h2 {
+  text-shadow: 0 1px 0 rgba(255,255,255,.20);
+}
+
+.project-detail-hero h2,
+.project-detail-hero p,
+.project-detail-kicker {
+  color: #fff7d6 !important;
+}
+
+
