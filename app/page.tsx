@@ -2398,9 +2398,16 @@ backgroundRepeat: "no-repeat",
                     gridTemplateColumns: "1fr minmax(320px, 430px)",
                     gap: 28,
                     alignItems: "center",
-                    backgroundImage: `url("${getProjectBackground(project.name)}")`,
+                    backgroundImage: `linear-gradient(
+  90deg,
+  rgba(255,255,255,.10) 0%,
+  rgba(255,255,255,.05) 42%,
+  rgba(2,54,43,.88) 68%,
+  rgba(1,41,33,.96) 100%
+), url("${getProjectBackground(project.name)}")`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
+                    backgroundRepeat: "no-repeat",
                     cursor: "pointer",
                   }}
                 >
