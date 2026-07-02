@@ -327,7 +327,19 @@ export default function AdminHome() {
   const [undoingAuditId, setUndoingAuditId] = useState<string | null>(null);
 
   const isManager = user?.role === "مدير";
-  const [activeView, setActiveView] = useState<"overview" | "projects" | "ai">("overview");
+  const [activeView, setActiveView] = useState<
+    | "overview"
+    | "projects"
+    | "ai"
+    | "report"
+    | "gardens"
+    | "schedule"
+    | "executive"
+    | "audit"
+    | "contractors"
+    | "signatures"
+    | "password"
+  >("overview");
 
   useEffect(() => {
     const saved = localStorage.getItem("adminUser");
@@ -2051,23 +2063,24 @@ body {
           <button className={activeView === "projects" ? "active" : ""} onClick={() => setActiveView("projects")}>▦ المشاريع</button>
           <button className={activeView === "ai" ? "active" : ""} onClick={() => setActiveView("ai")}>⚠ التحقق الذكي</button>
           <button onClick={loadData}>↻ تحديث البيانات</button>
-          <button onClick={() => setShowReportModal(true)}>▣ إعداد تقرير</button>
-          {isManager && <button onClick={() => setShowGardensModal(true)}>☘ إدارة الحدائق والمواقع</button>}
-          {isManager && <button onClick={() => setShowWateringScheduleModal(true)}>▦ إدارة جدول الري</button>}
+          <button className={activeView === "report" ? "active" : ""} onClick={() => setActiveView("report")}>▣ إعداد تقرير</button>
+          {isManager && <button className={activeView === "gardens" ? "active" : ""} onClick={() => setActiveView("gardens")}>☘ إدارة الحدائق والمواقع</button>}
+          {isManager && <button className={activeView === "schedule" ? "active" : ""} onClick={() => setActiveView("schedule")}>▦ إدارة جدول الري</button>}
           {isManager && (
             <button
+              className={activeView === "executive" ? "active" : ""}
               onClick={() => {
-                setShowExecutiveModal(true);
+                setActiveView("executive");
                 if (!executiveRows.length) loadExecutiveDashboard();
               }}
             >
               ◲ المؤشرات التنفيذية
             </button>
           )}
-          {isManager && <button onClick={openAuditLogModal}>↩ سجل التعديلات</button>}
-          {isManager && <button onClick={() => setShowContractorLinksModal(true)}>🔗 روابط المقاولين</button>}
-          {isManager && <button onClick={() => setShowSignatureModal(true)}>✍ إدارة بيانات التوقيع</button>}
-          {isManager && <button onClick={() => setShowPasswordModal(true)}>⚿ إدارة كلمة المرور</button>}
+          {isManager && <button className={activeView === "audit" ? "active" : ""} onClick={() => { setActiveView("audit"); loadAuditLogs(); }}>↩ سجل التعديلات</button>}
+          {isManager && <button className={activeView === "contractors" ? "active" : ""} onClick={() => setActiveView("contractors")}>🔗 روابط المقاولين</button>}
+          {isManager && <button className={activeView === "signatures" ? "active" : ""} onClick={() => setActiveView("signatures")}>✍ إدارة بيانات التوقيع</button>}
+          {isManager && <button className={activeView === "password" ? "active" : ""} onClick={() => setActiveView("password")}>⚿ إدارة كلمة المرور</button>}
           <button onClick={logout}>↩ تسجيل الخروج</button>
         </nav>
       </aside>
@@ -2076,15 +2089,33 @@ body {
         <header className="design1-main-header">
           <div>
             <span className="design1-welcome">مرحبًا {user.username}</span>
-            <h1>{activeView === "overview" ? "المؤشرات العامة" : activeView === "projects" ? "المشاريع" : "تنبيهات التحقق الذكي"}</h1>
+            <h1>{{
+              overview: "المؤشرات العامة",
+              projects: "المشاريع",
+              ai: "تنبيهات التحقق الذكي",
+              report: "إعداد التقرير",
+              gardens: "إدارة الحدائق والمواقع",
+              schedule: "إدارة جدول الري",
+              executive: "المؤشرات التنفيذية",
+              audit: "سجل التعديلات",
+              contractors: "روابط المقاولين",
+              signatures: "بيانات التوقيع",
+              password: "إدارة كلمة المرور",
+            }[activeView]}</h1>
           </div>
-          <p>
-            {activeView === "overview"
-              ? "نظرة يومية مختصرة على حالة الري والالتزام للمواقع."
-              : activeView === "projects"
-                ? "عرض المشاريع ونسب الإنجاز والتفاصيل التشغيلية."
-                : "مراجعة تنبيهات الصور والسجلات التي تحتاج تحقق."}
-          </p>
+          <p>{{
+            overview: "نظرة يومية مختصرة على حالة الري والالتزام للمواقع.",
+            projects: "عرض المشاريع ونسب الإنجاز والتفاصيل التشغيلية.",
+            ai: "مراجعة تنبيهات الصور والسجلات التي تحتاج تحقق.",
+            report: "إنشاء تقرير الفترة وطباعته دون مغادرة الواجهة.",
+            gardens: "إضافة وتعديل المواقع وربطها بالمشاريع مباشرة.",
+            schedule: "ضبط أيام الري والزونات لكل موقع من نفس الصفحة.",
+            executive: "قراءة شاملة للأداء والغرامات حسب الفترة.",
+            audit: "متابعة التعديلات والتراجع عنها عند الحاجة.",
+            contractors: "إدارة روابط ورموز دخول المقاولين لكل مشروع.",
+            signatures: "إدارة أسماء التوقيع المستخدمة في التقارير.",
+            password: "تحديث كلمات المرور حسب الصلاحية.",
+          }[activeView]}</p>
         </header>
 
         {activeView === "overview" && (
@@ -2234,6 +2265,132 @@ const duplicatePhoto =
 
       {activeView === "ai" && aiAlertReports.length === 0 && (
         <section className="empty-view-card">لا توجد تنبيهات تحقق ذكي لهذا التاريخ.</section>
+      )}
+
+
+      {activeView === "report" && (
+        <section className="inline-admin-panel">
+          <div className="panel-headline">
+            <span>تقرير الفترة</span>
+            <h2>إنشاء وطباعـة تقرير الري</h2>
+          </div>
+          <div className="inline-form-grid">
+            <label><span>من تاريخ</span><input type="date" value={reportFromDate} onChange={(e) => setReportFromDate(e.target.value)} /></label>
+            <label><span>إلى تاريخ</span><input type="date" value={reportToDate} onChange={(e) => setReportToDate(e.target.value)} /></label>
+            <label><span>المشروع</span><select value={reportProjectId} onChange={(e) => setReportProjectId(e.target.value)}>{projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}</select></label>
+            <label><span>غرامة لم يتم الري</span><input type="number" value={notWateredFine} onChange={(e) => setNotWateredFine(Number(e.target.value))} /></label>
+            <label><span>غرامة عدم كفاية الري</span><input type="number" value={insufficientFine} onChange={(e) => setInsufficientFine(Number(e.target.value))} /></label>
+            <label><span>غرامة خروج الري للرصيف</span><input type="number" value={sidewalkFine} onChange={(e) => setSidewalkFine(Number(e.target.value))} /></label>
+          </div>
+          <div className="inline-actions-row">
+            <button onClick={generatePeriodReport}>{reportLoading ? "جارٍ الإنشاء..." : "إنشاء التقرير"}</button>
+            <button onClick={printReportOnly}>طباعة التقرير الطولي PDF</button>
+          </div>
+          {reportError && <p className="report-error">{reportError}</p>}
+          {reportRows.length > 0 && (
+            <div className="inline-results-card">
+              <h3>{reportTitle}</h3>
+              <div className="mini-summary-grid">
+                <div><span>تم الري</span><strong>{reportRows.reduce((sum, row) => sum + row.watered, 0)}</strong></div>
+                <div><span>لم يتم الري</span><strong>{reportRows.reduce((sum, row) => sum + row.notWatered, 0)}</strong></div>
+                <div><span>عدم كفاية</span><strong>{reportRows.reduce((sum, row) => sum + row.insufficient, 0)}</strong></div>
+                <div><span>خروج الرصيف</span><strong>{reportRows.reduce((sum, row) => sum + row.sidewalk, 0)}</strong></div>
+              </div>
+              <div className="responsive-table"><table><thead><tr><th>الموقع</th><th>تم الري</th><th>لم يتم الري</th><th>عدم كفاية</th><th>خروج الرصيف</th></tr></thead><tbody>{reportRows.map((row) => <tr key={row.gardenId}><td>{row.gardenName}</td><td>{row.watered}</td><td>{row.notWatered}</td><td>{row.insufficient}</td><td>{row.sidewalk}</td></tr>)}</tbody></table></div>
+            </div>
+          )}
+        </section>
+      )}
+
+      {activeView === "gardens" && isManager && (
+        <section className="inline-admin-panel">
+          <div className="panel-headline"><span>المواقع</span><h2>إدارة الحدائق والمواقع</h2></div>
+          <div className="inline-form-grid compact">
+            <label><span>اختر المشروع</span><select value={selectedGardenProjectId} onChange={(e) => { setSelectedGardenProjectId(e.target.value); setNewGardenProjectId(e.target.value); }}><option value="">اختر المشروع</option>{projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}</select></label>
+            <label><span>اسم الموقع الجديد</span><input value={newGardenName} onChange={(e) => setNewGardenName(e.target.value)} placeholder="اكتب اسم الحديقة أو الشارع" /></label>
+            <button className="inline-main-btn" onClick={async () => { if (!selectedGardenProjectId) { alert("اختر المشروع أولًا"); return; } if (!newGardenName.trim()) { alert("اكتب اسم الحديقة أو الشارع"); return; } const { data, error } = await supabase.from("gardens").insert({ project_id: selectedGardenProjectId, name: newGardenName.trim(), active: true }).select().single(); if (error) { alert("تعذر إضافة الحديقة: " + error.message); return; } setGardens((current) => [...current, data]); setNewGardenName(""); alert("تمت إضافة الحديقة / الشارع"); }}>+ إضافة</button>
+          </div>
+          <div className="management-list">
+            {gardens.filter((garden) => !selectedGardenProjectId || garden.project_id === selectedGardenProjectId).map((garden) => (
+              <div key={garden.id} className="management-row">
+                {editingGardenId === garden.id ? <input value={editingGardenName} onChange={(e) => setEditingGardenName(e.target.value)} /> : <strong>{garden.name}</strong>}
+                <span>{getProjectById(garden.project_id)?.name || "بدون مشروع"}</span>
+                <div>
+                  {editingGardenId === garden.id ? <button onClick={async () => { if (!editingGardenName.trim()) { alert("اكتب اسم الموقع"); return; } const { error } = await supabase.from("gardens").update({ name: editingGardenName.trim() }).eq("id", garden.id); if (error) { alert("تعذر تعديل الاسم: " + error.message); return; } setGardens((current) => current.map((item) => item.id === garden.id ? { ...item, name: editingGardenName.trim() } : item)); setEditingGardenId(null); setEditingGardenName(""); }}>حفظ</button> : <button onClick={() => { setEditingGardenId(garden.id); setEditingGardenName(garden.name); }}>تعديل</button>}
+                  <button onClick={() => { setSelectedScheduleProject(garden.project_id); setActiveView("schedule"); }}>جدول الري</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {activeView === "schedule" && isManager && (
+        <section className="inline-admin-panel">
+          <div className="panel-headline"><span>جدولة الري</span><h2>إدارة جدول الري</h2></div>
+          <div className="inline-form-grid compact"><label><span>المشروع</span><select value={selectedScheduleProject} onChange={(e) => setSelectedScheduleProject(e.target.value)}><option value="">اختر المشروع</option>{projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}</select></label></div>
+          <div className="schedule-grid-inline">
+            {gardens.filter((garden) => !selectedScheduleProject || garden.project_id === selectedScheduleProject).map((garden) => {
+              const schedule = getGardenSchedule(garden.id);
+              const project = getProjectById(garden.project_id);
+              return (
+                <article key={garden.id} className="schedule-card-inline">
+                  <h3>{garden.name}</h3><p>{project?.name || "بدون مشروع"}</p>
+                  <label className="switch-row"><input type="checkbox" checked={Boolean(schedule?.daily_watering)} onChange={(e) => saveGardenSchedule(garden.project_id, garden.id, { daily_watering: e.target.checked, saturday: e.target.checked, sunday: e.target.checked, monday: e.target.checked, tuesday: e.target.checked, wednesday: e.target.checked, thursday: e.target.checked, friday: false })} /> ري يومي</label>
+                  <div className="days-pills">
+                    {[["saturday","السبت"],["sunday","الأحد"],["monday","الاثنين"],["tuesday","الثلاثاء"],["wednesday","الأربعاء"],["thursday","الخميس"]].map(([key, label]) => <label key={key}><input type="checkbox" checked={Boolean((schedule as any)?.[key])} disabled={Boolean(schedule?.daily_watering)} onChange={(e) => saveGardenSchedule(garden.project_id, garden.id, { [key]: e.target.checked, daily_watering: false } as any)} />{label}</label>)}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {activeView === "executive" && isManager && (
+        <section className="inline-admin-panel">
+          <div className="panel-headline"><span>تنفيذي</span><h2>المؤشرات التنفيذية</h2></div>
+          <div className="inline-form-grid compact">
+            <label><span>من تاريخ</span><input type="date" value={executiveFromDate} onChange={(e) => setExecutiveFromDate(e.target.value)} /></label>
+            <label><span>إلى تاريخ</span><input type="date" value={executiveToDate} onChange={(e) => setExecutiveToDate(e.target.value)} /></label>
+            <button className="inline-main-btn" onClick={loadExecutiveDashboard}>{executiveLoading ? "جارٍ التحميل..." : "تحديث المؤشرات"}</button>
+          </div>
+          {executiveError && <p className="report-error">{executiveError}</p>}
+          <div className="executive-grid-inline">{executiveRows.map((row) => <article key={row.projectId}><span>{row.projectName}</span><strong>{row.achievementRate}%</strong><p>تم {row.watered} / المطلوب {row.required}</p><small>مخالفات: {row.violations} — غرامات: {formatMoney(row.fines)} ريال</small></article>)}</div>
+        </section>
+      )}
+
+      {activeView === "audit" && isManager && (
+        <section className="inline-admin-panel">
+          <div className="panel-headline"><span>التعديلات</span><h2>سجل التعديلات</h2></div>
+          <div className="inline-form-grid compact">
+            <label><span>التاريخ</span><input type="date" value={auditDateFilter} onChange={(e) => setAuditDateFilter(e.target.value)} /></label>
+            <label><span>المشروع</span><select value={auditProjectFilter} onChange={(e) => setAuditProjectFilter(e.target.value)}><option value="all">كل المشاريع</option>{projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}</select></label>
+            <button className="inline-main-btn" onClick={loadAuditLogs}>{auditLoading ? "جارٍ التحميل..." : "عرض السجل"}</button>
+          </div>
+          <div className="management-list">{auditLogs.map((log) => <div key={log.id} className="management-row"><strong>{auditActionLabel(log.action)}</strong><span>{formatDateTime(log.created_at)} — {log.changed_by || "admin"}</span>{isManager && <button disabled={Boolean(log.undone)} onClick={() => undoAuditLog(log)}>{log.undone ? "تم التراجع" : "تراجع"}</button>}</div>)}</div>
+        </section>
+      )}
+
+      {activeView === "contractors" && isManager && (
+        <section className="inline-admin-panel">
+          <div className="panel-headline"><span>المقاولون</span><h2>روابط المقاولين</h2></div>
+          <div className="contractor-links-list">{projects.map((project) => <div key={project.id} className="contractor-link-card"><h3>{project.name}</h3><label><span>اسم المسؤول</span><input value={contractorDrafts[project.id]?.manager_name || ""} onChange={(e) => updateContractorDraft(project.id, { manager_name: e.target.value })} /></label><label><span>رمز دخول المقاول</span><input value={contractorDrafts[project.id]?.contractor_code || ""} onChange={(e) => updateContractorDraft(project.id, { contractor_code: e.target.value })} /></label><div className="inline-actions-row"><button onClick={() => saveContractorProject(project)}>{savingContractorProjectId === project.id ? "جارٍ الحفظ..." : "حفظ"}</button><button onClick={() => copyContractorLink(project)}>نسخ الرابط</button></div></div>)}</div>
+        </section>
+      )}
+
+      {activeView === "signatures" && isManager && (
+        <section className="inline-admin-panel">
+          <div className="panel-headline"><span>التواقيع</span><h2>إدارة بيانات التوقيع</h2></div>
+          <div className="contractor-links-list">{projects.map((project) => <div key={project.id} className="contractor-link-card"><h3>{project.name}</h3><label><span>مدير المشروع (المقاول)</span><input value={project.contractor_project_manager || ""} onChange={(e) => setProjects((current) => current.map((item) => item.id === project.id ? { ...item, contractor_project_manager: e.target.value } : item))} /></label><label><span>مشرف المشروع (الاستشاري)</span><input value={project.consultant_supervisor || ""} onChange={(e) => setProjects((current) => current.map((item) => item.id === project.id ? { ...item, consultant_supervisor: e.target.value } : item))} /></label><label><span>مدير المشروع (الأمانة)</span><input value={project.municipality_project_manager || ""} onChange={(e) => setProjects((current) => current.map((item) => item.id === project.id ? { ...item, municipality_project_manager: e.target.value } : item))} /></label><button onClick={async () => { const { error } = await supabase.from("projects").update({ contractor_project_manager: project.contractor_project_manager || null, consultant_supervisor: project.consultant_supervisor || null, municipality_project_manager: project.municipality_project_manager || null }).eq("id", project.id); if (error) { alert("تعذر حفظ بيانات التوقيع: " + error.message); return; } alert("تم حفظ بيانات التوقيع"); }}>حفظ بيانات التوقيع</button></div>)}</div>
+        </section>
+      )}
+
+      {activeView === "password" && isManager && (
+        <section className="inline-admin-panel small-panel">
+          <div className="panel-headline"><span>الأمان</span><h2>إدارة كلمة المرور</h2></div>
+          <div className="inline-form-grid compact"><label><span>العضوية</span><select value={passwordTarget} onChange={(e) => setPasswordTarget(e.target.value as "manager" | "supervisor")}><option value="manager">المدير</option><option value="supervisor">المشرف</option></select></label><label><span>كلمة المرور الجديدة</span><input type="password" value={newAdminPassword} onChange={(e) => setNewAdminPassword(e.target.value)} /></label><button className="inline-main-btn" onClick={changeAdminPassword}>حفظ كلمة المرور</button></div>
+        </section>
       )}
 
       {activeView === "projects" && (loading ? (
