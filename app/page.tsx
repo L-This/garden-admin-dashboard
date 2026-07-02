@@ -856,18 +856,19 @@ const missingDates = requiredDatesForGarden.filter(
         gardenIds.has(report.garden_id),
       );
 
-      let watered = 0;
-      let notWateredExplicit = 0;
-      let insufficient = 0;
-      let sidewalk = 0;
+      const reportByGardenDate = new Map<string, Report>();
 
-      projectReports.forEach((report) => {
-        const status = getReportStatus(report as Report);
-        if (status === "not_watered") notWateredExplicit += 1;
-        else if (status === "insufficient") insufficient += 1;
-        else if (status === "sidewalk_runoff") sidewalk += 1;
-        else watered += 1;
-      });
+projectReports.forEach((report) => {
+  const key = `${report.garden_id}-${report.report_date}`;
+  if (!reportByGardenDate.has(key)) {
+    reportByGardenDate.set(key, report as Report);
+  }
+});
+
+let watered = 0;
+let notWateredExplicit = 0;
+let insufficient = 0;
+let sidewalk = 0;
       const workingDates = [selectedDate];
       
       const requiredDates = projectGardens.flatMap((garden) =>
@@ -896,12 +897,25 @@ const missingDates = requiredDatesForGarden.filter(
 );
 
 const required = requiredDates.length;
-      const reportedKeys = new Set(
-        projectReports.map((report) => `${report.garden_id}-${report.report_date}`),
-      );
-      const missing = requiredDates.filter((key) => !reportedKeys.has(key)).length;
-      const notWatered = notWateredExplicit + missing;
-      const violations = notWatered + insufficient + sidewalk;
+      requiredDates.forEach((key) => {
+  const report = reportByGardenDate.get(key);
+
+  if (!report) {
+    notWateredExplicit += 1;
+    return;
+  }
+
+  const status = getReportStatus(report);
+
+  if (status === "not_watered") notWateredExplicit += 1;
+  else if (status === "insufficient") insufficient += 1;
+  else if (status === "sidewalk_runoff") sidewalk += 1;
+  else watered += 1;
+});
+
+const missing = 0;
+const notWatered = notWateredExplicit;
+const violations = notWatered + insufficient + sidewalk;
       const fines =
         notWatered * currentNotWateredFine +
         insufficient * currentInsufficientFine +
