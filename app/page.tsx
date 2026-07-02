@@ -2411,32 +2411,7 @@ backgroundRepeat: "no-repeat",
                     cursor: "pointer",
                   }}
                 >
-                  <img
-                    src={getProjectBackground(project.name)}
-                    alt=""
-                    aria-hidden="true"
-                    style={{
-                      position: "absolute",
-                      inset: 0,
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      objectPosition: "center",
-                      zIndex: 0,
-                      pointerEvents: "none",
-                      userSelect: "none",
-                    }}
-                  />
-                  <div
-                    aria-hidden="true"
-                    style={{
-                      position: "absolute",
-                      inset: 0,
-                      background:
-                        "linear-gradient(90deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,.03) 42%, rgba(2,54,43,.72) 68%, rgba(1,41,33,.88) 100%), linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0) 34%, rgba(0,0,0,.10))",
-                      pointerEvents: "none",
-                    }}
-                  />
+                  
 
                   <div
                     className="project-luxury-content"
@@ -2453,8 +2428,7 @@ backgroundRepeat: "no-repeat",
                       style={{
                         padding: "18px 22px 16px",
                         borderRadius: 22,
-                        background:
-                          "linear-gradient(180deg, rgba(255,252,243,.94), rgba(250,244,229,.90))",
+                        background: "rgba(255,252,243,.88)",
                         border: "1px solid rgba(132,96,42,.35)",
                         boxShadow:
                           "0 18px 38px rgba(6,43,36,.18), inset 0 0 0 1px rgba(255,255,255,.75)",
