@@ -1399,10 +1399,9 @@ body {
     printWindow.document.close();
   }
   async function loadWateringSchedules() {
-  const { data } = await supabase
-    .from("watering_schedules")
-    .select("*")
-    .order("project_name", { ascending: true });
+  const { data, error } = await supabase
+  .from("watering_schedules")
+  .select("*");
 
   setWateringSchedules(data || []);
 }
