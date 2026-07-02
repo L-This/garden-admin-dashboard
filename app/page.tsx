@@ -2265,15 +2265,7 @@ const duplicatePhoto =
 
   return false;
 });
-          console.log("DEBUG PROJECT", project.name, {
-  projectGardens: projectGardens.length,
-  wateringSchedules: wateringSchedules.length,
-  scheduledGardens: scheduledGardens.length,
-  selectedDate,
-});
             const friday = isFridayDate(selectedDate);
-            console.log("wateringSchedules", wateringSchedules.length);
-            console.log("scheduledGardens", scheduledGardens.length);
             const wateredGardens = friday
               ? []
               : scheduledGardens.filter((garden) =>
@@ -2329,66 +2321,6 @@ const duplicatePhoto =
                    <h2 className="project-title">{project.name}</h2>
                    <p className="project-district">{project.district || "بدون نطاق"}</p>
                    </div>
-                </div>
-
-                <div
-                  className="project-daily-meter"
-                  aria-label="مؤشر حالة الري اليومي"
-                >
-                  <div className="project-mini-stats">
-                    <div className="project-mini-stat watered-stat">
-                      <span>تم ريها</span>
-                      <em>♢</em>
-                      <strong>{wateredGardens.length}</strong>
-                    </div>
-                    <div className="project-mini-stat not-watered-stat">
-                      <span>لم يتم ريها</span>
-                      <em>⌘</em>
-                      <strong>{notWateredGardens.length}</strong>
-                    </div>
-                    <div className="project-mini-stat insufficient-stat">
-                      <span>عدم كفاية ري</span>
-                      <em>−</em>
-                      <strong>{insufficientGardens.length}</strong>
-                    </div>
-                    <div className="project-mini-stat sidewalk-stat">
-                      <span>خروج للرصيف</span>
-                      <em>↪</em>
-                      <strong>{sidewalkGardens.length}</strong>
-                    </div>
-                    <div className="project-mini-stat total-stat">
-                      <span>إجمالي الحدائق</span>
-                      <em>♧</em>
-                      <strong>{projectGardens.length}</strong>
-                    </div>
-                  </div>
-
-                  <div className="meter-track">
-                    <span
-                      className="meter-segment meter-watered"
-                      style={{
-                        width: `${scheduledGardens.length ? (wateredGardens.length / scheduledGardens.length) * 100 : 0}%`,
-                      }}
-                    />
-                    <span
-                      className="meter-segment meter-not-watered"
-                      style={{
-                        width: `${scheduledGardens.length ? (notWateredGardens.length / scheduledGardens.length) * 100 : 0}%`,
-                      }}
-                    />
-                    <span
-                      className="meter-segment meter-insufficient"
-                      style={{
-                        width: `${scheduledGardens.length ? (insufficientGardens.length / scheduledGardens.length) * 100 : 0}%`,
-                      }}
-                    />
-                    <span
-                      className="meter-segment meter-sidewalk"
-                      style={{
-                        width: `${scheduledGardens.length ? (sidewalkGardens.length / scheduledGardens.length) * 100 : 0}%`,
-                      }}
-                    />
-                  </div>
                 </div>
 
                 <div className="project-stats project-stats-main">
