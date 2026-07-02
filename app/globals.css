@@ -1658,3 +1658,497 @@ body {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* =========================================================
+   NAV LAYOUT V2 POLISH
+   - Smaller dashboard data
+   - No modal-based navigation for main sections
+   - Cleaner inline panels
+   - More refined project cards
+========================================================= */
+.design1-shell {
+  grid-template-columns: 280px minmax(0, 1fr) !important;
+  gap: 18px !important;
+  padding: 18px !important;
+  min-height: 100vh !important;
+  overflow: hidden !important;
+}
+
+.design1-sidebar {
+  height: calc(100vh - 36px) !important;
+  padding: 18px 14px !important;
+  border-radius: 26px !important;
+  overflow-y: auto !important;
+  scrollbar-width: thin !important;
+}
+
+.design1-sidebar-logo {
+  width: 58px !important;
+  height: 58px !important;
+  margin-bottom: 10px !important;
+  font-size: 32px !important;
+}
+
+.design1-sidebar h2 {
+  font-size: 24px !important;
+}
+
+.design1-sidebar p {
+  margin-bottom: 12px !important;
+  font-size: 14px !important;
+}
+
+.side-date-control {
+  padding: 12px !important;
+  margin-bottom: 10px !important;
+}
+
+.design1-sidebar-nav {
+  gap: 7px !important;
+}
+
+.design1-sidebar-nav button {
+  min-height: 42px !important;
+  padding: 9px 12px !important;
+  border-radius: 13px !important;
+  font-size: 14px !important;
+}
+
+.design1-content {
+  height: calc(100vh - 36px) !important;
+  overflow-y: auto !important;
+  padding-left: 4px !important;
+  gap: 14px !important;
+  scrollbar-width: thin !important;
+}
+
+.design1-main-header {
+  min-height: 88px !important;
+  padding: 18px 22px !important;
+  border-radius: 24px !important;
+}
+
+.design1-main-header h1 {
+  font-size: 34px !important;
+}
+
+.design1-main-header p {
+  font-size: 14px !important;
+  max-width: 620px !important;
+}
+
+.design1-welcome {
+  margin-bottom: 6px !important;
+  padding: 6px 12px !important;
+  font-size: 14px !important;
+}
+
+.design1-overview {
+  min-height: auto !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+}
+
+.design1-overview > div,
+.design1-overview .ai-overview-card {
+  min-height: 170px !important;
+  padding: 22px 18px !important;
+  border-radius: 24px !important;
+}
+
+.design1-overview em {
+  width: 50px !important;
+  height: 50px !important;
+  margin-bottom: 12px !important;
+  font-size: 18px !important;
+}
+
+.design1-overview span {
+  font-size: 20px !important;
+}
+
+.design1-overview strong {
+  margin-top: 10px !important;
+  font-size: 50px !important;
+}
+
+.inline-admin-panel {
+  min-height: calc(100vh - 140px) !important;
+  padding: 24px !important;
+  border-radius: 28px !important;
+  background:
+    radial-gradient(circle at 10% 16%, rgba(216,180,92,.10), transparent 28%),
+    linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,250,240,.88)) !important;
+  border: 1px solid rgba(216,180,92,.28) !important;
+  box-shadow: 0 18px 48px rgba(6,43,36,.08), inset 0 1px 0 rgba(255,255,255,.9) !important;
+}
+
+.inline-admin-panel.small-panel {
+  min-height: 360px !important;
+}
+
+.panel-headline {
+  display: flex !important;
+  align-items: end !important;
+  justify-content: space-between !important;
+  gap: 18px !important;
+  margin-bottom: 20px !important;
+  padding-bottom: 14px !important;
+  border-bottom: 1px solid rgba(216,180,92,.22) !important;
+}
+
+.panel-headline span {
+  color: var(--green-700) !important;
+  font-weight: 950 !important;
+}
+
+.panel-headline h2 {
+  margin: 0 !important;
+  color: var(--green-950) !important;
+  font-size: 30px !important;
+  font-weight: 950 !important;
+}
+
+.inline-form-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+  margin-bottom: 16px !important;
+}
+
+.inline-form-grid.compact {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+}
+
+.inline-form-grid label,
+.contractor-link-card label {
+  display: grid !important;
+  gap: 7px !important;
+  color: #24483f !important;
+  font-weight: 900 !important;
+}
+
+.inline-form-grid input,
+.inline-form-grid select,
+.contractor-link-card input,
+.contractor-link-card select,
+.management-row input {
+  width: 100% !important;
+  height: 46px !important;
+  padding: 0 14px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(216,180,92,.28) !important;
+  background: rgba(255,255,255,.88) !important;
+  color: var(--green-950) !important;
+  font-weight: 850 !important;
+}
+
+.inline-actions-row {
+  display: flex !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  margin: 12px 0 18px !important;
+}
+
+.inline-actions-row button,
+.inline-main-btn,
+.management-row button,
+.contractor-link-card button,
+.schedule-card-inline button {
+  min-height: 44px !important;
+  padding: 10px 18px !important;
+  border: 0 !important;
+  border-radius: 14px !important;
+  color: #fff7d6 !important;
+  background: linear-gradient(135deg, #07543f, #0b8f63) !important;
+  font-weight: 950 !important;
+  box-shadow: 0 12px 26px rgba(6,43,36,.14) !important;
+}
+
+.inline-results-card,
+.management-list,
+.schedule-grid-inline,
+.executive-grid-inline {
+  margin-top: 18px !important;
+}
+
+.inline-results-card {
+  padding: 18px !important;
+  border-radius: 22px !important;
+  background: rgba(255,255,255,.82) !important;
+  border: 1px solid rgba(216,180,92,.22) !important;
+}
+
+.mini-summary-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) !important;
+  gap: 10px !important;
+  margin: 14px 0 !important;
+}
+
+.mini-summary-grid div,
+.executive-grid-inline article {
+  padding: 14px !important;
+  border-radius: 18px !important;
+  background: #fff !important;
+  border: 1px solid rgba(216,180,92,.20) !important;
+  text-align: center !important;
+}
+
+.mini-summary-grid span,
+.executive-grid-inline span {
+  display: block !important;
+  color: var(--muted) !important;
+  font-weight: 900 !important;
+}
+
+.mini-summary-grid strong,
+.executive-grid-inline strong {
+  display: block !important;
+  margin-top: 6px !important;
+  color: var(--green-700) !important;
+  font-size: 30px !important;
+  font-weight: 950 !important;
+}
+
+.responsive-table {
+  overflow-x: auto !important;
+}
+
+.responsive-table table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  background: #fff !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+}
+
+.responsive-table th,
+.responsive-table td {
+  padding: 12px !important;
+  border-bottom: 1px solid rgba(216,180,92,.18) !important;
+  text-align: center !important;
+  font-weight: 850 !important;
+}
+
+.responsive-table th {
+  color: #fff7d6 !important;
+  background: var(--green-800) !important;
+}
+
+.management-list {
+  display: grid !important;
+  gap: 10px !important;
+}
+
+.management-row {
+  display: grid !important;
+  grid-template-columns: minmax(220px, 1fr) minmax(180px, .8fr) auto !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 14px !important;
+  border-radius: 18px !important;
+  background: rgba(255,255,255,.86) !important;
+  border: 1px solid rgba(216,180,92,.20) !important;
+}
+
+.management-row strong {
+  color: var(--green-950) !important;
+  font-size: 17px !important;
+}
+
+.management-row span {
+  color: var(--muted) !important;
+  font-weight: 850 !important;
+}
+
+.management-row div {
+  display: flex !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+.schedule-grid-inline,
+.executive-grid-inline {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  gap: 14px !important;
+}
+
+.schedule-card-inline {
+  padding: 16px !important;
+  border-radius: 20px !important;
+  background: rgba(255,255,255,.86) !important;
+  border: 1px solid rgba(216,180,92,.22) !important;
+}
+
+.schedule-card-inline h3 {
+  margin: 0 0 6px !important;
+  color: var(--green-950) !important;
+}
+
+.schedule-card-inline p {
+  margin: 0 0 12px !important;
+  color: var(--muted) !important;
+  font-weight: 850 !important;
+}
+
+.switch-row {
+  display: flex !important;
+  gap: 8px !important;
+  align-items: center !important;
+  padding: 10px !important;
+  border-radius: 14px !important;
+  background: #ecfdf5 !important;
+  color: var(--green-800) !important;
+  font-weight: 950 !important;
+}
+
+.days-pills {
+  display: flex !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+  margin-top: 12px !important;
+}
+
+.days-pills label {
+  display: inline-flex !important;
+  gap: 6px !important;
+  align-items: center !important;
+  padding: 8px 10px !important;
+  border-radius: 999px !important;
+  background: #fff !important;
+  border: 1px solid rgba(216,180,92,.22) !important;
+  font-weight: 850 !important;
+}
+
+.contractor-links-list {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  gap: 14px !important;
+}
+
+.contractor-link-card {
+  margin: 0 !important;
+  padding: 16px !important;
+  border-radius: 20px !important;
+  background: rgba(255,255,255,.86) !important;
+  border: 1px solid rgba(216,180,92,.22) !important;
+}
+
+.contractor-link-card h3 {
+  margin: 0 0 14px !important;
+  color: var(--green-950) !important;
+}
+
+/* Refined project display */
+.projects-admin-grid {
+  gap: 16px !important;
+}
+
+.admin-project-card.project-card {
+  min-height: 185px !important;
+  grid-template-columns: 118px minmax(240px, .8fr) minmax(420px, 1.45fr) !important;
+  gap: 16px !important;
+  padding: 18px !important;
+  border-radius: 24px !important;
+  background:
+    radial-gradient(circle at 12% 20%, rgba(216,180,92,.10), transparent 24%),
+    linear-gradient(135deg, #ffffff 0%, #fffaf0 58%, #edf8f2 100%) !important;
+}
+
+.project-rate-circle {
+  width: 104px !important;
+  height: 104px !important;
+  border-width: 7px !important;
+}
+
+.project-rate-circle strong {
+  font-size: 28px !important;
+}
+
+.project-rate-circle span {
+  font-size: 11px !important;
+}
+
+.project-header-text {
+  min-height: 116px !important;
+  padding: 18px 20px !important;
+  border-radius: 20px !important;
+  background:
+    radial-gradient(circle at 24% 20%, rgba(216,180,92,.13), transparent 32%),
+    linear-gradient(135deg, #063b33, #0b7352) !important;
+}
+
+.project-title,
+.project-header h2 {
+  font-size: 28px !important;
+}
+
+.project-district,
+.project-header p {
+  font-size: 13px !important;
+}
+
+.project-stats.project-stats-main {
+  border-radius: 18px !important;
+  box-shadow: 0 14px 30px rgba(6,43,36,.09) !important;
+}
+
+.stat-button {
+  min-height: 112px !important;
+  padding: 12px 8px !important;
+}
+
+.stat-button em {
+  width: 44px !important;
+  height: 44px !important;
+  margin: 0 auto 10px !important;
+}
+
+.stat-button span {
+  font-size: 13px !important;
+}
+
+.stat-button strong {
+  font-size: 30px !important;
+}
+
+.details-section {
+  grid-column: 1 / -1 !important;
+  margin-top: 6px !important;
+}
+
+@media (max-width: 1180px) {
+  .design1-shell {
+    grid-template-columns: 250px minmax(0, 1fr) !important;
+  }
+
+  .admin-project-card.project-card {
+    grid-template-columns: 115px 1fr !important;
+    grid-template-areas:
+      "rate title"
+      "stats stats" !important;
+  }
+
+  .inline-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .design1-shell {
+    overflow: visible !important;
+  }
+
+  .design1-content {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .design1-overview,
+  .inline-form-grid,
+  .management-row {
+    grid-template-columns: 1fr !important;
+  }
+}
