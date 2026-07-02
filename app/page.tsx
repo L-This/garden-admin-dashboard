@@ -2395,7 +2395,7 @@ const duplicatePhoto =
                     gridTemplateColumns: "1fr minmax(320px, 430px)",
                     gap: 28,
                     alignItems: "center",
-                    backgroundImage: `linear-gradient(90deg, rgba(4,44,34,.10) 0%, rgba(4,44,34,.05) 43%, rgba(2,54,43,.92) 68%, rgba(1,41,33,.97) 100%), url(${getProjectBackground(project.name)})`,
+                    backgroundImage: `url("${getProjectBackground(project.name)}")`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                     cursor: "pointer",
