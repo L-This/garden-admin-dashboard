@@ -6051,97 +6051,63 @@ button[data-status="runoff"],
   font-size: 17px !important;
   font-weight: 900 !important;
 }
-/* ===== FIX FINAL OVERRIDE ===== */
+/* ===== CLEAN PROJECT CARD FIX ===== */
 
-/* إصلاح دوائر المؤشرات العامة */
-.admin-overview div em {
-  position: static !important;
-  width: auto !important;
-  height: auto !important;
-  margin: 0 10px 0 0 !important;
-  display: inline-flex !important;
-  vertical-align: middle !important;
-  transform: none !important;
-  opacity: .65 !important;
+.project-daily-meter,
+.project-mini-stats,
+.meter-track,
+.meter-legend {
+  display: none !important;
 }
 
-.admin-overview div strong {
-  position: relative !important;
-  z-index: 5 !important;
-  display: inline-block !important;
-  margin-left: 10px !important;
-}
-
-/* إصلاح بطاقة المشروع */
 .admin-project-card.project-card {
-  height: 245px !important;
-  min-height: 245px !important;
+  height: 230px !important;
+  min-height: 230px !important;
   padding: 0 !important;
-  position: relative !important;
   overflow: hidden !important;
 }
 
-/* اسم المشروع يمين البطاقة */
 .admin-project-card.project-card .project-header {
   position: absolute !important;
-  right: 45px !important;
-  top: 38px !important;
-  width: 360px !important;
-  z-index: 50 !important;
-  display: block !important;
-  background: rgba(2, 45, 36, .55) !important;
-  padding: 18px 22px !important;
-  border-radius: 18px !important;
-  text-align: right !important;
+  right: 60px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 430px !important;
+  z-index: 20 !important;
 }
 
-.admin-project-card.project-card .project-header h2,
-.admin-project-card.project-card .project-title {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
+.admin-project-card.project-card .project-header h2 {
   color: #fff7d6 !important;
-  font-size: 32px !important;
-  font-weight: 950 !important;
-  line-height: 1.25 !important;
+  font-size: 34px !important;
 }
 
-.admin-project-card.project-card .project-header p,
-.admin-project-card.project-card .project-district {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
+.admin-project-card.project-card .project-header p {
   color: #fff1bd !important;
-  font-size: 16px !important;
-  font-weight: 850 !important;
 }
 
-/* نسبة الإنجاز يسار */
 .project-rate-circle {
   left: 42px !important;
   right: auto !important;
+  z-index: 30 !important;
+}
+
+.admin-project-card.project-card .project-stats {
+  position: absolute !important;
+  right: 520px !important;
+  left: 180px !important;
   top: 50% !important;
   transform: translateY(-50%) !important;
-  z-index: 60 !important;
-}
-
-/* مؤشرات المشروع داخل البطاقة */
-.project-daily-meter,
-.project-mini-stats {
+  margin: 0 !important;
+  z-index: 25 !important;
   display: grid !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-.project-daily-meter {
-  position: absolute !important;
-  right: 430px !important;
-  left: 185px !important;
-  bottom: 26px !important;
-  z-index: 40 !important;
-  min-height: 92px !important;
-}
-
-.project-mini-stats {
   grid-template-columns: repeat(5, 1fr) !important;
+  gap: 0 !important;
+  background: rgba(255, 250, 240, .88) !important;
+  border-radius: 22px !important;
+  overflow: hidden !important;
+}
+
+.admin-project-card.project-card .stat-button {
+  min-height: 94px !important;
+  border-radius: 0 !important;
 }
