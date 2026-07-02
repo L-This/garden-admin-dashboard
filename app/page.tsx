@@ -2379,7 +2379,10 @@ const duplicatePhoto =
                   overflow: "hidden",
                   border: "1px solid rgba(218,190,117,.55)",
                   boxShadow: "0 24px 55px rgba(6,43,36,.14)",
-                  background: "#fffaf0",
+                  background: `linear-gradient(90deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,.05) 42%, rgba(2,54,43,.88) 68%, rgba(1,41,33,.96) 100%), url("${getProjectBackground(project.name)}")`,
+backgroundSize: "cover",
+backgroundPosition: "center",
+backgroundRepeat: "no-repeat",
                 }}
               >
                 <div
