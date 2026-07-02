@@ -328,27 +328,6 @@ export default function AdminHome() {
 
   const isManager = user?.role === "مدير";
 
-  function getProjectBackground(projectName: string) {
-  if (projectName.includes("بريمان") || projectName.includes("طيبة")) {
-    return "/backgrounds/buraiman-bg.png";
-  }
-
-  if (projectName.includes("الغابة")) {
-    return "/backgrounds/eastern-forest-bg.png";
-  }
-
-  if (projectName.includes("المخططات")) {
-    return "/backgrounds/private-plans-bg.png";
-  }
-
-  if (projectName.includes("السلم") || projectName.includes("الرغامة")) {
-    return "/backgrounds/umm-al-salam-bg.png";
-  }
-
-  return "/backgrounds/project-bg.png";
-}
-
-
   useEffect(() => {
     const saved = localStorage.getItem("adminUser");
     if (saved) setUser(JSON.parse(saved));
@@ -2115,94 +2094,37 @@ body {
         </div>
       </section>
 
-      <section
-        className="admin-overview elite-overview"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
-          gap: 18,
-          marginTop: 28,
-          marginBottom: 28,
-        }}
-      >
-        {[
-          { label: "إجمالي الحدائق", value: totals.totalGardens, icon: "◌", tone: "#0b6f52" },
-          { label: "تم ريها", value: totals.watered, icon: "♢", tone: "#0f8a63" },
-          { label: "لم يتم ريها", value: totals.notWatered, icon: "⌁", tone: "#9b1c1c" },
-          { label: "عدم كفاية ري", value: totals.insufficient, icon: "−", tone: "#b8871f" },
-          { label: "خروج الري للرصيف", value: totals.sidewalk, icon: "↪", tone: "#2563eb" },
-          { label: "تنبيهات التحقق الذكي", value: aiAlertReports.length, icon: "⚠", tone: "#c05600" },
-        ].map((item) => (
-          <div
-            key={item.label}
-            className="elite-overview-card"
-            style={{
-              position: "relative",
-              overflow: "hidden",
-              minHeight: 150,
-              padding: "24px 22px",
-              borderRadius: 28,
-              background:
-                "linear-gradient(145deg, rgba(255,255,255,.96), rgba(250,246,232,.88))",
-              border: "1px solid rgba(218,190,117,.58)",
-              boxShadow: "0 20px 45px rgba(6,43,36,.12)",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-            }}
-          >
-            <span
-              style={{
-                position: "absolute",
-                insetInlineStart: 18,
-                bottom: 18,
-                width: 78,
-                height: 78,
-                borderRadius: "50%",
-                border: "1px solid rgba(218,190,117,.45)",
-                background: "rgba(255,255,255,.45)",
-              }}
-            />
-            <span
-              style={{
-                fontSize: 24,
-                lineHeight: 1.35,
-                color: "#41584f",
-                fontWeight: 900,
-                position: "relative",
-                zIndex: 1,
-              }}
-            >
-              {item.label}
-            </span>
-            <strong
-              style={{
-                fontSize: 54,
-                lineHeight: 1,
-                color: item.tone,
-                fontWeight: 950,
-                textShadow: "0 12px 28px rgba(15,111,82,.18)",
-                position: "relative",
-                zIndex: 1,
-              }}
-            >
-              {item.value}
-            </strong>
-            <em
-              style={{
-                position: "absolute",
-                insetInlineStart: 42,
-                top: 52,
-                color: item.tone,
-                fontStyle: "normal",
-                fontSize: 22,
-                zIndex: 1,
-              }}
-            >
-              {item.icon}
-            </em>
-          </div>
-        ))}
+      <section className="admin-overview">
+        <div>
+          <span>إجمالي الحدائق</span>
+          <strong>{totals.totalGardens}</strong>
+          <em>◌</em>
+        </div>
+        <div>
+          <span>تم ريها</span>
+          <strong>{totals.watered}</strong>
+          <em>♢</em>
+        </div>
+        <div>
+          <span>لم يتم ريها</span>
+          <strong>{totals.notWatered}</strong>
+          <em>⌁</em>
+        </div>
+        <div>
+          <span>عدم كفاية ري</span>
+          <strong>{totals.insufficient}</strong>
+          <em>−</em>
+        </div>
+        <div>
+          <span>خروج الري للرصيف</span>
+          <strong>{totals.sidewalk}</strong>
+          <em>↪</em>
+        </div>
+        <div className="ai-overview-card">
+          <span>تنبيهات التحقق الذكي</span>
+          <strong>{aiAlertReports.length}</strong>
+          <em>⚠</em>
+        </div>
       </section>
 
       {isFridayDate(selectedDate) && (
@@ -2343,7 +2265,15 @@ const duplicatePhoto =
 
   return false;
 });
+          console.log("DEBUG PROJECT", project.name, {
+  projectGardens: projectGardens.length,
+  wateringSchedules: wateringSchedules.length,
+  scheduledGardens: scheduledGardens.length,
+  selectedDate,
+});
             const friday = isFridayDate(selectedDate);
+            console.log("wateringSchedules", wateringSchedules.length);
+            console.log("scheduledGardens", scheduledGardens.length);
             const wateredGardens = friday
               ? []
               : scheduledGardens.filter((garden) =>
@@ -2366,279 +2296,75 @@ const duplicatePhoto =
             });
 
             const isOpen = openProjectId === project.id;
-            const projectCompletionRate = scheduledGardens.length
-              ? Math.round((wateredGardens.length / scheduledGardens.length) * 100)
-              : 0;
 
             return (
               <article
-                key={project.id}
-                className="admin-project-card project-click-card"
-                style={{
-                  borderRadius: 30,
-                  overflow: "hidden",
-                  border: "1px solid rgba(218,190,117,.55)",
-                  boxShadow: "0 24px 55px rgba(6,43,36,.14)",
-                  background: `linear-gradient(90deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,.05) 42%, rgba(2,54,43,.88) 68%, rgba(1,41,33,.96) 100%), url("${getProjectBackground(project.name)}")`,
-backgroundSize: "cover",
-backgroundPosition: "center",
-backgroundRepeat: "no-repeat",
-                }}
-              >
+  key={project.id}
+  className="admin-project-card project-click-card project-card"
+  style={{
+    "--project-bg": `url("${getProjectBackground(project.name)}")`,
+  } as React.CSSProperties}
+>
                 <div
-                  className="project-header project-header-luxury"
+                  className="project-header"
                   onClick={() => openProject(project.id)}
-                  style={{
-                    position: "relative",
-                    minHeight: 300,
-                    padding: "36px 48px",
-                    borderRadius: 30,
-                    overflow: "hidden",
-                    display: "grid",
-                    gridTemplateColumns: "1fr minmax(320px, 430px)",
-                    gap: 28,
-                    alignItems: "center",
-                    backgroundImage: `linear-gradient(
-  90deg,
-  rgba(255,255,255,.10) 0%,
-  rgba(255,255,255,.05) 42%,
-  rgba(2,54,43,.88) 68%,
-  rgba(1,41,33,.96) 100%
-), url("${getProjectBackground(project.name)}")`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    backgroundRepeat: "no-repeat",
-                    cursor: "pointer",
-                  }}
                 >
-                  
-
-                  <div
-                    className="project-luxury-content"
-                    style={{
-                      position: "relative",
-                      zIndex: 1,
-                      alignSelf: "end",
-                      width: "min(930px, 100%)",
-                      marginInlineStart: "auto",
-                    }}
-                  >
-                    <div
-                      className="project-inside-indicators"
-                      style={{
-                        padding: "18px 22px 16px",
-                        borderRadius: 22,
-                        background: "rgba(255,252,243,.88)",
-                        border: "1px solid rgba(132,96,42,.35)",
-                        boxShadow:
-                          "0 18px 38px rgba(6,43,36,.18), inset 0 0 0 1px rgba(255,255,255,.75)",
-                        backdropFilter: "blur(7px)",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
-                          gap: 0,
-                          alignItems: "stretch",
-                        }}
-                      >
-                        {[
-                          { label: "تم ريها", value: wateredGardens.length, color: "#0f8a63", icon: "♢" },
-                          { label: "لم يتم ريها", value: notWateredGardens.length, color: "#b91c1c", icon: "⌘" },
-                          { label: "عدم كفاية ري", value: insufficientGardens.length, color: "#b8871f", icon: "−" },
-                          { label: "خروج الري للرصيف", value: sidewalkGardens.length, color: "#2563eb", icon: "↪" },
-                          { label: "إجمالي الحدائق", value: projectGardens.length, color: "#123b31", icon: "♧" },
-                        ].map((item, index) => (
-                          <div
-                            key={item.label}
-                            style={{
-                              padding: "2px 14px",
-                              textAlign: "center",
-                              borderInlineStart:
-                                index === 0 ? "0" : "1px solid rgba(132,96,42,.28)",
-                            }}
-                          >
-                            <div
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                gap: 8,
-                                minHeight: 34,
-                                color: "#123b31",
-                                fontSize: 15,
-                                fontWeight: 900,
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              <span>{item.label}</span>
-                              <em
-                                style={{
-                                  width: 28,
-                                  height: 28,
-                                  borderRadius: "50%",
-                                  display: "grid",
-                                  placeItems: "center",
-                                  background: "rgba(255,255,255,.72)",
-                                  border: "1px solid rgba(218,190,117,.48)",
-                                  color: item.color,
-                                  fontStyle: "normal",
-                                  fontSize: 17,
-                                  fontWeight: 950,
-                                }}
-                              >
-                                {item.icon}
-                              </em>
-                            </div>
-                            <strong
-                              style={{
-                                display: "block",
-                                marginTop: 8,
-                                fontSize: 34,
-                                lineHeight: 1,
-                                color: item.color,
-                                fontWeight: 950,
-                              }}
-                            >
-                              {item.value}
-                            </strong>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns: "90px 1fr",
-                          gap: 14,
-                          alignItems: "center",
-                          marginTop: 18,
-                        }}
-                      >
-                        <strong
-                          style={{
-                            color:
-                              projectCompletionRate >= 85
-                                ? "#0f8a63"
-                                : projectCompletionRate >= 60
-                                  ? "#b8871f"
-                                  : "#b91c1c",
-                            fontSize: 24,
-                            fontWeight: 950,
-                          }}
-                        >
-                          {projectCompletionRate}%
-                        </strong>
-
-                        <div
-                          className="meter-track"
-                          style={{
-                            height: 16,
-                            borderRadius: 999,
-                            overflow: "hidden",
-                            background: "rgba(232,222,196,.78)",
-                            display: "flex",
-                          }}
-                        >
-                          <span
-                            className="meter-segment meter-watered"
-                            style={{
-                              width: `${scheduledGardens.length ? (wateredGardens.length / scheduledGardens.length) * 100 : 0}%`,
-                            }}
-                          />
-                          <span
-                            className="meter-segment meter-not-watered"
-                            style={{
-                              width: `${scheduledGardens.length ? (notWateredGardens.length / scheduledGardens.length) * 100 : 0}%`,
-                            }}
-                          />
-                          <span
-                            className="meter-segment meter-insufficient"
-                            style={{
-                              width: `${scheduledGardens.length ? (insufficientGardens.length / scheduledGardens.length) * 100 : 0}%`,
-                            }}
-                          />
-                          <span
-                            className="meter-segment meter-sidewalk"
-                            style={{
-                              width: `${scheduledGardens.length ? (sidewalkGardens.length / scheduledGardens.length) * 100 : 0}%`,
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
+                  <div className="project-number-badge">
+                    {wateredGardens.length}
                   </div>
+                  <div>
+                    <h2>{project.name}</h2>
+                    <p>{project.district || "بدون نطاق"}</p>
+                  </div>
+                </div>
 
-                  <div
-                    style={{
-                      position: "relative",
-                      zIndex: 1,
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-start",
-                      justifyContent: "center",
-                      color: "#fff8df",
-                    }}
-                  >
-                    <div
+                <div
+                  className="project-daily-meter"
+                  aria-label="مؤشر حالة الري اليومي"
+                >
+                  <div className="meter-track">
+                    <span
+                      className="meter-segment meter-watered"
                       style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 10,
-                        marginBottom: 24,
-                        color: "#f2cf7a",
-                        fontWeight: 950,
-                        fontSize: 17,
+                        width: `${scheduledGardens.length ? (wateredGardens.length / scheduledGardens.length) * 100 : 0}%`,
                       }}
-                    >
-                      <span style={{ width: 110, height: 1, background: "rgba(242,207,122,.6)" }} />
-                      <span>بطاقة المشروع</span>
-                    </div>
-
-                    <h2
+                    />
+                    <span
+                      className="meter-segment meter-not-watered"
                       style={{
-                        margin: 0,
-                        fontSize: 34,
-                        lineHeight: 1.25,
-                        color: "#fff7df",
-                        fontWeight: 950,
-                        textShadow: "0 10px 28px rgba(0,0,0,.32)",
+                        width: `${scheduledGardens.length ? (notWateredGardens.length / scheduledGardens.length) * 100 : 0}%`,
                       }}
-                    >
-                      {project.name}
-                    </h2>
-
-                    <p
+                    />
+                    <span
+                      className="meter-segment meter-insufficient"
                       style={{
-                        margin: "10px 0 0",
-                        fontSize: 17,
-                        color: "rgba(255,248,223,.88)",
-                        fontWeight: 900,
+                        width: `${scheduledGardens.length ? (insufficientGardens.length / scheduledGardens.length) * 100 : 0}%`,
                       }}
-                    >
-                      الحي: {project.district || "بدون نطاق"}
-                    </p>
-
-                    <div
-                      className="project-number-badge luxury-project-badge"
+                    />
+                    <span
+                      className="meter-segment meter-sidewalk"
                       style={{
-                        marginTop: 24,
-                        minWidth: 96,
-                        height: 96,
-                        borderRadius: "50%",
-                        background: "linear-gradient(180deg, #0f7a59, #07543f)",
-                        color: "#ffe9a8",
-                        border: "6px solid rgba(255,255,255,.94)",
-                        boxShadow: "0 18px 38px rgba(5,52,38,.35)",
-                        display: "grid",
-                        placeItems: "center",
-                        fontSize: 34,
-                        fontWeight: 950,
+                        width: `${scheduledGardens.length ? (sidewalkGardens.length / scheduledGardens.length) * 100 : 0}%`,
                       }}
-                    >
-                      {wateredGardens.length}
-                    </div>
+                    />
+                  </div>
+                  <div className="meter-legend">
+                    <span>
+                      <i className="legend-watered" />
+                      تم الري {wateredGardens.length}
+                    </span>
+                    <span>
+                      <i className="legend-not-watered" />
+                      لم يتم {notWateredGardens.length}
+                    </span>
+                    <span>
+                      <i className="legend-insufficient" />
+                      عدم كفاية {insufficientGardens.length}
+                    </span>
+                    <span>
+                      <i className="legend-sidewalk" />
+                      خروج للرصيف {sidewalkGardens.length}
+                    </span>
                   </div>
                 </div>
 
