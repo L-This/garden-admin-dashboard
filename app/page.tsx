@@ -2396,1667 +2396,187 @@ const duplicatePhoto =
       {activeView === "projects" && (loading ? (
         <div className="loading">جاري تحميل البيانات...</div>
       ) : (
-        <section className="projects-admin-grid">
-          {projects.map((project) => {
-            const projectGardens = gardens.filter(
-              (garden) => garden.project_id === project.id,
-            );
-  const scheduledGardens = projectGardens.filter((garden) => {
-  const schedule = wateringSchedules.find(
-    (item) => String(item.garden_id) === String(garden.id)
-  );
+        <section className="projects-workspace">
+          <div className="project-picker-panel">
+            <div className="project-picker-title">
+              <span>قائمة المشاريع</span>
+              <h2>اختر مشروعًا لعرض تفاصيله</h2>
+            </div>
 
-  if (!schedule) return false;
-  if (schedule.daily_watering) return !isFridayDate(selectedDate);
+            <div className="project-tabs-row">
+              {projects.map((project) => (
+                <button
+                  key={project.id}
+                  className={openProjectId === project.id ? "project-tab active" : "project-tab"}
+                  onClick={() => {
+                    setOpenProjectId(project.id);
+                    setOpenSection(null);
+                  }}
+                >
+                  <strong>{project.name}</strong>
+                  <span>{project.district || "بدون نطاق"}</span>
+                </button>
+              ))}
+            </div>
+          </div>
 
-  const day = new Date(selectedDate).getUTCDay();
+          {!openProjectId && (
+            <section className="project-empty-state">
+              <div className="project-empty-icon">▣</div>
+              <h2>اختر مشروعًا لعرض تفاصيله</h2>
+              <p>سيتم عرض بيانات المشروع المختار هنا مع مؤشرات الري والحدائق والتفاصيل التشغيلية.</p>
+              <span>☘</span>
+            </section>
+          )}
 
-  if (day === 0) return schedule.sunday;
-  if (day === 1) return schedule.monday;
-  if (day === 2) return schedule.tuesday;
-  if (day === 3) return schedule.wednesday;
-  if (day === 4) return schedule.thursday;
-  if (day === 5) return schedule.friday;
-  if (day === 6) return schedule.saturday;
+          {openProjectId && projects.filter((project) => project.id === openProjectId).map((project) => {
+            const projectGardens = gardens.filter((garden) => garden.project_id === project.id);
+            const scheduledGardens = projectGardens.filter((garden) => {
+              const schedule = wateringSchedules.find((item) => String(item.garden_id) === String(garden.id));
 
-  return false;
-});
+              if (!schedule) return false;
+              if (schedule.daily_watering) return !isFridayDate(selectedDate);
+
+              const day = new Date(selectedDate).getUTCDay();
+
+              if (day === 0) return schedule.sunday;
+              if (day === 1) return schedule.monday;
+              if (day === 2) return schedule.tuesday;
+              if (day === 3) return schedule.wednesday;
+              if (day === 4) return schedule.thursday;
+              if (day === 5) return schedule.friday;
+              if (day === 6) return schedule.saturday;
+
+              return false;
+            });
+
             const friday = isFridayDate(selectedDate);
-            const wateredGardens = friday
-              ? []
-              : scheduledGardens.filter((garden) =>
-                  wateredGardenIds.has(garden.id),
-                );
-            const notWateredGardens = friday
-              ? []
-              : scheduledGardens.filter((garden) => 
-                !wateredGardenIds.has(garden.id),
-                );
+            const wateredGardens = friday ? [] : scheduledGardens.filter((garden) => wateredGardenIds.has(garden.id));
+            const notWateredGardens = friday ? [] : scheduledGardens.filter((garden) => !wateredGardenIds.has(garden.id));
+            const insufficientGardens = wateredGardens.filter((garden) => getReportStatus(reportByGardenId.get(garden.id)) === "insufficient");
+            const sidewalkGardens = wateredGardens.filter((garden) => getReportStatus(reportByGardenId.get(garden.id)) === "sidewalk_runoff");
+            const projectCompletionRate = scheduledGardens.length ? Math.round((wateredGardens.length / scheduledGardens.length) * 100) : 0;
 
-            const insufficientGardens = wateredGardens.filter((garden) => {
-              const report = reportByGardenId.get(garden.id);
-              return getReportStatus(report) === "insufficient";
-            });
-
-            const sidewalkGardens = wateredGardens.filter((garden) => {
-              const report = reportByGardenId.get(garden.id);
-              return getReportStatus(report) === "sidewalk_runoff";
-            });
-
-            const isOpen = openProjectId === project.id;
-            const projectCompletionRate = scheduledGardens.length
-              ? Math.round((wateredGardens.length / scheduledGardens.length) * 100)
-              : 0;
+            const currentList =
+              openSection === "watered"
+                ? wateredGardens
+                : openSection === "not_watered"
+                  ? notWateredGardens
+                  : openSection === "insufficient"
+                    ? insufficientGardens
+                    : openSection === "sidewalk"
+                      ? sidewalkGardens
+                      : [];
 
             return (
-              <article
-  key={project.id}
-  className="admin-project-card project-click-card project-card"
->
-                <div className="project-rate-circle">
-                  <strong>{projectCompletionRate}%</strong>
-                  <span>نسبة الإنجاز</span>
+              <section key={project.id} className="project-detail-shell">
+                <div className="project-detail-hero">
+                  <div>
+                    <span className="project-detail-kicker">المشروع المحدد</span>
+                    <h2>{project.name}</h2>
+                    <p>{project.district || "بدون نطاق"}</p>
+                  </div>
+
+                  <div className="project-detail-rate">
+                    <strong>{projectCompletionRate}%</strong>
+                    <span>نسبة الإنجاز</span>
+                  </div>
                 </div>
 
-                <div
-                  className="project-header"
-                  onClick={() => openProject(project.id)}
-                >
-                   <div className="project-header-text">
-                   <h2 className="project-title">{project.name}</h2>
-                   <p className="project-district">{project.district || "بدون نطاق"}</p>
-                   </div>
-                </div>
-
-                <div className="project-stats project-stats-main">
-                  <button
-                    className="stat-button watered-stat"
-                    onClick={() => {
-                      setOpenProjectId(project.id);
-                      setOpenSection(
-                        openProjectId === project.id && openSection === "watered"
-                          ? null
-                          : "watered",
-                      );
-                    }}
-                  >
+                <div className="project-detail-stats">
+                  <button className={openSection === "watered" ? "active" : ""} onClick={() => setOpenSection(openSection === "watered" ? null : "watered")}>
                     <em>♢</em>
                     <span>تم ريها</span>
                     <strong>{wateredGardens.length}</strong>
                   </button>
-                  <button
-                    className="stat-button not-watered-stat"
-                    onClick={() => {
-                      setOpenProjectId(project.id);
-                      setOpenSection(
-                        openProjectId === project.id && openSection === "not_watered"
-                          ? null
-                          : "not_watered",
-                      );
-                    }}
-                  >
-                    <em>⌘</em>
+                  <button className={openSection === "not_watered" ? "active danger" : "danger"} onClick={() => setOpenSection(openSection === "not_watered" ? null : "not_watered")}>
+                    <em>⌁</em>
                     <span>لم يتم ريها</span>
                     <strong>{notWateredGardens.length}</strong>
                   </button>
-                  <button
-                    className="stat-button insufficient-stat"
-                    onClick={() => {
-                      setOpenProjectId(project.id);
-                      setOpenSection(
-                        openProjectId === project.id && openSection === "insufficient"
-                          ? null
-                          : "insufficient",
-                      );
-                    }}
-                  >
+                  <button className={openSection === "insufficient" ? "active warning" : "warning"} onClick={() => setOpenSection(openSection === "insufficient" ? null : "insufficient")}>
                     <em>−</em>
                     <span>عدم كفاية ري</span>
                     <strong>{insufficientGardens.length}</strong>
                   </button>
-                  <button
-                    className="stat-button sidewalk-stat"
-                    onClick={() => {
-                      setOpenProjectId(project.id);
-                      setOpenSection(
-                        openProjectId === project.id && openSection === "sidewalk"
-                          ? null
-                          : "sidewalk",
-                      );
-                    }}
-                  >
+                  <button className={openSection === "sidewalk" ? "active blue" : "blue"} onClick={() => setOpenSection(openSection === "sidewalk" ? null : "sidewalk")}>
                     <em>↪</em>
                     <span>خروج الري للرصيف</span>
                     <strong>{sidewalkGardens.length}</strong>
                   </button>
-                  <div className="stat-button total-stat">
+                  <div>
                     <em>♧</em>
                     <span>إجمالي الحدائق</span>
                     <strong>{projectGardens.length}</strong>
                   </div>
                 </div>
 
-                {isOpen && (
-                  <>
-                    {openSection === "watered" && (
-                      <section className="details-section">
-                        <h3>تفاصيل الحدائق التي تم ريها</h3>
-
-                        {wateredGardens.length ? (
-                          <div className="report-cards-grid">
-                            {wateredGardens.map((garden) => {
-                              const report = reportByGardenId.get(garden.id);
-                              if (!report) return null;
-
-                              const reportPhotos =
-                                photosByReportId.get(report.id) || [];
-                              const currentStatus = getReportStatus(report);
-
-                              return (
-                                <div key={garden.id} className="report-card">
-                                  {isManager && (
-                                    <button
-                                      className="card-more-btn"
-                                      onClick={() =>
-                                        openEditRecord(garden, project, report)
-                                      }
-                                      title="تعديل السجل"
-                                    >
-                                      ⋮
-                                    </button>
-                                  )}
-
-                                  <div className="report-card-head">
-                                    <h4>{garden.name}</h4>
-                                    <span>{project.name}</span>
-                                  </div>
-
-                                  <div className="report-meta">
-                                    <p>
-                                      التاريخ/الوقت:{" "}
-                                      {formatDateTime(report.created_at)}
-                                    </p>
-                                    <p>
-                                      حالة الري: {statusLabel(currentStatus)}
-                                    </p>
-                                    <p>
-                                      الملاحظات:{" "}
-                                      {report.admin_note ||
-                                        report.notes ||
-                                        report.insufficient_note ||
-                                        report.sidewalk_runoff_note ||
-                                        "لا توجد"}
-                                    </p>
-                                  </div>
-
-                                  <div className="report-photo-strip">
-                                    {reportPhotos.length ? (
-                                      reportPhotos.map((photo, index) => (
-                                        <button
-                                          type="button"
-                                          className="report-photo-preview-btn"
-                                          key={
-                                            photo.id ||
-                                            `${photo.file_url}-${index}`
-                                          }
-                                          onClick={() =>
-                                            setPreviewImageUrl(photo.file_url)
-                                          }
-                                          title="معاينة الصورة بالحجم الكامل"
-                                        >
-                                          <img
-                                            src={photo.file_url}
-                                            alt={`${garden.name} ${index + 1}`}
-                                          />
-                                          <span>تكبير الصورة</span>
-                                        </button>
-                                      ))
-                                    ) : (
-                                      <div className="no-image">
-                                        لا توجد صورة
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  {isManager && (
-                                    <div className="report-actions-4">
-                                      <button
-                                        onClick={() =>
-                                          updateReportStatus(
-                                            report.id,
-                                            "watered",
-                                          )
-                                        }
-                                      >
-                                        تم الري
-                                      </button>
-                                      <button
-                                        onClick={() =>
-                                          updateReportStatus(
-                                            report.id,
-                                            "not_watered",
-                                          )
-                                        }
-                                      >
-                                        لم يتم الري
-                                      </button>
-                                      <button
-                                        onClick={() =>
-                                          updateReportStatus(
-                                            report.id,
-                                            "insufficient",
-                                          )
-                                        }
-                                      >
-                                        عدم كفاية ري
-                                      </button>
-                                      <button
-                                        onClick={() =>
-                                          updateReportStatus(
-                                            report.id,
-                                            "sidewalk",
-                                          )
-                                        }
-                                      >
-                                        خروج الري للرصيف
-                                      </button>
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        ) : (
-                          <p className="empty-list">
-                            لا توجد تسجيلات ري لهذا اليوم
-                          </p>
-                        )}
-                      </section>
-                    )}
-
-                    {openSection === "not_watered" && (
-                      <section className="details-section">
-                        <h3>الحدائق التي لم يتم ريها</h3>
-                        {notWateredGardens.length ? (
-                          <div className="not-watered-grid">
-                            {notWateredGardens.map((garden) => {
-                              const report = reportByGardenId.get(garden.id);
-                              return (
-                                <div
-                                  className="not-watered-card"
-                                  key={garden.id}
-                                >
-                                  <strong>{garden.name}</strong>
-                                  <span>
-                                    {report?.admin_note ||
-                                      report?.notes ||
-                                      "لا توجد ملاحظات"}
-                                  </span>
-                                  {isManager && (
-                                    <button
-                                      onClick={() =>
-                                        openEditRecord(garden, project, report)
-                                      }
-                                    >
-                                      تعديل السجل
-                                    </button>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        ) : (
-                          <p className="all-done">
-                            تم ري جميع حدائق المشروع في هذا اليوم
-                          </p>
-                        )}
-                      </section>
-                    )}
-
-                    {openSection === "insufficient" && (
-                      <section className="details-section">
-                        <h3>الحدائق عليها عدم كفاية ري</h3>
-                        {insufficientGardens.length ? (
-                          <ul>
-                            {insufficientGardens.map((garden) => (
-                              <li key={garden.id}>{garden.name}</li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p className="empty-list">
-                            لا توجد حدائق عليها عدم كفاية ري
-                          </p>
-                        )}
-                      </section>
-                    )}
-
-                    {openSection === "sidewalk" && (
-                      <section className="details-section">
-                        <h3>الحدائق عليها خروج ري للرصيف</h3>
-                        {sidewalkGardens.length ? (
-                          <ul>
-                            {sidewalkGardens.map((garden) => (
-                              <li key={garden.id}>{garden.name}</li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p className="empty-list">
-                            لا توجد حدائق عليها خروج ري للرصيف
-                          </p>
-                        )}
-                      </section>
-                    )}
-                  </>
+                {!openSection && (
+                  <section className="project-detail-empty">
+                    <div>☘</div>
+                    <h3>اختر مؤشرًا من الأعلى لعرض تفاصيل الحدائق</h3>
+                    <p>المساحة مخصصة لتفاصيل المشروع المختار بدون ازدحام أو حشر للبيانات.</p>
+                  </section>
                 )}
-              </article>
+
+                {openSection && (
+                  <section className="project-detail-list">
+                    <div className="project-detail-list-head">
+                      <h3>{
+                        openSection === "watered"
+                          ? "الحدائق التي تم ريها"
+                          : openSection === "not_watered"
+                            ? "الحدائق التي لم يتم ريها"
+                            : openSection === "insufficient"
+                              ? "حالات عدم كفاية الري"
+                              : "حالات خروج الري للرصيف"
+                      }</h3>
+                      <span>{currentList.length} سجل</span>
+                    </div>
+
+                    {currentList.length ? (
+                      <div className="project-garden-list">
+                        {currentList.map((garden) => {
+                          const report = reportByGardenId.get(garden.id);
+                          const reportPhotos = report ? photosByReportId.get(report.id) || [] : [];
+                          const firstPhoto = reportPhotos[0];
+
+                          return (
+                            <article key={garden.id} className="project-garden-item">
+                              <div>
+                                <strong>{garden.name}</strong>
+                                <span>{report ? formatDateTime(report.created_at) : "لا يوجد سجل لهذا التاريخ"}</span>
+                              </div>
+
+                              <p>{report?.admin_note || report?.notes || report?.insufficient_note || report?.sidewalk_runoff_note || "لا توجد ملاحظات"}</p>
+
+                              <div className="project-garden-actions">
+                                {firstPhoto?.file_url && (
+                                  <button onClick={() => setPreviewImageUrl(firstPhoto.file_url)}>معاينة الصورة</button>
+                                )}
+                                {isManager && (
+                                  <button onClick={() => openEditRecord(garden, project, report)}>تعديل السجل</button>
+                                )}
+                              </div>
+                            </article>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="project-detail-empty compact">
+                        <div>✓</div>
+                        <h3>لا توجد بيانات في هذا القسم</h3>
+                        <p>لم يتم تسجيل حالات مطابقة لهذا المؤشر في التاريخ المحدد.</p>
+                      </div>
+                    )}
+                  </section>
+                )}
+              </section>
             );
           })}
         </section>
       ))}
 
-      {showAuditModal && isManager && (
-        <div
-          className="edit-modal-backdrop"
-          onClick={() => setShowAuditModal(false)}
-        >
-          <section
-            className="edit-modal audit-modal"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="edit-modal-head">
-              <h2>سجل التعديلات والتراجع</h2>
-              <button onClick={() => setShowAuditModal(false)}>×</button>
-            </div>
-
-            <p className="edit-modal-subtitle">
-              راجع تعديلات اليوم أو مشروع محدد، ثم اضغط تراجع لإعادة السجل إلى
-              حالته السابقة.
-            </p>
-
-            <div className="audit-filters-grid">
-              <label>
-                <span>تاريخ التعديل</span>
-                <input
-                  type="date"
-                  value={auditDateFilter}
-                  onChange={(e) => setAuditDateFilter(e.target.value)}
-                />
-              </label>
-
-              <label>
-                <span>المشروع</span>
-                <select
-                  value={auditProjectFilter}
-                  onChange={(e) => setAuditProjectFilter(e.target.value)}
-                >
-                  <option value="all">كل المشاريع</option>
-                  {projects.map((project) => (
-                    <option key={project.id} value={project.id}>
-                      {project.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <button
-                className="audit-refresh-btn"
-                onClick={loadAuditLogs}
-                disabled={auditLoading}
-              >
-                {auditLoading ? "جارٍ التحميل..." : "عرض السجل"}
-              </button>
-            </div>
-
-            <div className="audit-list">
-              {auditLogs.length ? (
-                auditLogs.map((log) => {
-                  const garden = log.garden_id
-                    ? getGardenById(log.garden_id)
-                    : undefined;
-                  const project = log.project_id
-                    ? getProjectById(log.project_id)
-                    : undefined;
-
-                  return (
-                    <article
-                      className={`audit-card ${log.undone ? "undone" : ""}`}
-                      key={log.id}
-                    >
-                      <div>
-                        <h3>{auditActionLabel(log.action)}</h3>
-                        <p>
-                          {project?.name || "مشروع غير محدد"} /{" "}
-                          {garden?.name || "حديقة غير محددة"}
-                        </p>
-                        <small>
-                          {formatDateTime(log.created_at)} — بواسطة{" "}
-                          {log.changed_by || "غير محدد"}
-                        </small>
-                        {log.undone && (
-                          <strong className="audit-undone-label">
-                            تم التراجع
-                          </strong>
-                        )}
-                      </div>
-
-                      <button
-                        onClick={() => undoAuditLog(log)}
-                        disabled={
-                          Boolean(log.undone) || undoingAuditId === log.id
-                        }
-                      >
-                        {undoingAuditId === log.id
-                          ? "جارٍ التراجع..."
-                          : "تراجع"}
-                      </button>
-                    </article>
-                  );
-                })
-              ) : (
-                <p className="empty-list">
-                  لا توجد تعديلات مسجلة لهذا اليوم أو المشروع.
-                </p>
-              )}
-            </div>
-          </section>
-        </div>
-      )}
-
-      {showExecutiveModal && isManager && (
-        <div
-          className="edit-modal-backdrop"
-          onClick={() => setShowExecutiveModal(false)}
-        >
-          <section
-            className="edit-modal"
-            style={{
-              width: "min(1240px, 96vw)",
-              maxHeight: "92vh",
-              overflow: "auto",
-              borderRadius: 34,
-              padding: 0,
-              background:
-                "radial-gradient(circle at 20% 10%, rgba(255,232,168,.52), transparent 26%), linear-gradient(135deg, #062b24 0%, #0b4a38 38%, #f7edd0 100%)",
-              border: "1px solid rgba(255, 239, 190, .65)",
-              boxShadow: "0 28px 80px rgba(6,43,36,.35)",
-            }}
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div
-              style={{
-                padding: "28px 32px",
-                color: "white",
-                display: "flex",
-                justifyContent: "space-between",
-                gap: 18,
-                alignItems: "flex-start",
-              }}
-            >
-              <div>
-                <span
-                  style={{
-                    display: "inline-flex",
-                    padding: "8px 16px",
-                    borderRadius: 999,
-                    background: "rgba(255,255,255,.15)",
-                    border: "1px solid rgba(255,255,255,.25)",
-                    fontWeight: 900,
-                    marginBottom: 12,
-                  }}
-                >
-                  مركز القرار التنفيذي
-                </span>
-                <h2 style={{ margin: 0, fontSize: 34 }}>
-                  لوحة المؤشرات التنفيذية
-                </h2>
-                <p style={{ margin: "8px 0 0", opacity: .86, fontWeight: 700 }}>
-                  ترتيب المشاريع، أفضل أداء، أعلى تعثر، وإجمالي الغرامات حسب الفترة المحددة.
-                </p>
-              </div>
-
-              <button
-                onClick={() => setShowExecutiveModal(false)}
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 999,
-                  border: "none",
-                  background: "rgba(255,255,255,.18)",
-                  color: "white",
-                  fontSize: 24,
-                  cursor: "pointer",
-                }}
-              >
-                ×
-              </button>
-            </div>
-
-            <div
-              style={{
-                margin: "0 22px 22px",
-                padding: 22,
-                borderRadius: 28,
-                background: "rgba(255,255,255,.92)",
-                backdropFilter: "blur(16px)",
-              }}
-            >
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(4, minmax(160px, 1fr))",
-                  gap: 14,
-                  marginBottom: 18,
-                }}
-              >
-                <label>
-                  <span>من تاريخ</span>
-                  <input
-                    type="date"
-                    value={executiveFromDate}
-                    onChange={(e) => setExecutiveFromDate(e.target.value)}
-                  />
-                </label>
-                <label>
-                  <span>إلى تاريخ</span>
-                  <input
-                    type="date"
-                    value={executiveToDate}
-                    onChange={(e) => setExecutiveToDate(e.target.value)}
-                  />
-                </label>
-                <label>
-                  <span>غرامة لم يتم الري</span>
-                  <input
-                    type="number"
-                    min="0"
-                    value={notWateredFine}
-                    onChange={(e) => setNotWateredFine(Number(e.target.value))}
-                  />
-                </label>
-                <button
-                  onClick={loadExecutiveDashboard}
-                  disabled={executiveLoading}
-                  style={{
-                    alignSelf: "end",
-                    border: "none",
-                    borderRadius: 16,
-                    padding: "14px 18px",
-                    background: "#0d6b4d",
-                    color: "white",
-                    fontWeight: 900,
-                    cursor: "pointer",
-                  }}
-                >
-                  {executiveLoading ? "جارٍ التحليل..." : "تحديث المؤشرات"}
-                </button>
-              </div>
-
-              {executiveError && <p className="report-error">{executiveError}</p>}
-
-              {executiveRows.length > 0 &&
-                (() => {
-                  const totalRequired = executiveRows.reduce((sum, row) => sum + row.required, 0);
-                  const totalWatered = executiveRows.reduce((sum, row) => sum + row.watered, 0);
-                  const totalViolations = executiveRows.reduce((sum, row) => sum + row.violations, 0);
-                  const totalFines = executiveRows.reduce((sum, row) => sum + row.fines, 0);
-                  const overallRate = totalRequired
-                    ? Math.round((totalWatered / totalRequired) * 100)
-                    : 0;
-                  const bestProject = executiveRows
-                    .filter((row) => row.required > 0)
-                    .sort((a, b) => b.achievementRate - a.achievementRate)[0];
-                  const worstProject = executiveRows
-                    .filter((row) => row.required > 0)
-                    .sort((a, b) => a.achievementRate - b.achievementRate)[0];
-                  const highestFineProject = [...executiveRows].sort((a, b) => b.fines - a.fines)[0];
-
-                  const kpiStyle = {
-                    borderRadius: 24,
-                    padding: 20,
-                    background: "linear-gradient(180deg, #ffffff, #fbf5e6)",
-                    border: "1px solid #eadfbc",
-                    boxShadow: "0 14px 32px rgba(6,43,36,.08)",
-                  };
-
-                  return (
-                    <>
-                      <div
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns: "1.1fr repeat(3, 1fr)",
-                          gap: 16,
-                          marginBottom: 18,
-                        }}
-                      >
-                        <div
-                          style={{
-                            ...kpiStyle,
-                            background:
-                              "radial-gradient(circle at 15% 15%, rgba(255,211,105,.38), transparent 32%), linear-gradient(135deg, #062b24, #0f6f52)",
-                            color: "white",
-                          }}
-                        >
-                          <span style={{ opacity: .86, fontWeight: 800 }}>نسبة الإنجاز العامة</span>
-                          <strong style={{ display: "block", fontSize: 54, lineHeight: 1, marginTop: 12 }}>
-                            {overallRate}%
-                          </strong>
-                          <small style={{ display: "block", marginTop: 10, opacity: .9 }}>
-                            {formatMoney(totalWatered)} / {formatMoney(totalRequired)} عملية مطلوبة
-                          </small>
-                        </div>
-
-                        <div style={kpiStyle}>
-                          <span style={{ color: "#0f7a53", fontWeight: 900 }}>أفضل مشروع</span>
-                          <strong style={{ display: "block", fontSize: 22, marginTop: 10, color: "#062b24" }}>
-                            {bestProject?.projectName || "-"}
-                          </strong>
-                          <small style={{ color: "#55706a", fontWeight: 800 }}>
-                            إنجاز {bestProject?.achievementRate || 0}%
-                          </small>
-                        </div>
-
-                        <div style={kpiStyle}>
-                          <span style={{ color: "#be123c", fontWeight: 900 }}>أسوأ مشروع</span>
-                          <strong style={{ display: "block", fontSize: 22, marginTop: 10, color: "#062b24" }}>
-                            {worstProject?.projectName || "-"}
-                          </strong>
-                          <small style={{ color: "#55706a", fontWeight: 800 }}>
-                            إنجاز {worstProject?.achievementRate || 0}%
-                          </small>
-                        </div>
-
-                        <div style={kpiStyle}>
-                          <span style={{ color: "#9a3412", fontWeight: 900 }}>أعلى غرامات</span>
-                          <strong style={{ display: "block", fontSize: 22, marginTop: 10, color: "#7f1d1d" }}>
-                            {highestFineProject?.projectName || "-"}
-                          </strong>
-                          <small style={{ color: "#9a3412", fontWeight: 900 }}>
-                            {formatMoney(highestFineProject?.fines || 0)} ريال
-                          </small>
-                        </div>
-                      </div>
-
-                      <div
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns: "1.35fr .65fr",
-                          gap: 16,
-                          marginBottom: 18,
-                        }}
-                      >
-                        <div style={kpiStyle}>
-                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-                            <strong>مؤشر الأداء العام</strong>
-                            <span style={{ fontWeight: 900 }}>{overallRate}%</span>
-                          </div>
-                          <div
-                            style={{
-                              height: 26,
-                              borderRadius: 999,
-                              overflow: "hidden",
-                              background: "#efe7d4",
-                              display: "flex",
-                            }}
-                          >
-                            <span
-                              style={{
-                                width: `${overallRate}%`,
-                                background: "linear-gradient(90deg, #0f7a53, #24b47e)",
-                              }}
-                            />
-                            <span
-                              style={{
-                                width: `${Math.max(0, 100 - overallRate)}%`,
-                                background: "linear-gradient(90deg, #f59e0b, #be123c)",
-                              }}
-                            />
-                          </div>
-                          <div
-                            style={{
-                              marginTop: 14,
-                              display: "grid",
-                              gridTemplateColumns: "repeat(4, 1fr)",
-                              gap: 10,
-                              textAlign: "center",
-                            }}
-                          >
-                            <div><strong>{formatMoney(totalRequired)}</strong><br /><small>المطلوب</small></div>
-                            <div><strong>{formatMoney(totalWatered)}</strong><br /><small>تم الري</small></div>
-                            <div><strong>{formatMoney(totalViolations)}</strong><br /><small>مخالفات</small></div>
-                            <div><strong>{formatMoney(totalFines)} ريال</strong><br /><small>غرامات</small></div>
-                          </div>
-                        </div>
-
-                        <div
-                          style={{
-                            ...kpiStyle,
-                            textAlign: "center",
-                            background: "linear-gradient(180deg, #fff7ed, #ffffff)",
-                          }}
-                        >
-                          <span style={{ color: "#9a3412", fontWeight: 900 }}>الأثر المالي</span>
-                          <strong style={{ display: "block", fontSize: 34, color: "#7f1d1d", marginTop: 12 }}>
-                            {formatMoney(totalFines)}
-                          </strong>
-                          <small style={{ color: "#9a3412", fontWeight: 900 }}>ريال إجمالي الغرامات</small>
-                        </div>
-                      </div>
-
-                      <div style={kpiStyle}>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
-                          <h3 style={{ margin: 0 }}>ترتيب المشاريع حسب الإنجاز</h3>
-                          <span style={{ color: "#55706a", fontWeight: 800 }}>
-                            من {executiveFromDate} إلى {executiveToDate}
-                          </span>
-                        </div>
-
-                        <div style={{ display: "grid", gap: 12 }}>
-                          {executiveRows.map((row, index) => (
-                            <div
-                              key={row.projectId}
-                              style={{
-                                display: "grid",
-                                gridTemplateColumns: "46px 1.2fr 1.6fr 120px 130px",
-                                gap: 12,
-                                alignItems: "center",
-                                padding: "14px 16px",
-                                borderRadius: 18,
-                                background:
-                                  index === 0
-                                    ? "linear-gradient(90deg, rgba(15,122,83,.14), #fff)"
-                                    : index === executiveRows.length - 1
-                                      ? "linear-gradient(90deg, rgba(190,18,60,.12), #fff)"
-                                      : "#fff",
-                                border: "1px solid #eadfbc",
-                              }}
-                            >
-                              <strong
-                                style={{
-                                  width: 38,
-                                  height: 38,
-                                  display: "grid",
-                                  placeItems: "center",
-                                  borderRadius: 999,
-                                  background: index === 0 ? "#0f7a53" : "#f8f1dc",
-                                  color: index === 0 ? "white" : "#7c4a03",
-                                }}
-                              >
-                                {index + 1}
-                              </strong>
-
-                              <div>
-                                <strong style={{ color: "#062b24" }}>{row.projectName}</strong>
-                                <small style={{ display: "block", color: "#55706a", marginTop: 4 }}>
-                                  {row.totalGardens} حديقة × {row.workingDays} أيام عمل
-                                </small>
-                              </div>
-
-                              <div>
-                                <div
-                                  style={{
-                                    height: 14,
-                                    borderRadius: 999,
-                                    overflow: "hidden",
-                                    background: "#efe7d4",
-                                  }}
-                                >
-                                  <span
-                                    style={{
-                                      display: "block",
-                                      height: "100%",
-                                      width: `${row.achievementRate}%`,
-                                      background: "linear-gradient(90deg, #0f7a53, #24b47e)",
-                                    }}
-                                  />
-                                </div>
-                                <small style={{ color: "#55706a", fontWeight: 800 }}>
-                                  {formatMoney(row.watered)} / {formatMoney(row.required)} عملية ري
-                                </small>
-                              </div>
-
-                              <strong style={{ fontSize: 22, color: row.achievementRate >= 85 ? "#0f7a53" : row.achievementRate >= 60 ? "#b45309" : "#be123c" }}>
-                                {row.achievementRate}%
-                              </strong>
-
-                              <div style={{ textAlign: "center" }}>
-                                <strong style={{ color: "#7f1d1d" }}>{formatMoney(row.fines)} ريال</strong>
-                                <small style={{ display: "block", color: "#55706a" }}>
-                                  {formatMoney(row.violations)} مخالفة
-                                </small>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </>
-                  );
-                })()}
-            </div>
-          </section>
-        </div>
-      )}
-
-      {showReportModal && (
-        <div
-          className="edit-modal-backdrop"
-          onClick={() => setShowReportModal(false)}
-        >
-          <section
-            className="edit-modal report-modal"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="edit-modal-head">
-              <h2>إعداد تقرير الفترة</h2>
-              <button onClick={() => setShowReportModal(false)}>×</button>
-            </div>
-
-            <p className="edit-modal-subtitle">
-              حدد الفترة والمشروع لاحتساب حالات الري والغرامات تلقائيًا.
-            </p>
-
-            <div className="report-filters-grid">
-              <label>
-                <span>من تاريخ</span>
-                <input
-                  type="date"
-                  value={reportFromDate}
-                  onChange={(e) => setReportFromDate(e.target.value)}
-                />
-              </label>
-
-              <label>
-                <span>إلى تاريخ</span>
-                <input
-                  type="date"
-                  value={reportToDate}
-                  onChange={(e) => setReportToDate(e.target.value)}
-                />
-              </label>
-
-              <label>
-                <span>المشروع</span>
-                <select
-                  value={reportProjectId}
-                  onChange={(e) => setReportProjectId(e.target.value)}
-                >
-                  {projects.map((project) => (
-                    <option key={project.id} value={project.id}>
-                      {project.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-
-            <div className="report-fines-grid">
-              <label>
-                <span>غرامة لم يتم الري</span>
-                <input
-                  type="number"
-                  min="0"
-                  value={notWateredFine}
-                  onChange={(e) => setNotWateredFine(Number(e.target.value))}
-                />
-              </label>
-
-              <label>
-                <span>غرامة عدم كفاية الري</span>
-                <input
-                  type="number"
-                  min="0"
-                  value={insufficientFine}
-                  onChange={(e) => setInsufficientFine(Number(e.target.value))}
-                />
-              </label>
-
-              <label>
-                <span>غرامة خروج الري للرصيف</span>
-                <input
-                  type="number"
-                  min="0"
-                  value={sidewalkFine}
-                  onChange={(e) => setSidewalkFine(Number(e.target.value))}
-                />
-              </label>
-            </div>
-
-            <div className="edit-modal-actions">
-              <button onClick={generatePeriodReport} disabled={reportLoading}>
-                {reportLoading ? "جارٍ إنشاء التقرير..." : "إنشاء التقرير"}
-              </button>
-              <button onClick={printReportOnly} disabled={!reportRows.length}>
-                📄 طباعة التقرير الطولي PDF
-              </button>
-            </div>
-
-            {reportError && <p className="report-error">{reportError}</p>}
-
-            {reportRows.length > 0 && (
-              <div id="report-print" className="period-report-print-area">
-                <div className="period-report-head">
-                  <h3>تقرير ري الحدائق</h3>
-                  <p>{reportTitle}</p>
-                </div>
-
-                <div className="report-table-wrap">
-                  <table className="period-report-table">
-                    <thead>
-                      <tr>
-                        <th>الحديقة</th>
-                        <th>تم الري</th>
-                        <th>لم يتم الري</th>
-                        <th>عدم كفاية ري</th>
-                        <th>خروج الري</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {reportRows.map((row) => (
-                        <tr key={row.gardenId}>
-                          <td>{row.gardenName}</td>
-                          <td>{row.watered}</td>
-                          <td>{row.notWatered}</td>
-                          <td>{row.insufficient}</td>
-                          <td>{row.sidewalk}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="fines-report-box">
-                  <h3>الغرامات</h3>
-                  <div className="report-table-wrap">
-                    <table className="period-report-table fines-table">
-                      <thead>
-                        <tr>
-                          <th>الحديقة</th>
-                          <th>نوع المخالفة</th>
-                          <th>عدد المرات</th>
-                          <th>التواريخ</th>
-                          <th>قيمة الغرامة</th>
-                          <th>الإجمالي</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {fineRows.length ? (
-                          fineRows.map((row, index) => (
-                            <tr
-                              key={`${row.gardenName}-${row.violationType}-${index}`}
-                            >
-                              <td>{row.gardenName}</td>
-                              <td>{row.violationType}</td>
-                              <td>{row.count}</td>
-                              <td className="violation-dates-cell">{joinReportDates(row.dates)}</td>
-                              <td>{formatMoney(row.fineAmount)} ريال</td>
-                              <td>{formatMoney(row.total)} ريال</td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan={6}>
-                              لا توجد مخالفات أو غرامات خلال الفترة المحددة
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  <div className="total-fines-card">
-                    <span>إجمالي الغرامات لكافة الحدائق</span>
-                    <strong>
-                      {formatMoney(
-                        fineRows.reduce((sum, row) => sum + row.total, 0),
-                      )}{" "}
-                      ريال
-                    </strong>
-                  </div>
-                </div>
-              </div>
-            )}
-          </section>
-        </div>
-      )}
-
-      {showContractorLinksModal && isManager && (
-        <div
-          className="edit-modal-backdrop"
-          onClick={() => setShowContractorLinksModal(false)}
-        >
-          <section
-            className="edit-modal contractor-links-modal"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="edit-modal-head">
-              <h2>إدارة روابط المقاولين</h2>
-              <button onClick={() => setShowContractorLinksModal(false)}>
-                ×
-              </button>
-            </div>
-
-            <p className="edit-modal-subtitle">
-              عدّل اسم المسؤول ورمز الدخول لكل مشروع، ثم انسخ الرابط للمقاول.
-            </p>
-
-            <div className="contractor-links-list">
-              {projects.map((project) => {
-                const draft = contractorDrafts[project.id] || {
-                  manager_name: project.manager_name || "",
-                  contractor_code: project.contractor_code || "",
-                };
-
-                return (
-                  <div className="contractor-link-card" key={project.id}>
-                    <div className="contractor-link-head">
-                      <div>
-                        <h3>{project.name}</h3>
-                        <p>{project.district || "بدون نطاق"}</p>
-                      </div>
-                      <span>{project.slug}</span>
-                    </div>
-
-                    <label>
-                      <span>اسم المسؤول الثابت</span>
-                      <input
-                        value={draft.manager_name}
-                        placeholder="مثال: مدير مشروع المخططات"
-                        onChange={(e) =>
-                          updateContractorDraft(project.id, {
-                            manager_name: e.target.value,
-                          })
-                        }
-                      />
-                    </label>
-
-                    <label>
-                      <span>رمز دخول المقاول</span>
-                      <input
-                        value={draft.contractor_code}
-                        placeholder="مثال: 1234"
-                        onChange={(e) =>
-                          updateContractorDraft(project.id, {
-                            contractor_code: e.target.value,
-                          })
-                        }
-                      />
-                    </label>
-
-                    <label>
-                      <span>رابط المشروع</span>
-                      <input value={getContractorLink(project)} readOnly />
-                    </label>
-
-                    <div className="contractor-link-actions">
-                      <button
-                        onClick={() => saveContractorProject(project)}
-                        disabled={savingContractorProjectId === project.id}
-                      >
-                        {savingContractorProjectId === project.id
-                          ? "جارٍ الحفظ..."
-                          : "حفظ البيانات"}
-                      </button>
-                      <button onClick={() => copyContractorLink(project)}>
-                        نسخ الرابط
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        </div>
-      )}
-      {showWateringScheduleModal && isManager && (
-  <div
-    className="edit-modal-backdrop"
-    onClick={() => {
-  setShowWateringScheduleModal(false);
-  setSelectedScheduleGarden(null);
-}}
-  >
-    <section
-      className="edit-modal contractor-links-modal"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div className="edit-modal-header">
-        <h2>📅 إدارة جدول الري</h2>
-        <button
-          onClick={() => {
-  setShowWateringScheduleModal(false);
-  setSelectedScheduleGarden(null);
-}}
-        >
-          ×
-        </button>
-      </div>
-
-      <p className="edit-modal-subtitle">
-        إدارة أيام الري لكل مشروع وحديقة.
-      </p>
-
-      <div className="contractor-links-list">
-  {projects.map((project) => {
-    const isOpen = openScheduleProjectId === project.id;
-    const projectGardens = gardens.filter(
-      (garden) => garden.project_id === project.id,
-    );
-
-    return (
-      <div key={project.id} className="contractor-link-card">
-        <div
-          onClick={() =>
-            setOpenScheduleProjectId(isOpen ? null : project.id)
-          }
-          style={{
-            cursor: "pointer",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: "12px",
-          }}
-        >
-          <div>
-            <h3>{project.name}</h3>
-            <p>{project.district || "بدون نطاق"}</p>
-          </div>
-
-          <strong>{isOpen ? "إخفاء" : "عرض الجدول"}</strong>
-        </div>
-
-        {isOpen && (
-          <div style={{ display: "grid", gap: "12px", marginTop: "16px" }}>
-            {projectGardens
-  .filter((garden) =>
-    selectedScheduleGarden ? garden.id === selectedScheduleGarden.id : true
-  )
-  .map((garden) => {
-              const schedule = getGardenSchedule(garden.id);
-
-              const days = [
-                ["saturday", "السبت"],
-                ["sunday", "الأحد"],
-                ["monday", "الاثنين"],
-                ["tuesday", "الثلاثاء"],
-                ["wednesday", "الأربعاء"],
-                ["thursday", "الخميس"],
-                ["friday", "الجمعة"],
-              ] as const;
-
-              return (
-                <div
-                  key={garden.id}
-                  style={{
-                    border: "1px solid #e5d7b5",
-                    borderRadius: "16px",
-                    padding: "14px",
-                    background: "#fff",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      gap: "12px",
-                      alignItems: "center",
-                      marginBottom: "12px",
-                    }}
-                  >
-                    <strong>{garden.name}</strong>
-
-                    <button
-                      style={{
-                        background: "#dc2626",
-                        color: "#fff",
-                        border: 0,
-                        borderRadius: "999px",
-                        padding: "8px 12px",
-                        cursor: "pointer",
-                        fontWeight: 800,
-                      }}
-                      onClick={async () => {
-                        const ok = confirm(
-                          "حذف جدول الري لهذه الحديقة؟ لن يتم حذف الحديقة نفسها.",
-                        );
-
-                        if (!ok) return;
-
-                        const { error } = await supabase
-                          .from("watering_schedules")
-                          .delete()
-                          .eq("garden_id", garden.id);
-
-                        if (error) {
-                          alert("تعذر حذف جدول الري: " + error.message);
-                          return;
-                        }
-
-                        setWateringSchedules((items) =>
-                          items.filter((item) => item.garden_id !== garden.id),
-                        );
-
-                        alert("تم حذف جدول الري");
-                      }}
-                    >
-                      حذف الجدول
-                    </button>
-                  </div>
-
-                  <label
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                      background: "#ecfdf5",
-                      border: "1px solid #d8f3e7",
-                      borderRadius: "12px",
-                      padding: "10px",
-                      fontWeight: 900,
-                      marginBottom: "12px",
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={Boolean(schedule?.daily_watering)}
-                      onChange={(e) =>
-                        saveGardenSchedule(project.id, garden.id, {
-                          daily_watering: e.target.checked,
-                          saturday: e.target.checked,
-                          sunday: e.target.checked,
-                          monday: e.target.checked,
-                          tuesday: e.target.checked,
-                          wednesday: e.target.checked,
-                          thursday: e.target.checked,
-                          friday: false,
-                        })
-                      }
-                    />
-                    ري يومي
-                  </label>
-
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns:
-                        "repeat(auto-fit, minmax(95px, 1fr))",
-                      gap: "8px",
-                      marginTop: "12px",
-                    }}
-                  >
-                    {days.map(([key, label]) => (
-                      <label
-                        key={key}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px",
-                          background: "#f8fffb",
-                          border: "1px solid #d8f3e7",
-                          borderRadius: "12px",
-                          padding: "8px",
-                          fontWeight: 800,
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={Boolean(schedule?.[key])}
-                          disabled={Boolean(schedule?.daily_watering)}
-                          onChange={(e) =>
-                            saveGardenSchedule(project.id, garden.id, {
-                              [key]: e.target.checked,
-                              daily_watering: false,
-                            })
-                          }
-                        />
-                        {label}
-                      </label>
-                    ))}
-                  </div>
-
-                  <label
-                    style={{
-                      display: "block",
-                      marginTop: "12px",
-                      fontWeight: 900,
-                    }}
-                  >
-                    <span>عدد الزونات المطلوب ريها في اليوم</span>
-                    <input
-                      type="number"
-                      min={1}
-                      value={schedule?.required_zones || 1}
-                      onChange={(e) =>
-                        saveGardenSchedule(project.id, garden.id, {
-                          required_zones: Number(e.target.value) || 1,
-                        })
-                      }
-                      style={{
-                        width: "100%",
-                        marginTop: "8px",
-                        padding: "12px",
-                        borderRadius: "12px",
-                        border: "1px solid #d8f3e7",
-                        fontWeight: 900,
-                      }}
-                    />
-                  </label>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    );
-  })}
-</div>
-    </section>
-  </div>
-)}
-      {showGardensModal && isManager && (
-  <div
-    className="edit-modal-backdrop"
-    onClick={() => setShowGardensModal(false)}
-  >
-    <section
-      className="edit-modal contractor-links-modal"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div className="edit-modal-header">
-        <h2>🌿 إدارة الحدائق والمواقع</h2>
-        <button onClick={() => setShowGardensModal(false)}>×</button>
-      </div>
-
-      <p className="edit-modal-subtitle">
-        إضافة وتعديل وتعطيل الحدائق والشوارع التابعة لكل مشروع.
-      </p>
-
-      <div className="contractor-links-list">
-  <label>
-    <span>اختر المشروع</span>
-    <select
-      value={selectedGardenProjectId}
-      onChange={(e) => {
-        setSelectedGardenProjectId(e.target.value);
-        setNewGardenProjectId(e.target.value);
-      }}
-    >
-      <option value="">اختر المشروع</option>
-      {projects.map((project) => (
-        <option key={project.id} value={project.id}>
-          {project.name}
-        </option>
-      ))}
-    </select>
-  </label>
-
-  {selectedGardenProjectId && (
-    <div className="contractor-link-card">
-      <h3>إضافة حديقة / شارع</h3>
-
-      <input
-        value={newGardenName}
-        onChange={(e) => setNewGardenName(e.target.value)}
-        placeholder="اكتب اسم الحديقة أو الشارع"
-      />
-
-      <button
-        onClick={async () => {
-          if (!newGardenName.trim()) {
-            alert("اكتب اسم الحديقة أو الشارع");
-            return;
-          }
-
-          const { data, error } = await supabase
-            .from("gardens")
-            .insert({
-              project_id: selectedGardenProjectId,
-              name: newGardenName.trim(),
-              active: true,
-            })
-            .select()
-            .single();
-
-          if (error) {
-            alert("تعذر إضافة الحديقة: " + error.message);
-            return;
-          }
-
-          setGardens((current) => [...current, data]);
-          setNewGardenName("");
-          alert("تمت إضافة الحديقة / الشارع");
-        }}
-      >
-        + إضافة
-      </button>
-    </div>
-  )}
-
-  {selectedGardenProjectId && (
-    <div className="contractor-link-card">
-      <h3>الحدائق والمواقع</h3>
-
-      {gardens
-        .filter((garden) => garden.project_id === selectedGardenProjectId)
-        .map((garden) => (
-          <div
-            key={garden.id}
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr auto auto",
-              gap: "10px",
-              alignItems: "center",
-              padding: "10px 0",
-              borderBottom: "1px solid #eee",
-            }}
-          >
-            {editingGardenId === garden.id ? (
-              <input
-                value={editingGardenName}
-                onChange={(e) => setEditingGardenName(e.target.value)}
-              />
-            ) : (
-              <strong>{garden.name}</strong>
-            )}
-
-            {editingGardenId === garden.id ? (
-              <button
-                onClick={async () => {
-                  if (!editingGardenName.trim()) {
-                    alert("اكتب اسم الموقع");
-                    return;
-                  }
-
-                  const { error } = await supabase
-                    .from("gardens")
-                    .update({ name: editingGardenName.trim() })
-                    .eq("id", garden.id);
-
-                  if (error) {
-                    alert("تعذر تعديل الاسم: " + error.message);
-                    return;
-                  }
-
-                  setGardens((current) =>
-                    current.map((item) =>
-                      item.id === garden.id
-                        ? { ...item, name: editingGardenName.trim() }
-                        : item,
-                    ),
-                  );
-
-                  setEditingGardenId(null);
-                  setEditingGardenName("");
-                  alert("تم تعديل الاسم");
-                }}
-              >
-                حفظ
-              </button>
-            ) : (
-              <button
-                onClick={() => {
-                  setEditingGardenId(garden.id);
-                  setEditingGardenName(garden.name);
-                }}
-              >
-                تعديل
-              </button>
-            )}
-            <button
-  type="button"
-  onClick={() => {
-    setSelectedScheduleGarden(garden);
-    setShowGardensModal(false);
-    setShowWateringScheduleModal(true);
-  }}
->
-  📅 جدول الري
-</button>
-            <button
-              style={{ background: "#dc2626", color: "#fff" }}
-              onClick={async () => {
-                const ok = confirm(
-                  "هل تريد حذف هذا الموقع؟ سيتم حذف جدول الري المرتبط به أيضاً.",
-                );
-                if (!ok) return;
-
-                await supabase
-                  .from("watering_schedules")
-                  .delete()
-                  .eq("garden_id", garden.id);
-
-                const { error } = await supabase
-                  .from("gardens")
-                  .delete()
-                  .eq("id", garden.id);
-
-                if (error) {
-                  alert("تعذر حذف الموقع: " + error.message);
-                  return;
-                }
-
-                setGardens((current) =>
-                  current.filter((item) => item.id !== garden.id),
-                );
-                setWateringSchedules((current) =>
-                  current.filter((item) => item.garden_id !== garden.id),
-                );
-
-                alert("تم حذف الموقع");
-              }}
-            >
-              حذف
-            </button>
-            
-          </div>
-        ))}
-    </div>
-  )}
-</div>
-    </section>
-  </div>
-)}
-      {showSignatureModal && isManager && (
-  <div
-    className="edit-modal-backdrop"
-    onClick={() => setShowSignatureModal(false)}
-  >
-    <section
-      className="edit-modal"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div className="edit-modal-header">
-        <h2>✍ إدارة بيانات التوقيع</h2>
-        <button onClick={() => setShowSignatureModal(false)}>
-          ×
-        </button>
-      </div>
-
-      <p className="edit-modal-subtitle">
-        إدارة أسماء المسؤولين المستخدمة في التقارير.
-      </p>
-
-      <div className="contractor-links-list">
-  {projects.map((project) => (
-    <div key={project.id} className="contractor-link-card">
-      <h3>{project.name}</h3>
-
-      <label>
-        <span>مدير المشروع (المقاول)</span>
-        <input
-          value={project.contractor_project_manager || ""}
-          onChange={(e) =>
-            setProjects((current) =>
-              current.map((item) =>
-                item.id === project.id
-                  ? { ...item, contractor_project_manager: e.target.value }
-                  : item,
-              ),
-            )
-          }
-        />
-      </label>
-
-      <label>
-        <span>مشرف المشروع (الاستشاري)</span>
-        <input
-          value={project.consultant_supervisor || ""}
-          onChange={(e) =>
-            setProjects((current) =>
-              current.map((item) =>
-                item.id === project.id
-                  ? { ...item, consultant_supervisor: e.target.value }
-                  : item,
-              ),
-            )
-          }
-        />
-      </label>
-
-      <label>
-        <span>مدير المشروع (الأمانة)</span>
-        <input
-          value={project.municipality_project_manager || ""}
-          onChange={(e) =>
-            setProjects((current) =>
-              current.map((item) =>
-                item.id === project.id
-                  ? { ...item, municipality_project_manager: e.target.value }
-                  : item,
-              ),
-            )
-          }
-        />
-      </label>
-
-      <button
-        onClick={async () => {
-          const { error } = await supabase
-            .from("projects")
-            .update({
-              contractor_project_manager:
-                project.contractor_project_manager || null,
-              consultant_supervisor:
-                project.consultant_supervisor || null,
-              municipality_project_manager:
-                project.municipality_project_manager || null,
-            })
-            .eq("id", project.id);
-
-          if (error) {
-            alert("تعذر حفظ بيانات التوقيع: " + error.message);
-            return;
-          }
-
-          alert("تم حفظ بيانات التوقيع");
-        }}
-      >
-        حفظ بيانات التوقيع
-      </button>
-    </div>
-  ))}
-</div>
-    </section>
-  </div>
-)}
       {showPasswordModal && isManager && (
         <div
           className="edit-modal-backdrop"
