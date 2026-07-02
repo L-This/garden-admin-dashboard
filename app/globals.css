@@ -5496,3 +5496,98 @@ button[data-status="runoff"],
 @media (max-width:900px){
   .project-rate-circle{left:28px !important;top:175px !important;transform:none !important;}
 }
+/* =========================================
+   FINAL PROJECT CARDS
+========================================= */
+
+/* الهيدر */
+.admin-hero{
+  min-height:220px !important;
+  padding:30px 40px !important;
+}
+
+.hero-controls{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  gap:12px !important;
+  align-items:center !important;
+}
+
+/* المؤشرات العامة */
+.summary-card{
+  background:#fdfcf8 !important;
+  border:1px solid rgba(212,175,55,.25) !important;
+  border-radius:24px !important;
+  box-shadow:0 10px 25px rgba(0,0,0,.06) !important;
+}
+
+.summary-card::before,
+.summary-card::after{
+  display:none !important;
+}
+
+/* بطاقات المشاريع */
+
+.admin-project-card{
+  overflow:hidden !important;
+}
+
+.project-daily-meter{
+  display:none !important;
+}
+
+/* صندوق المؤشرات */
+.project-stats{
+  background:rgba(255,250,243,.96) !important;
+  backdrop-filter:blur(10px);
+  border-radius:28px !important;
+  border:2px solid rgba(212,175,55,.45) !important;
+  box-shadow:0 18px 45px rgba(0,0,0,.18) !important;
+}
+
+/* اسم المشروع */
+.project-header{
+  position:absolute !important;
+  right:80px !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+
+  background:rgba(0,40,25,.78) !important;
+  backdrop-filter:blur(12px);
+
+  padding:28px 40px !important;
+  border-radius:24px !important;
+
+  min-width:340px;
+  text-align:right;
+}
+
+.project-header h2{
+  color:#fff !important;
+  font-size:42px !important;
+  margin:0 0 10px !important;
+}
+
+.project-header p{
+  color:#f0d28b !important;
+  font-size:22px !important;
+}
+
+/* دائرة العدد */
+.project-number-badge{
+  left:40px !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+
+  width:120px !important;
+  height:120px !important;
+
+  border:5px solid #fff !important;
+  box-shadow:0 10px 30px rgba(0,0,0,.25) !important;
+}
+
+/* الشريط الأخضر */
+.meter-track,
+.meter-fill{
+  display:none !important;
+}
