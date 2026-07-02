@@ -2391,39 +2391,76 @@ const duplicatePhoto =
                   </div>
                 </div>
 
+                <div className="project-stats project-stats-main">
+                  <button
+                    className="stat-button watered-stat"
+                    onClick={() => {
+                      setOpenProjectId(project.id);
+                      setOpenSection(
+                        openProjectId === project.id && openSection === "watered"
+                          ? null
+                          : "watered",
+                      );
+                    }}
+                  >
+                    <em>♢</em>
+                    <span>تم ريها</span>
+                    <strong>{wateredGardens.length}</strong>
+                  </button>
+                  <button
+                    className="stat-button not-watered-stat"
+                    onClick={() => {
+                      setOpenProjectId(project.id);
+                      setOpenSection(
+                        openProjectId === project.id && openSection === "not_watered"
+                          ? null
+                          : "not_watered",
+                      );
+                    }}
+                  >
+                    <em>⌘</em>
+                    <span>لم يتم ريها</span>
+                    <strong>{notWateredGardens.length}</strong>
+                  </button>
+                  <button
+                    className="stat-button insufficient-stat"
+                    onClick={() => {
+                      setOpenProjectId(project.id);
+                      setOpenSection(
+                        openProjectId === project.id && openSection === "insufficient"
+                          ? null
+                          : "insufficient",
+                      );
+                    }}
+                  >
+                    <em>−</em>
+                    <span>عدم كفاية ري</span>
+                    <strong>{insufficientGardens.length}</strong>
+                  </button>
+                  <button
+                    className="stat-button sidewalk-stat"
+                    onClick={() => {
+                      setOpenProjectId(project.id);
+                      setOpenSection(
+                        openProjectId === project.id && openSection === "sidewalk"
+                          ? null
+                          : "sidewalk",
+                      );
+                    }}
+                  >
+                    <em>↪</em>
+                    <span>خروج الري للرصيف</span>
+                    <strong>{sidewalkGardens.length}</strong>
+                  </button>
+                  <div className="stat-button total-stat">
+                    <em>♧</em>
+                    <span>إجمالي الحدائق</span>
+                    <strong>{projectGardens.length}</strong>
+                  </div>
+                </div>
+
                 {isOpen && (
                   <>
-                    <div className="project-stats">
-                      <button
-                        className="stat-button"
-                        onClick={() => toggleSection("watered")}
-                      >
-                        <span>تم ريها</span>
-                        <strong>{wateredGardens.length}</strong>
-                      </button>
-                      <button
-                        className="stat-button"
-                        onClick={() => toggleSection("not_watered")}
-                      >
-                        <span>لم يتم ريها</span>
-                        <strong>{notWateredGardens.length}</strong>
-                      </button>
-                      <button
-                        className="stat-button"
-                        onClick={() => toggleSection("insufficient")}
-                      >
-                        <span>عدم كفاية ري</span>
-                        <strong>{insufficientGardens.length}</strong>
-                      </button>
-                      <button
-                        className="stat-button"
-                        onClick={() => toggleSection("sidewalk")}
-                      >
-                        <span>خروج الري للرصيف</span>
-                        <strong>{sidewalkGardens.length}</strong>
-                      </button>
-                    </div>
-
                     {openSection === "watered" && (
                       <section className="details-section">
                         <h3>تفاصيل الحدائق التي تم ريها</h3>
