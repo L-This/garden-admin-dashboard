@@ -2765,3 +2765,206 @@ body {
     grid-column: span 2 !important;
   }
 }
+
+/* =========================================================
+   FINAL VISUAL FIX V4 — project cards as clean app cards
+   This override fixes the project view clipping/overflow.
+========================================================= */
+
+.projects-admin-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+  gap: 20px !important;
+  align-items: stretch !important;
+}
+
+.admin-project-card.project-card {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+  padding: 18px !important;
+  overflow: visible !important;
+  border-radius: 28px !important;
+  background:
+    radial-gradient(circle at 14% 10%, rgba(216, 180, 92, .13), transparent 24%),
+    radial-gradient(circle at 88% 85%, rgba(11, 143, 99, .10), transparent 28%),
+    linear-gradient(180deg, rgba(255,255,255,.97), rgba(255,250,240,.90)) !important;
+  border: 1px solid rgba(216, 180, 92, .26) !important;
+  box-shadow: 0 18px 45px rgba(6,43,36,.08), inset 0 1px 0 rgba(255,255,255,.86) !important;
+}
+
+.admin-project-card.project-card::before,
+.admin-project-card.project-card::after {
+  pointer-events: none !important;
+}
+
+.admin-project-card.project-card::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: auto 18px 18px auto !important;
+  width: 82px !important;
+  height: 82px !important;
+  border-radius: 999px !important;
+  background: radial-gradient(circle, rgba(11,143,99,.08), transparent 70%) !important;
+}
+
+.admin-project-card.project-card::after {
+  content: "" !important;
+  position: absolute !important;
+  right: 0 !important;
+  left: 0 !important;
+  bottom: 0 !important;
+  height: 78px !important;
+  background: linear-gradient(180deg, transparent, rgba(11,143,99,.07)) !important;
+}
+
+.admin-project-card.project-card > * {
+  position: relative !important;
+  z-index: 1 !important;
+  min-width: 0 !important;
+}
+
+.admin-project-card.project-card .project-header {
+  display: block !important;
+  min-height: 0 !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.admin-project-card.project-card .project-header-text {
+  width: 100% !important;
+  min-height: 118px !important;
+  margin: 0 !important;
+  padding: 22px 22px 22px 112px !important;
+  border-radius: 24px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(216,180,92,.16), transparent 28%),
+    linear-gradient(135deg, #063b33, #0b7352) !important;
+  border: 1px solid rgba(216,180,92,.35) !important;
+  box-shadow: 0 16px 36px rgba(6,43,36,.15) !important;
+}
+
+.admin-project-card.project-card .project-title,
+.admin-project-card.project-card .project-header h2 {
+  font-size: clamp(25px, 2vw, 34px) !important;
+  line-height: 1.18 !important;
+  color: #fff7d6 !important;
+  word-break: normal !important;
+  overflow-wrap: anywhere !important;
+}
+
+.admin-project-card.project-card .project-district,
+.admin-project-card.project-card .project-header p {
+  font-size: 13px !important;
+  color: #fff1bd !important;
+}
+
+.admin-project-card.project-card .project-rate-circle {
+  position: absolute !important;
+  top: 30px !important;
+  left: 30px !important;
+  width: 82px !important;
+  height: 82px !important;
+  transform: none !important;
+  border-width: 5px !important;
+  z-index: 3 !important;
+  box-shadow: 0 14px 30px rgba(6,43,36,.22), 0 0 0 6px rgba(20,184,122,.15) !important;
+}
+
+.admin-project-card.project-card .project-rate-circle strong {
+  font-size: 22px !important;
+}
+
+.admin-project-card.project-card .project-rate-circle span {
+  font-size: 9px !important;
+}
+
+.admin-project-card.project-card .project-stats.project-stats-main {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.admin-project-card.project-card .stat-button {
+  min-width: 0 !important;
+  min-height: 82px !important;
+  padding: 12px !important;
+  display: grid !important;
+  grid-template-columns: 38px 1fr !important;
+  grid-template-rows: auto auto !important;
+  column-gap: 10px !important;
+  align-items: center !important;
+  text-align: right !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(216,180,92,.18) !important;
+  background: rgba(255,255,255,.72) !important;
+  box-shadow: 0 10px 22px rgba(6,43,36,.05), inset 0 1px 0 rgba(255,255,255,.75) !important;
+}
+
+.admin-project-card.project-card .stat-button:hover {
+  transform: translateY(-2px) !important;
+  background: rgba(255,250,240,.92) !important;
+}
+
+.admin-project-card.project-card .stat-button em {
+  grid-row: 1 / span 2 !important;
+  width: 38px !important;
+  height: 38px !important;
+  margin: 0 !important;
+  font-size: 14px !important;
+}
+
+.admin-project-card.project-card .stat-button span {
+  font-size: 12px !important;
+  line-height: 1.25 !important;
+  margin: 0 !important;
+}
+
+.admin-project-card.project-card .stat-button strong {
+  font-size: 28px !important;
+  line-height: 1 !important;
+  margin: 2px 0 0 !important;
+}
+
+.admin-project-card.project-card .total-stat {
+  grid-column: 1 / -1 !important;
+}
+
+.admin-project-card.project-card .details-section {
+  margin-top: 2px !important;
+  border-radius: 20px !important;
+  background: rgba(255,255,255,.88) !important;
+}
+
+@media (min-width: 1450px) {
+  .projects-admin-grid {
+    grid-template-columns: repeat(3, minmax(300px, 1fr)) !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  .projects-admin-grid {
+    grid-template-columns: repeat(2, minmax(280px, 1fr)) !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .projects-admin-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
