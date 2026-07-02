@@ -2325,10 +2325,10 @@ const duplicatePhoto =
                   className="project-header"
                   onClick={() => openProject(project.id)}
                 >
-                  <div>
-                    <h2>{project.name}</h2>
-                    <p>{project.district || "بدون نطاق"}</p>
-                  </div>
+                   <div className="project-header-text">
+                   <h2 className="project-title">{project.name}</h2>
+                   <p className="project-district">{project.district || "بدون نطاق"}</p>
+                   </div>
                 </div>
 
                 <div
