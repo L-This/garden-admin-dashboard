@@ -329,25 +329,24 @@ export default function AdminHome() {
   const isManager = user?.role === "مدير";
 
   function getProjectBackground(projectName: string) {
-    const normalized = projectName.replace(/[أإآ]/g, "ا").trim();
+  if (projectName.includes("بريمان") || projectName.includes("طيبة")) {
+    return "/backgrounds/buraiman-bg.png";
+  }
 
-    if (normalized.includes("بريمان") || normalized.includes("طيبة")) {
-      return "/backgrounds/buraiman-bg.png";
-    }
+  if (projectName.includes("الغابة")) {
+    return "/backgrounds/eastern-forest-bg.png";
+  }
 
-    if (normalized.includes("الغابة الشرقية")) {
-      return "/backgrounds/eastern-forest-bg.png";
-    }
+  if (projectName.includes("المخططات")) {
+    return "/backgrounds/private-plans-bg.png";
+  }
 
-    if (normalized.includes("المخططات الخاصة")) {
-      return "/backgrounds/private-plans-bg.png";
-    }
+  if (projectName.includes("السلم") || projectName.includes("الرغامة")) {
+    return "/backgrounds/umm-al-salam-bg.png";
+  }
 
-    if (normalized.includes("ام السلم") || normalized.includes("ابرق الرغامة")) {
-      return "/backgrounds/umm-al-salam-bg.png";
-    }
-
-    return "/backgrounds/project-bg.png";
+  return "/backgrounds/project-bg.png";
+}
   }
 
 
