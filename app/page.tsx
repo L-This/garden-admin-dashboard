@@ -328,6 +328,29 @@ export default function AdminHome() {
 
   const isManager = user?.role === "مدير";
 
+  function getProjectBackground(projectName: string) {
+    const normalized = projectName.replace(/[أإآ]/g, "ا").trim();
+
+    if (normalized.includes("بريمان") || normalized.includes("طيبة")) {
+      return "/backgrounds/buraiman-bg.png";
+    }
+
+    if (normalized.includes("الغابة الشرقية")) {
+      return "/backgrounds/eastern-forest-bg.png";
+    }
+
+    if (normalized.includes("المخططات الخاصة")) {
+      return "/backgrounds/private-plans-bg.png";
+    }
+
+    if (normalized.includes("ام السلم") || normalized.includes("ابرق الرغامة")) {
+      return "/backgrounds/umm-al-salam-bg.png";
+    }
+
+    return "/backgrounds/project-bg.png";
+  }
+
+
   useEffect(() => {
     const saved = localStorage.getItem("adminUser");
     if (saved) setUser(JSON.parse(saved));
@@ -2353,157 +2376,173 @@ const duplicatePhoto =
               <article
                 key={project.id}
                 className="admin-project-card project-click-card"
+                style={{
+                  borderRadius: 30,
+                  overflow: "hidden",
+                  border: "1px solid rgba(218,190,117,.55)",
+                  boxShadow: "0 24px 55px rgba(6,43,36,.14)",
+                  background: "#fffaf0",
+                }}
               >
                 <div
                   className="project-header project-header-luxury"
                   onClick={() => openProject(project.id)}
                   style={{
                     position: "relative",
-                    minHeight: 260,
-                    padding: "34px 42px 28px",
+                    minHeight: 300,
+                    padding: "36px 48px",
                     borderRadius: 30,
                     overflow: "hidden",
                     display: "grid",
-                    gridTemplateColumns: "120px 1fr",
-                    gap: 26,
+                    gridTemplateColumns: "1fr minmax(320px, 430px)",
+                    gap: 28,
                     alignItems: "center",
+                    backgroundImage: `linear-gradient(90deg, rgba(4,44,34,.10) 0%, rgba(4,44,34,.05) 43%, rgba(2,54,43,.92) 68%, rgba(1,41,33,.97) 100%), url(${getProjectBackground(project.name)})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    cursor: "pointer",
                   }}
                 >
                   <div
-                    className="project-number-badge luxury-project-badge"
+                    aria-hidden="true"
                     style={{
-                      width: 96,
-                      height: 96,
-                      borderRadius: "50%",
-                      background: "linear-gradient(180deg, #0f7a59, #07543f)",
-                      color: "#ffe9a8",
-                      border: "6px solid rgba(255,255,255,.94)",
-                      boxShadow: "0 18px 38px rgba(5,52,38,.26)",
-                      display: "grid",
-                      placeItems: "center",
-                      fontSize: 36,
-                      fontWeight: 950,
+                      position: "absolute",
+                      inset: 0,
+                      background:
+                        "linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,0) 34%, rgba(0,0,0,.08))",
+                      pointerEvents: "none",
                     }}
-                  >
-                    {wateredGardens.length}
-                  </div>
+                  />
 
                   <div
                     className="project-luxury-content"
                     style={{
-                      display: "grid",
-                      gap: 22,
-                      justifyItems: "center",
-                      width: "100%",
+                      position: "relative",
+                      zIndex: 1,
+                      alignSelf: "end",
+                      width: "min(930px, 100%)",
+                      marginInlineStart: "auto",
                     }}
                   >
-                    <div style={{ textAlign: "center" }}>
-                      <h2
-                        style={{
-                          margin: 0,
-                          fontSize: 34,
-                          lineHeight: 1.25,
-                          color: "#073b31",
-                          fontWeight: 950,
-                          textShadow: "0 2px 0 rgba(255,255,255,.35)",
-                        }}
-                      >
-                        {project.name}
-                      </h2>
-                      <p
-                        style={{
-                          margin: "8px 0 0",
-                          fontSize: 15,
-                          color: "#64766f",
-                          fontWeight: 800,
-                        }}
-                      >
-                        {project.district || "بدون نطاق"}
-                      </p>
-                    </div>
-
                     <div
                       className="project-inside-indicators"
                       style={{
-                        width: "min(920px, 100%)",
-                        padding: "18px 22px",
+                        padding: "18px 22px 16px",
                         borderRadius: 22,
-                        background: "rgba(255,255,255,.82)",
-                        border: "1px solid rgba(218,190,117,.55)",
-                        boxShadow: "0 16px 34px rgba(6,43,36,.13)",
-                        backdropFilter: "blur(8px)",
+                        background:
+                          "linear-gradient(180deg, rgba(255,252,243,.94), rgba(250,244,229,.90))",
+                        border: "1px solid rgba(132,96,42,.35)",
+                        boxShadow:
+                          "0 18px 38px rgba(6,43,36,.18), inset 0 0 0 1px rgba(255,255,255,.75)",
+                        backdropFilter: "blur(7px)",
                       }}
                     >
                       <div
                         style={{
                           display: "grid",
                           gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
-                          gap: 10,
-                          marginBottom: 14,
+                          gap: 0,
+                          alignItems: "stretch",
                         }}
                       >
                         {[
-                          { label: "المطلوب", value: scheduledGardens.length, color: "#123b31" },
-                          { label: "تم الري", value: wateredGardens.length, color: "#0f8a63" },
-                          { label: "لم يتم", value: notWateredGardens.length, color: "#b91c1c" },
-                          { label: "عدم كفاية", value: insufficientGardens.length, color: "#b8871f" },
-                          { label: "خروج للرصيف", value: sidewalkGardens.length, color: "#2563eb" },
-                        ].map((item) => (
+                          { label: "تم ريها", value: wateredGardens.length, color: "#0f8a63", icon: "♢" },
+                          { label: "لم يتم ريها", value: notWateredGardens.length, color: "#b91c1c", icon: "⌘" },
+                          { label: "عدم كفاية ري", value: insufficientGardens.length, color: "#b8871f", icon: "−" },
+                          { label: "خروج الري للرصيف", value: sidewalkGardens.length, color: "#2563eb", icon: "↪" },
+                          { label: "إجمالي الحدائق", value: projectGardens.length, color: "#123b31", icon: "♧" },
+                        ].map((item, index) => (
                           <div
                             key={item.label}
                             style={{
-                              borderRadius: 16,
-                              padding: "10px 8px",
-                              background: "rgba(255,255,255,.72)",
-                              border: "1px solid rgba(233,218,176,.7)",
+                              padding: "2px 14px",
                               textAlign: "center",
+                              borderInlineStart:
+                                index === 0 ? "0" : "1px solid rgba(132,96,42,.28)",
                             }}
                           >
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: 8,
+                                minHeight: 34,
+                                color: "#123b31",
+                                fontSize: 15,
+                                fontWeight: 900,
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              <span>{item.label}</span>
+                              <em
+                                style={{
+                                  width: 28,
+                                  height: 28,
+                                  borderRadius: "50%",
+                                  display: "grid",
+                                  placeItems: "center",
+                                  background: "rgba(255,255,255,.72)",
+                                  border: "1px solid rgba(218,190,117,.48)",
+                                  color: item.color,
+                                  fontStyle: "normal",
+                                  fontSize: 17,
+                                  fontWeight: 950,
+                                }}
+                              >
+                                {item.icon}
+                              </em>
+                            </div>
                             <strong
                               style={{
                                 display: "block",
-                                fontSize: 24,
-                                color: item.color,
+                                marginTop: 8,
+                                fontSize: 34,
                                 lineHeight: 1,
+                                color: item.color,
                                 fontWeight: 950,
                               }}
                             >
                               {item.value}
                             </strong>
-                            <span
-                              style={{
-                                display: "block",
-                                marginTop: 6,
-                                color: "#52665e",
-                                fontSize: 13,
-                                fontWeight: 900,
-                              }}
-                            >
-                              {item.label}
-                            </span>
                           </div>
                         ))}
                       </div>
 
                       <div
-                        className="project-daily-meter"
-                        aria-label="مؤشر حالة الري اليومي"
-                        style={{ margin: 0, padding: 0, background: "transparent", boxShadow: "none" }}
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "90px 1fr",
+                          gap: 14,
+                          alignItems: "center",
+                          marginTop: 18,
+                        }}
                       >
-                        <div
+                        <strong
                           style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            marginBottom: 8,
-                            color: "#073b31",
+                            color:
+                              projectCompletionRate >= 85
+                                ? "#0f8a63"
+                                : projectCompletionRate >= 60
+                                  ? "#b8871f"
+                                  : "#b91c1c",
+                            fontSize: 24,
                             fontWeight: 950,
                           }}
                         >
-                          <span>نسبة الإنجاز</span>
-                          <strong>{projectCompletionRate}%</strong>
-                        </div>
-                        <div className="meter-track">
+                          {projectCompletionRate}%
+                        </strong>
+
+                        <div
+                          className="meter-track"
+                          style={{
+                            height: 16,
+                            borderRadius: 999,
+                            overflow: "hidden",
+                            background: "rgba(232,222,196,.78)",
+                            display: "flex",
+                          }}
+                        >
                           <span
                             className="meter-segment meter-watered"
                             style={{
@@ -2530,6 +2569,77 @@ const duplicatePhoto =
                           />
                         </div>
                       </div>
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      position: "relative",
+                      zIndex: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-start",
+                      justifyContent: "center",
+                      color: "#fff8df",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 10,
+                        marginBottom: 24,
+                        color: "#f2cf7a",
+                        fontWeight: 950,
+                        fontSize: 17,
+                      }}
+                    >
+                      <span style={{ width: 110, height: 1, background: "rgba(242,207,122,.6)" }} />
+                      <span>بطاقة المشروع</span>
+                    </div>
+
+                    <h2
+                      style={{
+                        margin: 0,
+                        fontSize: 34,
+                        lineHeight: 1.25,
+                        color: "#fff7df",
+                        fontWeight: 950,
+                        textShadow: "0 10px 28px rgba(0,0,0,.32)",
+                      }}
+                    >
+                      {project.name}
+                    </h2>
+
+                    <p
+                      style={{
+                        margin: "10px 0 0",
+                        fontSize: 17,
+                        color: "rgba(255,248,223,.88)",
+                        fontWeight: 900,
+                      }}
+                    >
+                      الحي: {project.district || "بدون نطاق"}
+                    </p>
+
+                    <div
+                      className="project-number-badge luxury-project-badge"
+                      style={{
+                        marginTop: 24,
+                        minWidth: 96,
+                        height: 96,
+                        borderRadius: "50%",
+                        background: "linear-gradient(180deg, #0f7a59, #07543f)",
+                        color: "#ffe9a8",
+                        border: "6px solid rgba(255,255,255,.94)",
+                        boxShadow: "0 18px 38px rgba(5,52,38,.35)",
+                        display: "grid",
+                        placeItems: "center",
+                        fontSize: 34,
+                        fontWeight: 950,
+                      }}
+                    >
+                      {wateredGardens.length}
                     </div>
                   </div>
                 </div>
