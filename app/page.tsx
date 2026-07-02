@@ -346,7 +346,7 @@ export default function AdminHome() {
   }
 
   return "/backgrounds/project-bg.png";
-  }
+}
 
 
   useEffect(() => {
