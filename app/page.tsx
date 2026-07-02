@@ -327,6 +327,7 @@ export default function AdminHome() {
   const [undoingAuditId, setUndoingAuditId] = useState<string | null>(null);
 
   const isManager = user?.role === "مدير";
+  const [activeView, setActiveView] = useState<"overview" | "projects" | "ai">("overview");
 
   useEffect(() => {
     const saved = localStorage.getItem("adminUser");
@@ -2036,10 +2037,23 @@ body {
         <h2>لوحة الإدارة</h2>
         <p>الصلاحية الحالية: {user.role}</p>
 
+        <div className="side-date-control">
+          <span>تحديد التاريخ</span>
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(event) => setSelectedDate(event.target.value)}
+          />
+        </div>
+
         <nav className="design1-sidebar-nav">
-          <button className="active">⌂ الرئيسية</button>
-          <button onClick={() => setShowGardensModal(true)}>☘ الحدائق والمواقع</button>
-          <button onClick={() => setShowReportModal(true)}>▣ التقارير</button>
+          <button className={activeView === "overview" ? "active" : ""} onClick={() => setActiveView("overview")}>⌂ المؤشرات العامة</button>
+          <button className={activeView === "projects" ? "active" : ""} onClick={() => setActiveView("projects")}>▦ المشاريع</button>
+          <button className={activeView === "ai" ? "active" : ""} onClick={() => setActiveView("ai")}>⚠ التحقق الذكي</button>
+          <button onClick={loadData}>↻ تحديث البيانات</button>
+          <button onClick={() => setShowReportModal(true)}>▣ إعداد تقرير</button>
+          {isManager && <button onClick={() => setShowGardensModal(true)}>☘ إدارة الحدائق والمواقع</button>}
+          {isManager && <button onClick={() => setShowWateringScheduleModal(true)}>▦ إدارة جدول الري</button>}
           {isManager && (
             <button
               onClick={() => {
@@ -2050,63 +2064,30 @@ body {
               ◲ المؤشرات التنفيذية
             </button>
           )}
-          {isManager && (
-            <button onClick={() => setShowWateringScheduleModal(true)}>▦ جدول الري</button>
-          )}
-          {isManager && (
-            <button onClick={() => setShowPasswordModal(true)}>⚿ كلمة المرور</button>
-          )}
+          {isManager && <button onClick={openAuditLogModal}>↩ سجل التعديلات</button>}
+          {isManager && <button onClick={() => setShowContractorLinksModal(true)}>🔗 روابط المقاولين</button>}
+          {isManager && <button onClick={() => setShowSignatureModal(true)}>✍ إدارة بيانات التوقيع</button>}
+          {isManager && <button onClick={() => setShowPasswordModal(true)}>⚿ إدارة كلمة المرور</button>}
           <button onClick={logout}>↩ تسجيل الخروج</button>
         </nav>
       </aside>
 
       <section className="design1-content">
-        <header className="design1-topbar">
+        <header className="design1-main-header">
           <div>
             <span className="design1-welcome">مرحبًا {user.username}</span>
-            <h1>لوحة إدارة ري الحدائق</h1>
+            <h1>{activeView === "overview" ? "المؤشرات العامة" : activeView === "projects" ? "المشاريع" : "تنبيهات التحقق الذكي"}</h1>
           </div>
-
-          <div className="hero-controls design1-actions">
-            <label>
-              <span>تحديد التاريخ</span>
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(event) => setSelectedDate(event.target.value)}
-              />
-            </label>
-
-            <button onClick={loadData}>↻ تحديث البيانات</button>
-            <button onClick={() => setShowReportModal(true)}>📊 إعداد تقرير</button>
-            {isManager && (
-              <button onClick={() => setShowGardensModal(true)}>🌿 إدارة الحدائق والمواقع</button>
-            )}
-            {isManager && (
-              <button onClick={() => setShowWateringScheduleModal(true)}>📅 إدارة جدول الري</button>
-            )}
-            {isManager && (
-              <button
-                onClick={() => {
-                  setShowExecutiveModal(true);
-                  if (!executiveRows.length) loadExecutiveDashboard();
-                }}
-              >
-                📈 لوحة المؤشرات التنفيذية
-              </button>
-            )}
-            {isManager && (
-              <button onClick={openAuditLogModal}>↩ سجل التعديلات</button>
-            )}
-            {isManager && (
-              <button onClick={() => setShowContractorLinksModal(true)}>🔗 روابط المقاولين</button>
-            )}
-            {isManager && (
-              <button onClick={() => setShowSignatureModal(true)}>✍ إدارة بيانات التوقيع</button>
-            )}
-          </div>
+          <p>
+            {activeView === "overview"
+              ? "نظرة يومية مختصرة على حالة الري والالتزام للمواقع."
+              : activeView === "projects"
+                ? "عرض المشاريع ونسب الإنجاز والتفاصيل التشغيلية."
+                : "مراجعة تنبيهات الصور والسجلات التي تحتاج تحقق."}
+          </p>
         </header>
 
+        {activeView === "overview" && (
         <section className="admin-overview design1-overview">
           <div>
             <em>◌</em>
@@ -2139,15 +2120,16 @@ body {
             <strong>{aiAlertReports.length}</strong>
           </div>
         </section>
+        )}
 
-      {isFridayDate(selectedDate) && (
+      {activeView === "overview" && isFridayDate(selectedDate) && (
         <section className="friday-off-notice">
           <strong>يوم الجمعة إجازة</strong>
           <span>لا يتم احتساب الحدائق كـ "لم يتم الري" في هذا اليوم.</span>
         </section>
       )}
 
-      {aiAlertReports.length > 0 && (
+      {activeView === "ai" && aiAlertReports.length > 0 && (
         <section className="ai-alerts-panel">
           <div className="ai-alerts-head">
             <div>
@@ -2250,7 +2232,11 @@ const duplicatePhoto =
         </section>
       )}
 
-      {loading ? (
+      {activeView === "ai" && aiAlertReports.length === 0 && (
+        <section className="empty-view-card">لا توجد تنبيهات تحقق ذكي لهذا التاريخ.</section>
+      )}
+
+      {activeView === "projects" && (loading ? (
         <div className="loading">جاري تحميل البيانات...</div>
       ) : (
         <section className="projects-admin-grid">
@@ -2609,7 +2595,7 @@ const duplicatePhoto =
             );
           })}
         </section>
-      )}
+      ))}
 
       {showAuditModal && isManager && (
         <div
