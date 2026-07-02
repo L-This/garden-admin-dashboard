@@ -425,7 +425,7 @@ textarea:focus {
 .project-header {
   min-height: 115px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: center;
   text-align: right;
   cursor: pointer;
@@ -433,7 +433,8 @@ textarea:focus {
 
 .project-header-text {
   width: min(520px, 42%);
-  margin-inline-start: auto;
+  margin-right: 0;
+  margin-left: auto;
   padding: 22px 28px;
   border-radius: 24px;
   background: rgba(3, 48, 38, .78);
