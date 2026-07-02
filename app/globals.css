@@ -6051,7 +6051,7 @@ button[data-status="runoff"],
   font-size: 17px !important;
   font-weight: 900 !important;
 }
-/* ===== CLEAN PROJECT CARD FIX ===== */
+/* ===== CLEAN PROJECT CARD FIX V2 ===== */
 
 .project-daily-meter,
 .project-mini-stats,
@@ -6069,45 +6069,59 @@ button[data-status="runoff"],
 
 .admin-project-card.project-card .project-header {
   position: absolute !important;
-  right: 60px !important;
+  right: 72px !important;
+  left: auto !important;
   top: 50% !important;
   transform: translateY(-50%) !important;
-  width: 430px !important;
-  z-index: 20 !important;
+  width: 410px !important;
+  z-index: 30 !important;
+  text-align: right !important;
 }
 
 .admin-project-card.project-card .project-header h2 {
   color: #fff7d6 !important;
-  font-size: 34px !important;
+  font-size: 32px !important;
+  line-height: 1.25 !important;
 }
 
 .admin-project-card.project-card .project-header p {
   color: #fff1bd !important;
+  font-size: 16px !important;
 }
 
 .project-rate-circle {
-  left: 42px !important;
+  left: 36px !important;
   right: auto !important;
-  z-index: 30 !important;
+  z-index: 40 !important;
 }
 
 .admin-project-card.project-card .project-stats {
   position: absolute !important;
-  right: 520px !important;
-  left: 180px !important;
-  top: 50% !important;
+  right: 540px !important;
+  left: 230px !important;
+  top: 52% !important;
   transform: translateY(-50%) !important;
   margin: 0 !important;
   z-index: 25 !important;
   display: grid !important;
   grid-template-columns: repeat(5, 1fr) !important;
   gap: 0 !important;
-  background: rgba(255, 250, 240, .88) !important;
-  border-radius: 22px !important;
+  background: rgba(255, 250, 240, .90) !important;
+  border-radius: 18px !important;
   overflow: hidden !important;
+  max-width: 950px !important;
 }
 
 .admin-project-card.project-card .stat-button {
-  min-height: 94px !important;
+  min-height: 82px !important;
+  padding: 12px 10px !important;
   border-radius: 0 !important;
+}
+
+.admin-project-card.project-card .stat-button span {
+  font-size: 14px !important;
+}
+
+.admin-project-card.project-card .stat-button strong {
+  font-size: 30px !important;
 }
