@@ -2302,7 +2302,7 @@ const duplicatePhoto =
   key={project.id}
   className="admin-project-card project-click-card project-card"
   style={{
-    "--project-bg": `url("${getProjectBackground(project.name)}")`,
+    "--project-bg": `url("${getProjectBackgroundImage(project.name)}")`,
   } as React.CSSProperties}
 >
                 <div
