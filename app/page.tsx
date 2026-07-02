@@ -857,7 +857,12 @@ const missingDates = requiredDatesForGarden.filter(
       );
 
       const reportByGardenDate = new Map<string, Report>();
-
+      projectReports.forEach((report) => {
+  const key = `${report.garden_id}-${report.report_date}`;
+  if (!reportByGardenDate.has(key)) {
+    reportByGardenDate.set(key, report as Report);
+  }
+});
 
 let watered = 0;
 let notWateredExplicit = 0;
