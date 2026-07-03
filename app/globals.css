@@ -2465,3 +2465,25 @@ button.blue {
     padding: 20px !important;
   }
 }
+/* تصحيح خلفية إدارة الحدائق والمواقع */
+.inline-admin-panel {
+  background: url("/backgrounds/projects-bg.png") center/cover no-repeat !important;
+}
+
+.inline-admin-panel::before,
+.inline-admin-panel::after {
+  display: none !important;
+}
+
+/* إزالة التعتيم الأخضر الزائد */
+.management-list,
+.inline-form-grid {
+  background: transparent !important;
+}
+
+/* تحسين ظهور العنوان داخل اللوحة */
+.inline-admin-panel .panel-headline h2,
+.inline-admin-panel .panel-headline span {
+  color: #073b31 !important;
+  opacity: 1 !important;
+}
