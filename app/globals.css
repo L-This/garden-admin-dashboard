@@ -1753,3 +1753,63 @@ button.blue {
   content: "📅";
   margin-left: 10px;
 }
+/* المرحلة 2 - شاشة المشاريع */
+.project-picker-panel {
+  padding: 26px 30px !important;
+  min-height: auto !important;
+}
+
+.project-picker-title {
+  margin-bottom: 20px !important;
+}
+
+.project-picker-title h2 {
+  font-size: 34px !important;
+}
+
+.project-tabs-row {
+  justify-content: center !important;
+  gap: 16px !important;
+  padding: 4px 0 8px !important;
+}
+
+.project-tab {
+  min-width: 245px !important;
+  min-height: 86px !important;
+  padding: 16px 20px !important;
+  text-align: center !important;
+  border-radius: 20px !important;
+}
+
+.project-tab strong {
+  font-size: 18px !important;
+  color: #6b4e13 !important;
+}
+
+.project-tab span {
+  font-size: 14px !important;
+  color: #58736b !important;
+}
+
+.project-empty-state {
+  min-height: 360px !important;
+  padding: 46px 30px !important;
+}
+
+.project-empty-state span,
+.project-empty-icon {
+  font-size: 54px !important;
+  margin-bottom: 18px !important;
+}
+
+.project-empty-state h2 {
+  font-size: 32px !important;
+  color: #42645c !important;
+}
+
+.project-empty-state p {
+  margin-top: 16px !important;
+  font-size: 21px !important;
+  color: #58736b !important;
+  line-height: 1.8 !important;
+}
