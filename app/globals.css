@@ -2677,3 +2677,95 @@ button.blue {
     grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   }
 }
+/* ==============================
+   روابط المقاولين - تحسين نهائي
+============================== */
+
+/* شبكة المشاريع */
+.contractor-links-grid,
+.links-grid,
+.contractors-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(420px, 1fr)) !important;
+  gap: 24px !important;
+  align-items: start !important;
+}
+
+/* البطاقة */
+.contractor-link-card,
+.links-card,
+.contractor-card {
+  min-height: 240px !important;
+  height: auto !important;
+  padding: 26px !important;
+  border-radius: 28px !important;
+}
+
+/* عنوان المشروع */
+.contractor-link-card h3,
+.links-card h3,
+.contractor-card h3 {
+  font-size: 2rem !important;
+  margin-bottom: 18px !important;
+}
+
+/* الحقول */
+.contractor-link-card input,
+.links-card input,
+.contractor-card input {
+  height: 56px !important;
+  font-size: 1.15rem !important;
+}
+
+/* منطقة الأزرار */
+.contractor-link-card .actions,
+.links-card .actions,
+.contractor-card .actions {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  margin-top: 18px !important;
+}
+
+/* زر الحفظ */
+.contractor-link-card .save-btn,
+.links-card .save-btn,
+.contractor-card .save-btn {
+  background: linear-gradient(
+    135deg,
+    #0f7b55,
+    #149a6a
+  ) !important;
+  color: #fff !important;
+  min-width: 95px !important;
+}
+
+/* زر نسخ الرابط */
+.contractor-link-card .copy-btn,
+.links-card .copy-btn,
+.contractor-card .copy-btn {
+  background: linear-gradient(
+    135deg,
+    #b8860b,
+    #d4a017
+  ) !important;
+  color: #fff !important;
+  min-width: 150px !important;
+}
+
+/* إزالة الفراغ السفلي الكبير */
+.inline-admin-panel:has(.contractor-links-grid),
+.inline-admin-panel:has(.links-grid),
+.inline-admin-panel:has(.contractors-grid) {
+  min-height: auto !important;
+  padding-bottom: 28px !important;
+}
+
+/* شاشات أصغر */
+@media (max-width: 1200px) {
+  .contractor-links-grid,
+  .links-grid,
+  .contractors-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
