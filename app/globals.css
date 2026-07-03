@@ -2761,3 +2761,232 @@ button.blue {
   border-radius: 22px !important;
   padding: 18px 22px !important;
 }
+
+
+/* =========================================================
+   الواجهة الرئيسية - المؤشرات العامة | Design V2
+   تحسين بصري فقط بدون تغيير المنطق أو البيانات
+   ========================================================= */
+
+.design1-sidebar {
+  background:
+    linear-gradient(180deg, rgba(3, 33, 26, .86), rgba(4, 58, 45, .82)),
+    url("/backgrounds/sidebar-bg.png") center/cover no-repeat !important;
+  border-color: rgba(216, 180, 92, .45) !important;
+}
+
+.design1-sidebar-logo {
+  width: 68px !important;
+  height: 68px !important;
+  border-radius: 22px !important;
+  background: rgba(255, 250, 240, .14) !important;
+  color: #f6e7b8 !important;
+}
+
+.design1-sidebar h2 {
+  color: #fff7d6 !important;
+  font-size: 26px !important;
+}
+
+.design1-sidebar p {
+  color: #f6e7b8 !important;
+}
+
+.side-date-control {
+  padding: 18px !important;
+  border-radius: 20px !important;
+  background: rgba(255, 250, 240, .96) !important;
+}
+
+.side-date-control span {
+  text-align: center !important;
+  color: #073b31 !important;
+  font-size: 16px !important;
+}
+
+.side-date-control input {
+  height: 48px !important;
+  text-align: center !important;
+}
+
+.design1-sidebar-nav {
+  gap: 10px !important;
+}
+
+.design1-sidebar-nav button {
+  min-height: 50px !important;
+  padding: 12px 16px !important;
+  border-radius: 16px !important;
+  text-align: right !important;
+  color: rgba(255, 247, 214, .96) !important;
+  background: rgba(255, 255, 255, .08) !important;
+  border: 1px solid rgba(216, 180, 92, .22) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+
+.design1-sidebar-nav button.active {
+  color: #07543f !important;
+  background: linear-gradient(180deg, rgba(255, 250, 240, .98), rgba(246, 231, 184, .82)) !important;
+  border-color: rgba(216, 180, 92, .58) !important;
+  box-shadow: 0 14px 26px rgba(0, 0, 0, .18) !important;
+}
+
+.design1-main-header {
+  min-height: 174px !important;
+  border-radius: 28px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,250,240,.06)),
+    url("/backgrounds/header-bg.png") center/cover no-repeat !important;
+}
+
+.design1-main-header h1 {
+  font-size: clamp(50px, 4.4vw, 76px) !important;
+  letter-spacing: -1px !important;
+}
+
+.design1-main-header p {
+  margin-top: 14px !important;
+  font-size: 18px !important;
+  color: #526b63 !important;
+}
+
+.overview-ui-v2 {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 24px !important;
+}
+
+.overview-ui-v2 > div,
+.overview-ui-v2 .ai-overview-card {
+  min-height: 210px !important;
+  padding: 24px 28px 18px !important;
+  border-radius: 26px !important;
+  position: relative !important;
+  isolation: isolate !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,250,240,.18)),
+    url("/backgrounds/metric-card.png") center/cover no-repeat !important;
+  border: 1px solid rgba(216, 180, 92, .36) !important;
+  box-shadow:
+    0 18px 38px rgba(6, 43, 36, .10),
+    inset 0 1px 0 rgba(255,255,255,.72) !important;
+}
+
+.overview-ui-v2 > div::after {
+  content: "";
+  position: absolute;
+  inset-inline: 22px;
+  bottom: 12px;
+  height: 40px;
+  z-index: -1;
+  border-radius: 999px;
+  background: rgba(236, 253, 245, .54);
+  backdrop-filter: blur(2px);
+}
+
+.overview-ui-v2 em {
+  width: 56px !important;
+  height: 56px !important;
+  margin-bottom: 14px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 250, 240, .88) !important;
+  border: 1px solid rgba(216, 180, 92, .42) !important;
+  color: #07543f !important;
+  font-size: 21px !important;
+  box-shadow: 0 12px 24px rgba(6, 43, 36, .08) !important;
+}
+
+.overview-ui-v2 span {
+  color: #073b31 !important;
+  font-size: 23px !important;
+  font-weight: 950 !important;
+}
+
+.overview-ui-v2 strong {
+  margin-top: 8px !important;
+  font-size: 66px !important;
+  line-height: .95 !important;
+  font-weight: 950 !important;
+  text-shadow: 0 8px 18px rgba(6, 43, 36, .10);
+}
+
+.overview-ui-v2 small {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding-top: 8px;
+  color: #4d625b;
+  font-size: 14px;
+  line-height: 1.6;
+  font-weight: 850;
+}
+
+.overview-ui-v2 .overview-total strong { color: #047857 !important; }
+.overview-ui-v2 .overview-watered strong { color: #059669 !important; }
+.overview-ui-v2 .overview-not-watered strong { color: #dc2626 !important; }
+.overview-ui-v2 .overview-insufficient strong { color: #d97706 !important; }
+.overview-ui-v2 .overview-sidewalk strong { color: #2563eb !important; }
+.overview-ui-v2 .overview-ai strong { color: #7c3aed !important; }
+
+.overview-ui-v2 .overview-not-watered em { color: #dc2626 !important; }
+.overview-ui-v2 .overview-insufficient em { color: #d97706 !important; }
+.overview-ui-v2 .overview-sidewalk em { color: #2563eb !important; }
+.overview-ui-v2 .overview-ai em { color: #7c3aed !important; }
+
+.friday-off-notice-v2,
+.friday-off-notice {
+  min-height: 82px !important;
+  align-items: center !important;
+  padding: 18px 26px !important;
+  border-radius: 22px !important;
+  background: rgba(255, 250, 240, .94) !important;
+  border: 1px solid rgba(216, 180, 92, .32) !important;
+  box-shadow: 0 14px 30px rgba(6,43,36,.07) !important;
+}
+
+.friday-off-notice-v2::before,
+.friday-off-notice::before {
+  display: none !important;
+}
+
+.friday-off-notice-v2 > div {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.friday-off-notice-v2 em {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(236,253,245,.92);
+  border: 1px solid rgba(216,180,92,.28);
+  color: #087553;
+  font-style: normal;
+  font-weight: 950;
+}
+
+.friday-off-notice-v2 strong,
+.friday-off-notice-v2 span {
+  color: #6b4e13 !important;
+  font-weight: 950 !important;
+}
+
+@media (max-width: 1180px) {
+  .overview-ui-v2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .overview-ui-v2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .friday-off-notice-v2 {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    text-align: center !important;
+  }
+}
