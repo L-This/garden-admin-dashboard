@@ -1354,3 +1354,33 @@ textarea:focus {
   color: #5f756d !important;
   font-weight: 700 !important;
 }
+/* إخفاء مرحبا */
+.design1-welcome {
+  display: none !important;
+}
+
+/* توسيط كامل محتوى الهيدر */
+.design1-main-header {
+  justify-content: center !important;
+}
+
+.design1-main-header > div {
+  width: 100% !important;
+  text-align: center !important;
+  align-items: center !important;
+}
+
+/* الوصف تحت العنوان مباشرة */
+.design1-main-header p {
+  display: block !important;
+  width: 100% !important;
+  max-width: 900px !important;
+  margin: 12px auto 0 auto !important;
+  text-align: center !important;
+}
+
+/* إخفاء الوصف الجانبي القديم */
+.design1-main-header::before,
+.design1-main-header::after {
+  pointer-events: none;
+}
