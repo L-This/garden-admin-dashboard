@@ -1185,3 +1185,86 @@ textarea:focus {
     height: 112px;
   }
 }
+
+
+/* ===== FIX: Gardens management layout ===== */
+.management-list {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+  align-items: stretch !important;
+  overflow: visible !important;
+}
+
+.management-row {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 12px !important;
+  align-items: stretch !important;
+  min-width: 0 !important;
+  min-height: 154px !important;
+  padding: 20px !important;
+  overflow: hidden !important;
+  background: rgba(255,255,255,.92) !important;
+}
+
+.management-row strong {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  color: var(--green-950) !important;
+  font-size: 20px !important;
+  font-weight: 950 !important;
+  line-height: 1.45 !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  text-align: right !important;
+}
+
+.management-row > span,
+.management-row > p {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  color: var(--muted) !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 1.6 !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+
+.management-row div {
+  display: flex !important;
+  width: 100% !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-start !important;
+}
+
+.management-row button {
+  min-width: 92px !important;
+  min-height: 44px !important;
+  padding: 10px 16px !important;
+  opacity: 1 !important;
+  color: #fff7d6 !important;
+  background: linear-gradient(135deg, #07543f, #0b8f63) !important;
+  border: 0 !important;
+  box-shadow: 0 10px 22px rgba(6,43,36,.15) !important;
+}
+
+.management-row button:disabled {
+  opacity: .55 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+.inline-admin-panel,
+.design1-content {
+  overflow-x: hidden !important;
+}
+
+@media (max-width: 900px) {
+  .management-list {
+    grid-template-columns: 1fr !important;
+  }
+}
