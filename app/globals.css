@@ -1658,18 +1658,59 @@ button.blue {
     grid-template-columns: 1fr !important;
   }
 }
+
 /* =========================================
-   المرحلة 2 - المؤشرات العامة
+   المرحلة 2 - إصلاح المؤشرات العامة والهيدر
 ========================================= */
 
-/* تصغير البطاقات قليلاً */
+/* ترتيب الهيدر: العنوان والوصف في المنتصف */
+.design1-main-header {
+  justify-content: center !important;
+  text-align: center !important;
+  min-height: 170px !important;
+}
+
+.design1-main-header > div {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+.design1-welcome {
+  display: none !important;
+}
+
+.design1-main-header h1 {
+  width: 100% !important;
+  text-align: center !important;
+  margin: 0 !important;
+}
+
+.design1-main-header p {
+  width: 100% !important;
+  max-width: 900px !important;
+  margin: 12px auto 0 !important;
+  text-align: center !important;
+  color: #5f756d !important;
+  font-size: 17px !important;
+  line-height: 1.8 !important;
+  font-weight: 850 !important;
+}
+
+/* تحسين المسافات بين بطاقات المؤشرات */
+.design1-overview {
+  gap: 22px !important;
+}
+
 .design1-overview > div,
 .design1-overview .ai-overview-card {
   min-height: 165px !important;
   padding: 18px !important;
 }
 
-/* تصغير الأيقونة */
 .design1-overview em {
   width: 42px !important;
   height: 42px !important;
@@ -1677,52 +1718,38 @@ button.blue {
   font-size: 18px !important;
 }
 
-/* تكبير الرقم */
+.design1-overview span {
+  font-size: 20px !important;
+  font-weight: 950 !important;
+  color: #0b3f36 !important;
+}
+
 .design1-overview strong {
   font-size: 64px !important;
   line-height: 1 !important;
   margin-top: 6px !important;
 }
 
-/* تحسين العنوان */
-.design1-overview span {
-  font-size: 20px !important;
-  font-weight: 900 !important;
-  color: #0b3f36 !important;
-}
-
-/* ألوان مخصصة لكل بطاقة */
-.design1-overview > div:nth-child(1) strong {
-  color: #dc2626 !important;
-}
-
-.design1-overview > div:nth-child(2) strong {
-  color: #059669 !important;
-}
-
-.design1-overview > div:nth-child(3) strong {
-  color: #047857 !important;
-}
-
-.design1-overview > div:nth-child(4) strong {
-  color: #7c3aed !important;
-}
-
-.design1-overview > div:nth-child(5) strong {
-  color: #2563eb !important;
-}
-
-.design1-overview > div:nth-child(6) strong {
-  color: #d97706 !important;
-}
+/* ألوان المؤشرات حسب ترتيب JSX الفعلي */
+.design1-overview > div:nth-child(1) strong { color: #047857 !important; } /* إجمالي الحدائق */
+.design1-overview > div:nth-child(2) strong { color: #059669 !important; } /* تم ريها */
+.design1-overview > div:nth-child(3) strong { color: #dc2626 !important; } /* لم يتم ريها */
+.design1-overview > div:nth-child(4) strong { color: #d97706 !important; } /* عدم كفاية ري */
+.design1-overview > div:nth-child(5) strong { color: #2563eb !important; } /* خروج الري للرصيف */
+.design1-overview > div:nth-child(6) strong { color: #7c3aed !important; } /* تنبيهات التحقق الذكي */
 
 /* شريط الجمعة */
 .friday-off-notice {
-  min-height: 60px !important;
-  padding: 14px 22px !important;
+  min-height: 58px !important;
+  padding: 13px 22px !important;
   border-radius: 18px !important;
   background: rgba(255,250,240,.95) !important;
-  border: 1px solid rgba(216,180,92,.30) !important;
+  border: 1px solid rgba(216,180,92,.32) !important;
   font-size: 15px !important;
   font-weight: 900 !important;
+}
+
+.friday-off-notice::before {
+  content: "📅";
+  margin-left: 10px;
 }
