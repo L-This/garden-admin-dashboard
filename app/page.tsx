@@ -2086,7 +2086,7 @@ body {
       </aside>
 
       <section className="design1-content">
-        <header className={`design1-main-header ${activeView === "overview" ? "banner-header overview-banner-header" : activeView === "projects" ? "banner-header projects-banner-header" : ""}`}>
+        <header className="design1-main-header">
           <div>
             <span className="design1-welcome">مرحبًا {user.username}</span>
             <h1>{{
