@@ -1186,201 +1186,475 @@ textarea:focus {
   }
 }
 
+/* =========================================================
+   SYSTEM-WIDE UNIFIED UI THEME
+   يوحّد ألوان النصوص والبطاقات والأزرار والنماذج في كامل النظام
+   ========================================================= */
 
-/* ===== FIX: Gardens management layout ===== */
-.management-list {
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
-  align-items: stretch !important;
-  overflow: visible !important;
+:root {
+  --ui-title: #073b31;
+  --ui-title-soft: #174f43;
+  --ui-project: #7b5a16;
+  --ui-label: #0b7555;
+  --ui-value: #173b34;
+  --ui-muted: #647a72;
+  --ui-card: rgba(255, 255, 255, .88);
+  --ui-card-strong: rgba(255, 250, 240, .92);
+  --ui-border: rgba(216, 180, 92, .34);
+  --ui-border-strong: rgba(216, 180, 92, .52);
+  --ui-shadow: 0 16px 36px rgba(6, 43, 36, .09);
 }
 
-.management-row {
-  display: grid !important;
-  grid-template-columns: 1fr !important;
-  gap: 12px !important;
-  align-items: stretch !important;
-  min-width: 0 !important;
-  min-height: 154px !important;
-  padding: 20px !important;
-  overflow: hidden !important;
-  background: rgba(255,255,255,.92) !important;
+/* منع أي تمدد أفقي مزعج */
+html,
+body,
+.design1-shell,
+.design1-content,
+.inline-admin-panel {
+  max-width: 100%;
 }
 
-.management-row strong {
-  display: block !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  color: var(--green-950) !important;
-  font-size: 20px !important;
-  font-weight: 950 !important;
-  line-height: 1.45 !important;
-  white-space: normal !important;
-  overflow-wrap: anywhere !important;
-  text-align: right !important;
-}
-
-.management-row > span,
-.management-row > p {
-  display: block !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  margin: 0 !important;
-  color: var(--muted) !important;
-  font-size: 14px !important;
-  font-weight: 900 !important;
-  line-height: 1.6 !important;
-  white-space: normal !important;
-  overflow-wrap: anywhere !important;
-}
-
-.management-row div {
-  display: flex !important;
-  width: 100% !important;
-  gap: 10px !important;
-  flex-wrap: wrap !important;
-  justify-content: flex-start !important;
-}
-
-.management-row button {
-  min-width: 92px !important;
-  min-height: 44px !important;
-  padding: 10px 16px !important;
-  opacity: 1 !important;
-  color: #fff7d6 !important;
-  background: linear-gradient(135deg, #07543f, #0b8f63) !important;
-  border: 0 !important;
-  box-shadow: 0 10px 22px rgba(6,43,36,.15) !important;
-}
-
-.management-row button:disabled {
-  opacity: .55 !important;
-  cursor: not-allowed !important;
-  transform: none !important;
-}
-
+.design1-content,
 .inline-admin-panel,
-.design1-content {
+.project-detail-shell,
+.project-picker-panel,
+.project-empty-state,
+.empty-view-card {
   overflow-x: hidden !important;
 }
 
-@media (max-width: 900px) {
-  .management-list {
-    grid-template-columns: 1fr !important;
-  }
-}
-/* تحسين المؤشرات التنفيذية */
-.executive-grid-inline {
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)) !important;
-  gap: 22px !important;
-}
-
-.executive-grid-inline article {
-  min-height: 230px;
-  padding: 26px !important;
-  border-radius: 28px !important;
-  background:
-    linear-gradient(135deg, rgba(255,255,255,.94), rgba(255,250,240,.86)),
-    url("/backgrounds/metric-card.png") center/cover no-repeat !important;
-  border: 1px solid rgba(216,180,92,.42) !important;
-}
-
-.executive-grid-inline article h3 {
-  margin: 0 0 14px;
-  font-size: 24px;
-  color: var(--green-950);
-}
-
-.executive-grid-inline article strong {
-  font-size: 54px !important;
-  color: var(--green-700);
-}
-
-.executive-grid-inline article p {
-  margin: 10px 0;
-  font-size: 17px;
-  font-weight: 900;
-  color: var(--green-950);
-}
-
-.executive-grid-inline article span {
-  display: block;
-  margin-top: 8px;
-  font-size: 15px;
-  color: #6b4e13;
-}
-
-.executive-grid-inline article:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 24px 60px rgba(6,43,36,.16);
-}
-/* هيدر فاخر ومتمركز */
+/* هيدر موحد: عنوان في الوسط والوصف تحته */
 .design1-main-header {
+  min-height: 170px !important;
   justify-content: center !important;
   text-align: center !important;
-  min-height: 180px !important;
+  padding: 26px 34px !important;
 }
 
 .design1-main-header > div {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.design1-welcome {
-  margin: 0 0 14px 0 !important;
-  padding: 8px 18px !important;
-  font-size: 15px !important;
-  font-weight: 900 !important;
-  border-radius: 999px;
-}
-
-.design1-main-header h1 {
-  margin: 0 !important;
-  width: 100%;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
   text-align: center !important;
-  font-size: clamp(48px, 4vw, 72px) !important;
-  font-weight: 950 !important;
-  line-height: 1.1 !important;
-  color: var(--green-950);
 }
 
-.design1-main-header p {
-  max-width: 850px !important;
-  margin: 16px auto 0 auto !important;
-  text-align: center !important;
-  font-size: 18px !important;
-  line-height: 1.9 !important;
-  color: #5f756d !important;
-  font-weight: 700 !important;
-}
-/* إخفاء مرحبا */
 .design1-welcome {
   display: none !important;
 }
 
-/* توسيط كامل محتوى الهيدر */
-.design1-main-header {
-  justify-content: center !important;
+.design1-main-header h1 {
+  width: 100% !important;
+  margin: 0 !important;
+  text-align: center !important;
+  color: var(--ui-title) !important;
+  font-size: clamp(44px, 4vw, 68px) !important;
+  font-weight: 950 !important;
+  line-height: 1.08 !important;
+  letter-spacing: -.5px;
 }
 
-.design1-main-header > div {
+.design1-main-header p {
   width: 100% !important;
+  max-width: 820px !important;
+  margin: 14px auto 0 !important;
   text-align: center !important;
+  color: var(--ui-muted) !important;
+  font-size: 17px !important;
+  line-height: 1.9 !important;
+  font-weight: 800 !important;
+}
+
+/* عناوين الأقسام */
+.panel-headline,
+.project-picker-title,
+.project-detail-list-head,
+.report-card-head,
+.contractor-link-head,
+.ai-alerts-head,
+.edit-modal-head,
+.duplicate-viewer-head {
   align-items: center !important;
 }
 
-/* الوصف تحت العنوان مباشرة */
-.design1-main-header p {
-  display: block !important;
-  width: 100% !important;
-  max-width: 900px !important;
-  margin: 12px auto 0 auto !important;
+.panel-headline h2,
+.project-picker-title h2,
+.project-detail-list-head h3,
+.inline-admin-panel h2,
+.inline-admin-panel h3,
+.report-card-head h4,
+.ai-alerts-head h2,
+.ai-alert-title-row h3,
+.contractor-link-head h3,
+.edit-modal-head h3,
+.duplicate-viewer-head h3 {
+  color: var(--ui-title) !important;
+  font-weight: 950 !important;
+  letter-spacing: -.2px;
+}
+
+.panel-headline span,
+.project-picker-title span,
+.ai-alerts-head span,
+.project-detail-kicker {
+  color: var(--ui-label) !important;
+  font-weight: 950 !important;
+}
+
+/* أسماء المشاريع والمواقع */
+.project-tab strong,
+.project-detail-hero h2,
+.project-garden-item strong,
+.management-row strong,
+.schedule-card-inline h3,
+.schedule-card-inline strong,
+.contractor-link-card h3,
+.contractor-link-card strong,
+.executive-grid-inline article h3,
+.report-card h3,
+.mini-summary-grid h3,
+.contractor-links-list h3,
+.contractor-links-list strong {
+  color: var(--ui-project) !important;
+  font-weight: 950 !important;
+}
+
+/* النصوص الثانوية والوصف */
+.project-tab span,
+.project-garden-item span,
+.project-garden-item p,
+.management-row span,
+.management-row p,
+.schedule-card-inline p,
+.contractor-link-card p,
+.report-meta p,
+.ai-alert-content p,
+.executive-grid-inline span,
+.empty-list,
+.no-image,
+.edit-modal-subtitle {
+  color: var(--ui-muted) !important;
+  font-weight: 850 !important;
+}
+
+/* الليبلز */
+.inline-form-grid label,
+.contractor-link-card label,
+.schedule-card-inline label,
+.edit-modal label,
+.report-modal label,
+.audit-modal label,
+.password-modal label,
+.contractor-links-modal label {
+  color: var(--ui-label) !important;
+  font-size: 15px !important;
+  font-weight: 950 !important;
+}
+
+/* القيم والحقول */
+input,
+select,
+textarea,
+.inline-form-grid input,
+.inline-form-grid select,
+.contractor-link-card input,
+.contractor-link-card select,
+.management-row input,
+.edit-modal input,
+.edit-modal select,
+.edit-modal textarea,
+.report-modal input,
+.report-modal select,
+.audit-modal input,
+.audit-modal select,
+.password-modal input,
+.password-modal select,
+.contractor-links-modal input,
+.contractor-links-modal select {
+  color: var(--ui-value) !important;
+  background: rgba(255, 255, 255, .94) !important;
+  border: 1px solid var(--ui-border) !important;
+  font-weight: 900 !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(88, 115, 107, .72) !important;
+  font-weight: 800 !important;
+}
+
+/* البطاقات العامة */
+.inline-admin-panel,
+.ai-alerts-panel,
+.details-section,
+.not-watered-card,
+.daily-records-box,
+.fines-report-box,
+.audit-card,
+.contractor-link-card,
+.duplicate-summary-box,
+.inline-results-card,
+.project-detail-list,
+.project-detail-empty,
+.mini-summary-grid div,
+.executive-grid-inline article,
+.schedule-card-inline,
+.report-card,
+.ai-alert-card,
+.management-row,
+.project-garden-item {
+  border-color: var(--ui-border) !important;
+  box-shadow: var(--ui-shadow) !important;
+}
+
+.mini-summary-grid div,
+.executive-grid-inline article,
+.schedule-card-inline,
+.contractor-link-card,
+.report-card,
+.ai-alert-card,
+.audit-card,
+.management-row,
+.project-garden-item {
+  background: var(--ui-card) !important;
+}
+
+/* أزرار موحدة */
+.inline-actions-row button,
+.inline-main-btn,
+.management-row button,
+.contractor-link-card button,
+.schedule-card-inline button,
+.report-actions-4 button,
+.ai-alert-actions button,
+.contractor-link-actions button,
+.edit-modal-actions button,
+.audit-refresh-btn,
+.duplicate-print-btn,
+.card-more-btn,
+.project-garden-actions button,
+.login-card button {
+  border: 0 !important;
+  color: #fff7d6 !important;
+  background: linear-gradient(135deg, #07543f, #0b8f63) !important;
+  font-weight: 950 !important;
+  box-shadow: 0 12px 26px rgba(6, 43, 36, .14) !important;
+}
+
+.inline-actions-row button:hover,
+.inline-main-btn:hover,
+.management-row button:hover,
+.contractor-link-card button:hover,
+.schedule-card-inline button:hover,
+.report-actions-4 button:hover,
+.ai-alert-actions button:hover,
+.contractor-link-actions button:hover,
+.edit-modal-actions button:hover,
+.project-garden-actions button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 18px 36px rgba(6, 43, 36, .20) !important;
+}
+
+/* أزرار التحذير */
+.report-actions-4 button:nth-child(2),
+.card-more-btn.danger,
+button.danger {
+  background: linear-gradient(135deg, #b91c1c, #dc2626) !important;
+}
+
+.report-actions-4 button:nth-child(3),
+button.warning {
+  background: linear-gradient(135deg, #b77900, #d8a000) !important;
+}
+
+.report-actions-4 button:nth-child(4),
+button.blue {
+  background: linear-gradient(135deg, #1d4ed8, #2563eb) !important;
+}
+
+/* جداول الري والأيام */
+.switch-row,
+.days-pills label,
+.edit-upload-status,
+.duplicate-badge,
+.audit-undone-label {
+  color: var(--ui-label) !important;
+  background: rgba(236, 253, 245, .88) !important;
+  border: 1px solid rgba(11, 143, 99, .10) !important;
+}
+
+.days-pills label {
+  min-width: 88px;
+  justify-content: center;
+}
+
+/* أرقام وإحصائيات */
+.design1-overview strong,
+.project-detail-stats strong,
+.mini-summary-grid strong,
+.executive-grid-inline strong,
+.summary-strip strong {
+  color: var(--green-700) !important;
+  font-weight: 950 !important;
+}
+
+.design1-overview > div:nth-child(3) strong,
+.project-detail-stats .danger strong {
+  color: var(--danger) !important;
+}
+
+.design1-overview > div:nth-child(4) strong,
+.project-detail-stats .warning strong {
+  color: var(--warning) !important;
+}
+
+.design1-overview > div:nth-child(5) strong,
+.project-detail-stats .blue strong {
+  color: var(--blue) !important;
+}
+
+/* تحسين المؤشرات التنفيذية بشكل متوازن */
+.executive-grid-inline {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  gap: 16px !important;
+}
+
+.executive-grid-inline article {
+  min-height: 205px !important;
+  padding: 22px 18px !important;
+  border-radius: 24px !important;
+  text-align: center !important;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.92), rgba(255,250,240,.86)),
+    url("/backgrounds/metric-card.png") center/cover no-repeat !important;
+}
+
+.executive-grid-inline article h3 {
+  margin: 0 0 10px !important;
+  font-size: 19px !important;
+  line-height: 1.45 !important;
+}
+
+.executive-grid-inline article strong {
+  font-size: 44px !important;
+  line-height: 1 !important;
+}
+
+.executive-grid-inline article p {
+  margin: 10px 0 6px !important;
+  color: var(--ui-value) !important;
+  font-size: 15px !important;
+  font-weight: 950 !important;
+}
+
+.executive-grid-inline article span {
+  font-size: 13px !important;
+  line-height: 1.7 !important;
+}
+
+/* إدارة المواقع: شبكة مرتبة بدون قص */
+.management-list {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  align-items: stretch !important;
+}
+
+.management-row {
+  grid-template-columns: 1fr !important;
+  gap: 12px !important;
+  align-content: start !important;
+  min-width: 0 !important;
+  padding: 18px !important;
   text-align: center !important;
 }
 
-/* إخفاء الوصف الجانبي القديم */
-.design1-main-header::before,
-.design1-main-header::after {
-  pointer-events: none;
+.management-row > * {
+  min-width: 0 !important;
+}
+
+.management-row strong {
+  font-size: 18px !important;
+  line-height: 1.5 !important;
+}
+
+.management-row div {
+  justify-content: center !important;
+}
+
+.management-row button {
+  min-width: 92px !important;
+}
+
+/* كروت المقاولين والتوقيع */
+.contractor-links-list {
+  grid-template-columns: repeat(auto-fit, minmax(285px, 1fr)) !important;
+  align-items: stretch !important;
+}
+
+.contractor-link-card {
+  text-align: center !important;
+  padding: 22px 18px !important;
+}
+
+.contractor-link-card h3 {
+  margin-top: 0 !important;
+  font-size: 20px !important;
+  line-height: 1.5 !important;
+}
+
+.contractor-link-card label {
+  text-align: center !important;
+}
+
+.contractor-link-actions {
+  justify-content: center !important;
+}
+
+/* الجداول */
+.responsive-table th,
+.period-report-table th,
+.fines-table th {
+  background: linear-gradient(135deg, #063b33, #07543f) !important;
+  color: #fff7d6 !important;
+}
+
+.responsive-table td,
+.period-report-table td,
+.fines-table td {
+  color: var(--ui-value) !important;
+}
+
+/* تنسيق الشريط الجانبي النشط */
+.design1-sidebar-nav button.active {
+  color: #fff7d6 !important;
+  background: rgba(255, 250, 240, .22) !important;
+  border-color: var(--ui-border-strong) !important;
+}
+
+@media (max-width: 1400px) {
+  .executive-grid-inline,
+  .contractor-links-list,
+  .management-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .design1-main-header {
+    min-height: 145px !important;
+  }
+
+  .design1-main-header h1 {
+    font-size: clamp(34px, 11vw, 48px) !important;
+  }
+
+  .design1-main-header p {
+    font-size: 14px !important;
+  }
+
+  .executive-grid-inline,
+  .contractor-links-list,
+  .management-list {
+    grid-template-columns: 1fr !important;
+  }
 }
