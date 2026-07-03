@@ -2728,3 +2728,36 @@ button.blue {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 }
+/* المرحلة 2 - إدارة كلمة المرور */
+.inline-admin-panel:has(.password-form),
+.inline-admin-panel:has(.password-modal),
+.inline-admin-panel:has(input[type="password"]) {
+  display: grid !important;
+  align-content: start !important;
+}
+
+.inline-admin-panel:has(input[type="password"]) .inline-form-grid {
+  max-width: 980px !important;
+  margin: 35px auto 22px !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 22px !important;
+}
+
+.inline-admin-panel:has(input[type="password"]) .inline-actions-row {
+  justify-content: center !important;
+  margin-top: 10px !important;
+}
+
+.inline-admin-panel:has(input[type="password"]) .inline-actions-row button {
+  min-width: 320px !important;
+  min-height: 64px !important;
+  border-radius: 18px !important;
+  font-size: 18px !important;
+}
+
+.inline-admin-panel:has(input[type="password"]) .panel-headline {
+  background: rgba(255,250,240,.78) !important;
+  border: 1px solid rgba(216,180,92,.28) !important;
+  border-radius: 22px !important;
+  padding: 18px 22px !important;
+}
