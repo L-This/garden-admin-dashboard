@@ -3211,3 +3211,61 @@ button.blue {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 }
+
+
+/* ==============================
+   مشاريع - إغلاق التفاصيل والرجوع
+============================== */
+.project-detail-showcase .project-detail-hero {
+  position: relative !important;
+}
+
+.project-close-btn {
+  position: absolute !important;
+  top: 16px !important;
+  left: 16px !important;
+  z-index: 3 !important;
+  min-height: 38px !important;
+  padding: 8px 14px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255, 247, 214, .28) !important;
+  background: rgba(255, 250, 240, .13) !important;
+  color: #fff7d6 !important;
+  font-size: 14px !important;
+  font-weight: 950 !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.project-close-btn:hover {
+  background: rgba(255, 250, 240, .22) !important;
+  transform: translateY(-1px) !important;
+}
+
+.project-showcase-card.active {
+  cursor: pointer !important;
+}
+
+.project-showcase-card.active::after {
+  content: "اضغط مرة أخرى لإغلاق التفاصيل";
+  position: absolute;
+  left: 18px;
+  bottom: 14px;
+  z-index: 3;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(6, 43, 36, .88);
+  color: #fff7d6;
+  font-size: 12px;
+  font-weight: 950;
+  box-shadow: 0 10px 24px rgba(6,43,36,.18);
+}
+
+@media (max-width: 900px) {
+  .project-close-btn {
+    top: 12px !important;
+    left: 12px !important;
+    font-size: 12px !important;
+    padding: 7px 11px !important;
+  }
+}
