@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 type UserRole = "مشرف" | "مدير";
@@ -353,6 +353,20 @@ export default function AdminHome() {
   >("overview");
   const [projectSearch, setProjectSearch] = useState("");
   const [projectFilter, setProjectFilter] = useState("all");
+  const selectedProjectDetailsRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (activeView !== "projects" || !openProjectId) return;
+
+    const timer = window.setTimeout(() => {
+      selectedProjectDetailsRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 120);
+
+    return () => window.clearTimeout(timer);
+  }, [activeView, openProjectId]);
 
   useEffect(() => {
     const saved = localStorage.getItem("adminUser");
@@ -2729,7 +2743,7 @@ const duplicatePhoto =
                       : [];
 
             return (
-              <section key={project.id} className="project-detail-shell project-detail-showcase">
+              <section key={project.id} ref={selectedProjectDetailsRef} className="project-detail-shell project-detail-showcase">
                 <div className="project-detail-hero">
                   <div>
                     <span className="project-detail-kicker">المشروع المحدد</span>
