@@ -2762,257 +2762,308 @@ button.blue {
   padding: 18px 22px !important;
 }
 
-
 /* =========================================================
-   الواجهة الرئيسية - المؤشرات العامة | Design V2
-   تحسين بصري فقط بدون تغيير المنطق أو البيانات
+   شاشة المشاريع - التصميم المعتمد
    ========================================================= */
-
-.design1-sidebar {
-  background:
-    linear-gradient(180deg, rgba(3, 33, 26, .86), rgba(4, 58, 45, .82)),
-    url("/backgrounds/sidebar-bg.png") center/cover no-repeat !important;
-  border-color: rgba(216, 180, 92, .45) !important;
+.projects-showcase {
+  gap: 18px !important;
 }
 
-.design1-sidebar-logo {
-  width: 68px !important;
-  height: 68px !important;
-  border-radius: 22px !important;
-  background: rgba(255, 250, 240, .14) !important;
-  color: #f6e7b8 !important;
+.projects-showcase-panel {
+  padding: 26px !important;
+  border-radius: 30px !important;
+  background: rgba(255,255,255,.72) !important;
+  border: 1px solid rgba(216,180,92,.34) !important;
+  box-shadow: var(--soft-shadow) !important;
+  overflow: hidden !important;
 }
 
-.design1-sidebar h2 {
-  color: #fff7d6 !important;
-  font-size: 26px !important;
+.projects-showcase-title {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  margin-bottom: 20px !important;
 }
 
-.design1-sidebar p {
-  color: #f6e7b8 !important;
-}
-
-.side-date-control {
-  padding: 18px !important;
-  border-radius: 20px !important;
-  background: rgba(255, 250, 240, .96) !important;
-}
-
-.side-date-control span {
-  text-align: center !important;
+.projects-showcase-title h2 {
+  margin: 0 !important;
   color: #073b31 !important;
-  font-size: 16px !important;
+  font-size: 30px !important;
+  font-weight: 950 !important;
 }
 
-.side-date-control input {
-  height: 48px !important;
-  text-align: center !important;
+.projects-showcase-title span {
+  color: #087553 !important;
+  font-size: 17px !important;
+  font-weight: 950 !important;
 }
 
-.design1-sidebar-nav {
-  gap: 10px !important;
-}
-
-.design1-sidebar-nav button {
+.projects-add-button {
+  min-width: 210px !important;
   min-height: 50px !important;
-  padding: 12px 16px !important;
+  padding: 12px 20px !important;
+  border: 0 !important;
   border-radius: 16px !important;
-  text-align: right !important;
-  color: rgba(255, 247, 214, .96) !important;
-  background: rgba(255, 255, 255, .08) !important;
-  border: 1px solid rgba(216, 180, 92, .22) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.06) !important;
+  background: linear-gradient(135deg, #07543f, #0b8f63) !important;
+  color: #fff7d6 !important;
+  font-size: 16px !important;
+  font-weight: 950 !important;
+  box-shadow: 0 14px 28px rgba(6,43,36,.16) !important;
 }
 
-.design1-sidebar-nav button.active {
-  color: #07543f !important;
-  background: linear-gradient(180deg, rgba(255, 250, 240, .98), rgba(246, 231, 184, .82)) !important;
-  border-color: rgba(216, 180, 92, .58) !important;
-  box-shadow: 0 14px 26px rgba(0, 0, 0, .18) !important;
+.projects-showcase-controls {
+  display: grid !important;
+  grid-template-columns: minmax(280px, 1fr) 290px !important;
+  gap: 16px !important;
+  align-items: end !important;
+  margin-bottom: 20px !important;
 }
 
-.design1-main-header {
-  min-height: 174px !important;
-  border-radius: 28px !important;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,250,240,.06)),
-    url("/backgrounds/header-bg.png") center/cover no-repeat !important;
+.projects-showcase-controls label {
+  display: grid !important;
+  gap: 8px !important;
+  color: #0b7555 !important;
+  font-weight: 950 !important;
 }
 
-.design1-main-header h1 {
-  font-size: clamp(50px, 4.4vw, 76px) !important;
-  letter-spacing: -1px !important;
+.projects-showcase-controls input,
+.projects-showcase-controls select {
+  min-height: 54px !important;
+  padding: 0 16px !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(216,180,92,.34) !important;
+  background: rgba(255,255,255,.94) !important;
+  color: #073b31 !important;
+  font-weight: 900 !important;
 }
 
-.design1-main-header p {
-  margin-top: 14px !important;
-  font-size: 18px !important;
-  color: #526b63 !important;
+.projects-cards-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 18px !important;
 }
 
-.overview-ui-v2 {
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  gap: 24px !important;
-}
-
-.overview-ui-v2 > div,
-.overview-ui-v2 .ai-overview-card {
-  min-height: 210px !important;
-  padding: 24px 28px 18px !important;
-  border-radius: 26px !important;
+.project-showcase-card {
   position: relative !important;
-  isolation: isolate !important;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,250,240,.18)),
-    url("/backgrounds/metric-card.png") center/cover no-repeat !important;
-  border: 1px solid rgba(216, 180, 92, .36) !important;
-  box-shadow:
-    0 18px 38px rgba(6, 43, 36, .10),
-    inset 0 1px 0 rgba(255,255,255,.72) !important;
+  overflow: hidden !important;
+  display: grid !important;
+  border-radius: 24px !important;
+  background: rgba(255,255,255,.93) !important;
+  border: 1px solid rgba(216,180,92,.30) !important;
+  box-shadow: 0 16px 36px rgba(6,43,36,.09) !important;
+  cursor: pointer !important;
+  outline: none !important;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease !important;
 }
 
-.overview-ui-v2 > div::after {
+.project-showcase-card:hover,
+.project-showcase-card.active {
+  transform: translateY(-3px) !important;
+  border-color: rgba(216,180,92,.62) !important;
+  box-shadow: 0 22px 48px rgba(6,43,36,.16) !important;
+}
+
+.project-showcase-card.active::after {
   content: "";
   position: absolute;
-  inset-inline: 22px;
-  bottom: 12px;
-  height: 40px;
-  z-index: -1;
-  border-radius: 999px;
-  background: rgba(236, 253, 245, .54);
-  backdrop-filter: blur(2px);
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 3px rgba(216,180,92,.34);
 }
 
-.overview-ui-v2 em {
-  width: 56px !important;
-  height: 56px !important;
-  margin-bottom: 14px !important;
-  border-radius: 50% !important;
-  background: rgba(255, 250, 240, .88) !important;
-  border: 1px solid rgba(216, 180, 92, .42) !important;
-  color: #07543f !important;
-  font-size: 21px !important;
-  box-shadow: 0 12px 24px rgba(6, 43, 36, .08) !important;
+.project-showcase-cover {
+  position: relative !important;
+  min-height: 118px !important;
+  background:
+    linear-gradient(90deg, rgba(6,43,36,.18), rgba(6,43,36,.03)),
+    url("/backgrounds/project-card.png") center/cover no-repeat !important;
+  border-bottom: 1px solid rgba(216,180,92,.20) !important;
 }
 
-.overview-ui-v2 span {
-  color: #073b31 !important;
-  font-size: 23px !important;
-  font-weight: 950 !important;
+.project-showcase-cover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(216,180,92,.22), transparent 24%),
+    linear-gradient(180deg, transparent, rgba(255,250,240,.12));
 }
 
-.overview-ui-v2 strong {
-  margin-top: 8px !important;
-  font-size: 66px !important;
-  line-height: .95 !important;
-  font-weight: 950 !important;
-  text-shadow: 0 8px 18px rgba(6, 43, 36, .10);
-}
-
-.overview-ui-v2 small {
-  display: block;
-  width: 100%;
-  margin-top: 14px;
-  padding-top: 8px;
-  color: #4d625b;
-  font-size: 14px;
-  line-height: 1.6;
-  font-weight: 850;
-}
-
-.overview-ui-v2 .overview-total strong { color: #047857 !important; }
-.overview-ui-v2 .overview-watered strong { color: #059669 !important; }
-.overview-ui-v2 .overview-not-watered strong { color: #dc2626 !important; }
-.overview-ui-v2 .overview-insufficient strong { color: #d97706 !important; }
-.overview-ui-v2 .overview-sidewalk strong { color: #2563eb !important; }
-.overview-ui-v2 .overview-ai strong { color: #7c3aed !important; }
-
-.overview-ui-v2 .overview-not-watered em { color: #dc2626 !important; }
-.overview-ui-v2 .overview-insufficient em { color: #d97706 !important; }
-.overview-ui-v2 .overview-sidewalk em { color: #2563eb !important; }
-.overview-ui-v2 .overview-ai em { color: #7c3aed !important; }
-
-.friday-off-notice-v2,
-.friday-off-notice {
-  min-height: 82px !important;
+.project-status-badge,
+.project-district-badge {
+  position: absolute !important;
+  z-index: 2 !important;
+  display: inline-flex !important;
   align-items: center !important;
-  padding: 18px 26px !important;
-  border-radius: 22px !important;
-  background: rgba(255, 250, 240, .94) !important;
-  border: 1px solid rgba(216, 180, 92, .32) !important;
-  box-shadow: 0 14px 30px rgba(6,43,36,.07) !important;
+  justify-content: center !important;
+  min-height: 32px !important;
+  padding: 6px 12px !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  box-shadow: 0 8px 18px rgba(6,43,36,.12) !important;
 }
 
-.friday-off-notice-v2::before,
-.friday-off-notice::before {
-  display: none !important;
+.project-status-badge {
+  top: 14px !important;
+  right: 14px !important;
+  color: #fff7d6 !important;
+  background: rgba(7,84,63,.92) !important;
 }
 
-.friday-off-notice-v2 > div {
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.friday-off-notice-v2 em {
-  width: 46px;
-  height: 46px;
-  display: grid;
-  place-items: center;
+.project-status-badge::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  margin-left: 7px;
   border-radius: 50%;
-  background: rgba(236,253,245,.92);
-  border: 1px solid rgba(216,180,92,.28);
-  color: #087553;
-  font-style: normal;
-  font-weight: 950;
+  background: #22c55e;
 }
 
-.friday-off-notice-v2 strong,
-.friday-off-notice-v2 span {
-  color: #6b4e13 !important;
+.project-district-badge {
+  left: 14px !important;
+  bottom: 14px !important;
+  color: #073b31 !important;
+  background: rgba(255,255,255,.90) !important;
+  border: 1px solid rgba(216,180,92,.24) !important;
+}
+
+.project-showcase-body {
+  display: grid !important;
+  gap: 14px !important;
+  padding: 18px 20px 16px !important;
+}
+
+.project-showcase-body h3 {
+  margin: 0 !important;
+  text-align: center !important;
+  color: #073b31 !important;
+  font-size: 24px !important;
+  line-height: 1.35 !important;
   font-weight: 950 !important;
 }
 
-@media (max-width: 1180px) {
-  .overview-ui-v2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
+.project-showcase-metrics {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 8px !important;
 }
 
-@media (max-width: 760px) {
-  .overview-ui-v2 {
+.project-showcase-metrics div {
+  display: grid !important;
+  justify-items: center !important;
+  gap: 4px !important;
+}
+
+.project-showcase-metrics span {
+  color: #58736b !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  line-height: 1.4 !important;
+  text-align: center !important;
+}
+
+.project-showcase-metrics strong {
+  color: #047857 !important;
+  font-size: 22px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+}
+
+.project-showcase-metrics .danger-text { color: #dc2626 !important; }
+.project-showcase-metrics .warning-text { color: #d97706 !important; }
+.project-showcase-metrics .blue-text { color: #2563eb !important; }
+
+.project-progress-row {
+  display: grid !important;
+  grid-template-columns: auto 1fr auto !important;
+  align-items: center !important;
+  gap: 10px !important;
+  color: #073b31 !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+}
+
+.project-progress-track {
+  height: 9px !important;
+  overflow: hidden !important;
+  border-radius: 999px !important;
+  background: rgba(6,43,36,.10) !important;
+}
+
+.project-progress-track i {
+  display: block !important;
+  height: 100% !important;
+  border-radius: inherit !important;
+  background: linear-gradient(90deg, #07543f, #0b8f63) !important;
+}
+
+.project-showcase-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+}
+
+.project-showcase-footer button {
+  min-height: 38px !important;
+  padding: 8px 14px !important;
+  border: 0 !important;
+  border-radius: 13px !important;
+  background: rgba(236,253,245,.92) !important;
+  color: #07543f !important;
+  font-weight: 950 !important;
+  box-shadow: none !important;
+}
+
+.project-showcase-footer small {
+  color: #7b8f87 !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+}
+
+.project-detail-showcase {
+  margin-top: 0 !important;
+}
+
+.projects-hint-card {
+  min-height: 210px !important;
+  border: 1px dashed rgba(216,180,92,.42) !important;
+  background: rgba(255,255,255,.74) !important;
+}
+
+.projects-friday-note {
+  margin-top: 0 !important;
+}
+
+@media (max-width: 1300px) {
+  .projects-cards-grid {
     grid-template-columns: 1fr !important;
   }
 
-  .friday-off-notice-v2 {
-    flex-direction: column !important;
-    align-items: stretch !important;
-    text-align: center !important;
+  .projects-showcase-controls {
+    grid-template-columns: 1fr !important;
   }
 }
-/* ضبط نهائي للمؤشرات العامة */
-.design1-overview > div,
-.design1-overview .ai-overview-card {
-  min-height: 210px !important;
-  padding: 18px !important;
-}
 
-.design1-overview em {
-  width: 46px !important;
-  height: 46px !important;
-  margin-bottom: 12px !important;
-}
+@media (max-width: 900px) {
+  .projects-showcase-title {
+    align-items: stretch !important;
+    flex-direction: column !important;
+  }
 
-.design1-overview span {
-  font-size: 22px !important;
-}
+  .projects-add-button {
+    width: 100% !important;
+  }
 
-.design1-overview strong {
-  font-size: 58px !important;
-}
+  .project-showcase-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
 
-.overview-card-note {
-  min-height: 38px !important;
-  padding: 8px 16px !important;
-  font-size: 14px !important;
+  .project-showcase-footer {
+    align-items: stretch !important;
+    flex-direction: column !important;
+  }
 }
