@@ -383,6 +383,11 @@ export default function AdminHome() {
   const selectedProjectDetailsRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
+    const content = document.querySelector<HTMLElement>(".design1-content");
+    content?.scrollTo({ top: 0, behavior: "smooth" });
+  }, [activeView]);
+
+  useEffect(() => {
     if (activeView !== "projects" || !openProjectId) return;
 
     const timer = window.setTimeout(() => {
@@ -390,7 +395,7 @@ export default function AdminHome() {
         behavior: "smooth",
         block: "start",
       });
-    }, 120);
+    }, 80);
 
     return () => window.clearTimeout(timer);
   }, [activeView, openProjectId]);
@@ -2653,7 +2658,9 @@ const duplicatePhoto =
       {activeView === "projects" && (loading ? (
         <div className="loading">جاري تحميل البيانات...</div>
       ) : (
-        <section className="projects-workspace projects-showcase">
+        <section className={`projects-workspace projects-showcase ${openProjectId ? "projects-detail-mode" : "projects-list-mode"}`}>
+          {!openProjectId && (
+            <>
           <div className="projects-showcase-panel">
             <div className="project-picker-title projects-showcase-title">
               <div>
@@ -2763,7 +2770,7 @@ const duplicatePhoto =
                         </div>
 
                         <div className="project-showcase-footer">
-                          <button type="button" onClick={(event) => { event.stopPropagation(); openProject(project.id); }}>عرض التفاصيل</button>
+                          <button type="button" onClick={(event) => { event.stopPropagation(); openProject(project.id); }}>دخول المشروع</button>
                           <small>آخر تحديث: اليوم، {new Date().toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" })}</small>
                         </div>
                       </div>
@@ -2773,12 +2780,12 @@ const duplicatePhoto =
             </div>
           </div>
 
-          {!openProjectId && (
-            <section className="project-detail-empty projects-hint-card">
+          <section className="project-detail-empty projects-hint-card">
               <div>▣</div>
               <h3>اختر مشروعًا من البطاقات لعرض تفاصيله</h3>
-              <p>اضغط على أي مشروع لعرض مؤشرات الري والحدائق والسجلات التشغيلية الخاصة به.</p>
+              <p>اضغط على زر دخول المشروع للانتقال إلى صفحة تفاصيل مستقلة داخل لوحة التحكم.</p>
             </section>
+            </>
           )}
 
           {openProjectId && projects.filter((project) => project.id === openProjectId).map((project) => {
@@ -2822,19 +2829,32 @@ const duplicatePhoto =
 
             return (
               <section key={project.id} ref={selectedProjectDetailsRef} className="project-detail-shell project-detail-showcase">
-                <div className="project-detail-hero">
+                <div className="project-detail-navigation">
                   <button
                     type="button"
-                    className="project-close-btn"
                     onClick={() => {
                       setOpenProjectId(null);
                       setOpenSection(null);
                     }}
                   >
-                    × إغلاق التفاصيل
+                    ← العودة إلى جميع المشاريع
+                  </button>
+                  <span>المشاريع / {project.name}</span>
+                </div>
+
+                <div className="project-detail-hero">
+                  <button
+                    type="button"
+                    className="project-back-btn"
+                    onClick={() => {
+                      setOpenProjectId(null);
+                      setOpenSection(null);
+                    }}
+                  >
+                    ← العودة إلى المشاريع
                   </button>
 
-                  <div>
+                  <div className="project-detail-info">
                     <span className="project-detail-kicker">المشروع المحدد</span>
                     <h2>{project.name}</h2>
                     <p>{project.district || "بدون نطاق"}</p>

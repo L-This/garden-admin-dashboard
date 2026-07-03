@@ -3369,8 +3369,105 @@ button.blue {
 @media(max-width:1200px){.overview-command-strip,.report-preview-grid,.project-detail-showcase .project-detail-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}.admin-stats-ribbon,.executive-grid-inline,.contractor-links-list,.management-list,.schedule-grid-inline{grid-template-columns:repeat(2,minmax(0,1fr))!important}.report-fine-cards,.report-builder-actions{grid-template-columns:1fr!important}.security-form-grid{grid-template-columns:1fr!important}}
 @media(max-width:720px){.overview-command-strip,.admin-stats-ribbon,.executive-grid-inline,.contractor-links-list,.management-list,.schedule-grid-inline{grid-template-columns:1fr!important}.design1-main-header{min-height:120px!important}.design1-main-header h1{font-size:42px!important}.report-preview-grid{grid-template-columns:1fr!important}.project-detail-showcase .project-detail-hero{grid-template-columns:1fr!important;grid-template-areas:"info" "rate"!important}}
 
-.design1-sidebar-nav button {
-  color: #073b31 !important;
-  background: rgba(255,250,240,.55) !important;
-  border-color: rgba(216,180,92,.25) !important;
+
+/* =========================================================
+   تنقل المشاريع - تحويلها إلى قائمة + صفحة تفاصيل مستقلة
+   ========================================================= */
+.projects-showcase.projects-detail-mode {
+  gap: 16px !important;
+}
+
+.projects-detail-mode .projects-friday-note {
+  margin-top: 0 !important;
+}
+
+.project-detail-navigation {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  padding: 14px 18px !important;
+  border-radius: 20px !important;
+  background: rgba(255,250,240,.82) !important;
+  border: 1px solid rgba(216,180,92,.34) !important;
+  box-shadow: 0 12px 28px rgba(6,43,36,.08) !important;
+}
+
+.project-detail-navigation button,
+.project-back-btn {
+  border: 0 !important;
+  color: #fff7d6 !important;
+  background: linear-gradient(135deg, #07543f, #0b8f63) !important;
+  font-weight: 950 !important;
+  box-shadow: 0 12px 26px rgba(6,43,36,.14) !important;
+}
+
+.project-detail-navigation button {
+  min-height: 46px !important;
+  padding: 10px 18px !important;
+  border-radius: 999px !important;
+  font-size: 15px !important;
+}
+
+.project-detail-navigation span {
+  color: #7b5a16 !important;
+  font-size: 15px !important;
+  font-weight: 950 !important;
+}
+
+.project-detail-showcase .project-detail-info {
+  grid-area: info !important;
+  justify-self: end !important;
+  text-align: right !important;
+  min-width: 0 !important;
+}
+
+.project-back-btn {
+  position: absolute !important;
+  top: 18px !important;
+  left: 18px !important;
+  z-index: 3 !important;
+  min-height: 42px !important;
+  padding: 9px 16px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255, 247, 214, .25) !important;
+  background: rgba(255, 250, 240, .16) !important;
+  color: #fff7d6 !important;
+  font-size: 14px !important;
+  font-weight: 950 !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.project-back-btn:hover,
+.project-detail-navigation button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 18px 36px rgba(6,43,36,.20) !important;
+}
+
+.projects-list-mode .project-showcase-footer button {
+  min-width: 145px !important;
+}
+
+@media (max-width: 900px) {
+  .project-detail-navigation {
+    align-items: stretch !important;
+    flex-direction: column-reverse !important;
+    text-align: center !important;
+  }
+
+  .project-detail-navigation button {
+    width: 100% !important;
+  }
+
+  .project-detail-showcase .project-detail-info {
+    justify-self: center !important;
+    text-align: center !important;
+  }
+
+  .project-back-btn {
+    position: static !important;
+    width: fit-content !important;
+    margin-bottom: 12px !important;
+    justify-self: center !important;
+  }
 }
