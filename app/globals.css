@@ -2099,7 +2099,7 @@ button.blue {
 .report-preview-box {
   padding: 26px;
   border-radius: 26px;
-  background: rgba(255,255,255,.78);
+  background:rgba(255,255,255,.72);
   border: 1px dashed rgba(216,180,92,.46);
 }
 
@@ -2118,7 +2118,7 @@ button.blue {
 }
 
 .report-preview-grid div {
-  min-height: 150px;
+  min-height: 180px;
   display: grid;
   align-content: center;
   justify-items: center;
@@ -2188,9 +2188,9 @@ button.blue {
 }
 
 .report-builder-actions .secondary {
-  border: 1px solid rgba(138,100,22,.45);
-  background: rgba(255,255,255,.9);
-  color: #8a6416;
+  background:#fffdf8;
+  color:#8a6416;
+  border:2px solid rgba(138,100,22,.35);
 }
 
 .report-results-enhanced {
