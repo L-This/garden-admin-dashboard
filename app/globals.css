@@ -2487,3 +2487,78 @@ button.blue {
   color: #073b31 !important;
   opacity: 1 !important;
 }
+/* المرحلة 2 - شاشة إدارة جدول الري */
+
+.schedule-grid-inline {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+  gap: 18px !important;
+  align-items: start !important;
+  padding-top: 8px !important;
+}
+
+.schedule-card-inline {
+  min-height: auto !important;
+  padding: 22px 18px !important;
+  border-radius: 24px !important;
+  text-align: center !important;
+  overflow: visible !important;
+}
+
+.schedule-card-inline h3,
+.schedule-card-inline strong {
+  margin: 0 0 10px !important;
+  color: #7b5a16 !important;
+  font-size: 23px !important;
+  line-height: 1.35 !important;
+}
+
+.schedule-card-inline p {
+  margin: 0 0 14px !important;
+  color: #58736b !important;
+  font-size: 17px !important;
+  line-height: 1.5 !important;
+  font-weight: 900 !important;
+}
+
+.switch-row {
+  width: fit-content !important;
+  margin: 0 auto 14px !important;
+  padding: 10px 18px !important;
+  background: rgba(236, 253, 245, .95) !important;
+  color: #047857 !important;
+  border: 1px solid rgba(11, 143, 99, .18) !important;
+  border-radius: 999px !important;
+}
+
+.days-pills {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  margin-top: 12px !important;
+}
+
+.days-pills label {
+  min-height: 42px !important;
+  min-width: 0 !important;
+  justify-content: center !important;
+  padding: 8px 12px !important;
+  border-radius: 999px !important;
+  background: rgba(236, 253, 245, .88) !important;
+  border: 1px solid rgba(11, 143, 99, .12) !important;
+  color: #07543f !important;
+  font-size: 15px !important;
+  font-weight: 950 !important;
+}
+
+.days-pills input {
+  width: 16px !important;
+  height: 16px !important;
+  min-height: 16px !important;
+  padding: 0 !important;
+  accent-color: #0b8f63 !important;
+}
+
+.inline-admin-panel:has(.schedule-grid-inline) {
+  overflow: auto !important;
+  padding-bottom: 34px !important;
+}
