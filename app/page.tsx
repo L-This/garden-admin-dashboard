@@ -2135,7 +2135,16 @@ body {
 
         <nav className="design1-sidebar-nav">
           <button className={activeView === "overview" ? "active" : ""} onClick={() => setActiveView("overview")}>⌂ المؤشرات العامة</button>
-          <button className={activeView === "projects" ? "active" : ""} onClick={() => { setActiveView("projects"); setOpenProjectId(null); setOpenSection(null); }}>▦ المشاريع</button>
+          <button
+            className={activeView === "projects" ? "active" : ""}
+            onClick={() => {
+              setActiveView("projects");
+              setOpenProjectId(projects[0]?.id || null);
+              setOpenSection(null);
+            }}
+          >
+            ▦ المشاريع
+          </button>
           <button className={activeView === "ai" ? "active" : ""} onClick={() => setActiveView("ai")}>⚠ التحقق الذكي</button>
           <button onClick={loadData}>↻ تحديث البيانات</button>
           <button className={activeView === "report" ? "active" : ""} onClick={() => setActiveView("report")}>▣ إعداد تقرير</button>
@@ -2662,11 +2671,7 @@ const duplicatePhoto =
           {!openProjectId && (
             <>
           <div className="projects-showcase-panel">
-            <div className="project-picker-title projects-showcase-title">
-              <div>
-                <span>قائمة المشاريع</span>
-                <h2>عرض المشاريع ونسب الإنجاز</h2>
-              </div>
+            <div className="projects-showcase-actions">
               <button
                 type="button"
                 className="projects-add-button"
@@ -2780,11 +2785,6 @@ const duplicatePhoto =
             </div>
           </div>
 
-          <section className="project-detail-empty projects-hint-card">
-              <div>▣</div>
-              <h3>اختر مشروعًا من البطاقات لعرض تفاصيله</h3>
-              <p>اضغط على زر دخول المشروع للانتقال إلى صفحة تفاصيل مستقلة داخل لوحة التحكم.</p>
-            </section>
             </>
           )}
 
