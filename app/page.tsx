@@ -2295,38 +2295,171 @@ const duplicatePhoto =
 
 
       {activeView === "report" && (
-        <section className="inline-admin-panel">
-          <div className="panel-headline">
-            <span>تقرير الفترة</span>
-            <h2>إنشاء وطباعـة تقرير الري</h2>
-          </div>
-          <div className="inline-form-grid">
-            <label><span>من تاريخ</span><input type="date" value={reportFromDate} onChange={(e) => setReportFromDate(e.target.value)} /></label>
-            <label><span>إلى تاريخ</span><input type="date" value={reportToDate} onChange={(e) => setReportToDate(e.target.value)} /></label>
-            <label><span>المشروع</span><select value={reportProjectId} onChange={(e) => setReportProjectId(e.target.value)}>{projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}</select></label>
-            <label><span>غرامة لم يتم الري</span><input type="number" value={notWateredFine} onChange={(e) => setNotWateredFine(Number(e.target.value))} /></label>
-            <label><span>غرامة عدم كفاية الري</span><input type="number" value={insufficientFine} onChange={(e) => setInsufficientFine(Number(e.target.value))} /></label>
-            <label><span>غرامة خروج الري للرصيف</span><input type="number" value={sidewalkFine} onChange={(e) => setSidewalkFine(Number(e.target.value))} /></label>
-          </div>
-          <div className="inline-actions-row">
-            <button onClick={generatePeriodReport}>{reportLoading ? "جارٍ الإنشاء..." : "إنشاء التقرير"}</button>
-            <button onClick={printReportOnly}>طباعة التقرير الطولي PDF</button>
-          </div>
-          {reportError && <p className="report-error">{reportError}</p>}
-          {reportRows.length > 0 && (
-            <div className="inline-results-card">
-              <h3>{reportTitle}</h3>
-              <div className="mini-summary-grid">
-                <div><span>تم الري</span><strong>{reportRows.reduce((sum, row) => sum + row.watered, 0)}</strong></div>
-                <div><span>لم يتم الري</span><strong>{reportRows.reduce((sum, row) => sum + row.notWatered, 0)}</strong></div>
-                <div><span>عدم كفاية</span><strong>{reportRows.reduce((sum, row) => sum + row.insufficient, 0)}</strong></div>
-                <div><span>خروج الرصيف</span><strong>{reportRows.reduce((sum, row) => sum + row.sidewalk, 0)}</strong></div>
-              </div>
-              <div className="responsive-table"><table><thead><tr><th>الموقع</th><th>تم الري</th><th>لم يتم الري</th><th>عدم كفاية</th><th>خروج الرصيف</th></tr></thead><tbody>{reportRows.map((row) => <tr key={row.gardenId}><td>{row.gardenName}</td><td>{row.watered}</td><td>{row.notWatered}</td><td>{row.insufficient}</td><td>{row.sidewalk}</td></tr>)}</tbody></table></div>
-            </div>
-          )}
-        </section>
-      )}
+  <section className="report-builder-panel">
+    <div className="report-builder-head">
+      <div>
+        <span>▣ تقرير الفترة</span>
+        <h2>إنشاء وطباعة تقرير الري</h2>
+      </div>
+    </div>
+
+    <div className="report-builder-grid">
+      <label>
+        <span>من تاريخ</span>
+        <input
+          type="date"
+          value={reportFromDate}
+          onChange={(e) => setReportFromDate(e.target.value)}
+        />
+      </label>
+
+      <label>
+        <span>إلى تاريخ</span>
+        <input
+          type="date"
+          value={reportToDate}
+          onChange={(e) => setReportToDate(e.target.value)}
+        />
+      </label>
+
+      <label>
+        <span>المشروع</span>
+        <select
+          value={reportProjectId}
+          onChange={(e) => setReportProjectId(e.target.value)}
+        >
+          {projects.map((project) => (
+            <option key={project.id} value={project.id}>
+              {project.name}
+            </option>
+          ))}
+        </select>
+      </label>
+    </div>
+
+    <div className="report-fine-cards">
+      <label className="report-fine-card danger">
+        <em>✖</em>
+        <span>غرامة لم يتم الري</span>
+        <div>
+          <input
+            type="number"
+            value={notWateredFine}
+            onChange={(e) => setNotWateredFine(Number(e.target.value))}
+          />
+          <strong>ريال</strong>
+        </div>
+      </label>
+
+      <label className="report-fine-card warning">
+        <em>◖</em>
+        <span>غرامة عدم كفاية الري</span>
+        <div>
+          <input
+            type="number"
+            value={insufficientFine}
+            onChange={(e) => setInsufficientFine(Number(e.target.value))}
+          />
+          <strong>ريال</strong>
+        </div>
+      </label>
+
+      <label className="report-fine-card blue">
+        <em>↪</em>
+        <span>غرامة خروج الري للرصيف</span>
+        <div>
+          <input
+            type="number"
+            value={sidewalkFine}
+            onChange={(e) => setSidewalkFine(Number(e.target.value))}
+          />
+          <strong>ريال</strong>
+        </div>
+      </label>
+    </div>
+
+    {reportError && <p className="report-error">{reportError}</p>}
+
+    <div className="report-preview-box">
+      <h3>ملخص الفترة المحددة</h3>
+
+      <div className="report-preview-grid">
+        <div>
+          <em>✓</em>
+          <span>تم الري</span>
+          <strong>{reportRows.reduce((sum, row) => sum + row.watered, 0)}</strong>
+        </div>
+
+        <div>
+          <em>✖</em>
+          <span>لم يتم الري</span>
+          <strong>{reportRows.reduce((sum, row) => sum + row.notWatered, 0)}</strong>
+        </div>
+
+        <div>
+          <em>◖</em>
+          <span>عدم كفاية الري</span>
+          <strong>{reportRows.reduce((sum, row) => sum + row.insufficient, 0)}</strong>
+        </div>
+
+        <div>
+          <em>↪</em>
+          <span>خروج الري للرصيف</span>
+          <strong>{reportRows.reduce((sum, row) => sum + row.sidewalk, 0)}</strong>
+        </div>
+
+        <div>
+          <em>♣</em>
+          <span>إجمالي الغرامات</span>
+          <strong>{fineRows.reduce((sum, row) => sum + row.total, 0)}</strong>
+        </div>
+      </div>
+
+      <div className="report-builder-actions">
+        <button className="primary" onClick={generatePeriodReport}>
+          {reportLoading ? "جارٍ الإنشاء..." : "إنشاء التقرير"}
+          <small>عرض التقرير على الشاشة</small>
+        </button>
+
+        <button className="secondary" onClick={printReportOnly}>
+          طباعة التقرير PDF
+          <small>طباعة أو حفظ التقرير</small>
+        </button>
+      </div>
+    </div>
+
+    {reportRows.length > 0 && (
+      <div className="inline-results-card report-results-enhanced">
+        <h3>{reportTitle}</h3>
+
+        <div className="responsive-table">
+          <table>
+            <thead>
+              <tr>
+                <th>الموقع</th>
+                <th>تم الري</th>
+                <th>لم يتم الري</th>
+                <th>عدم كفاية</th>
+                <th>خروج الرصيف</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reportRows.map((row) => (
+                <tr key={row.gardenId}>
+                  <td>{row.gardenName}</td>
+                  <td>{row.watered}</td>
+                  <td>{row.notWatered}</td>
+                  <td>{row.insufficient}</td>
+                  <td>{row.sidewalk}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )}
+  </section>
+)}
 
       {activeView === "gardens" && isManager && (
         <section className="inline-admin-panel">
