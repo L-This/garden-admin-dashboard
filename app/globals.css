@@ -1253,7 +1253,7 @@ textarea:focus {
   min-height: 230px !important;
   background:
     linear-gradient(90deg, rgba(6,43,36,.58), rgba(6,43,36,.36)),
-    url('/backgrounds/projects-banner.png') center/cover no-repeat !important;
+    url('/backgrounds/project-card.png') center/cover no-repeat !important;
 }
 
 .project-detail-hero h2,
@@ -1266,4 +1266,49 @@ textarea:focus {
   .banner-header {
     min-height: 120px !important;
   }
+}
+
+
+/* =========================================================
+   FINAL IMAGE BACKGROUND FIX
+   Use the clean no-text images:
+   /backgrounds/projects-bg.png
+   /backgrounds/project-card.png
+========================================================= */
+.project-picker-panel,
+.project-empty-state,
+.project-detail-shell,
+.inline-admin-panel,
+.empty-view-card,
+.loading {
+  background:
+    linear-gradient(rgba(255, 250, 240, .08), rgba(255, 250, 240, .08)),
+    url('/backgrounds/projects-bg.png') center/cover no-repeat !important;
+}
+
+.project-detail-hero {
+  min-height: 230px !important;
+  background:
+    linear-gradient(90deg, rgba(6, 43, 36, .42), rgba(6, 43, 36, .18)),
+    url('/backgrounds/project-card.png') center/cover no-repeat !important;
+}
+
+.project-detail-hero h2 {
+  color: #fff7d6 !important;
+  text-shadow: 0 4px 18px rgba(0, 0, 0, .38) !important;
+}
+
+.project-detail-hero p,
+.project-detail-kicker {
+  color: #fff1bd !important;
+  text-shadow: 0 3px 12px rgba(0, 0, 0, .32) !important;
+}
+
+.project-detail-stats button,
+.project-detail-stats > div,
+.design1-overview > div,
+.design1-overview .ai-overview-card {
+  background:
+    linear-gradient(rgba(255, 250, 240, .06), rgba(255, 250, 240, .06)),
+    url('/backgrounds/metric-card.png') center/cover no-repeat !important;
 }
