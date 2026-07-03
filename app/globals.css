@@ -3471,8 +3471,38 @@ button.blue {
     justify-self: center !important;
   }
 }
-.design1-sidebar-nav button {
+
+/* =========================================================
+   UX CLEANUP - إزالة العناوين الداخلية المكررة
+   يبقى الهيدر الرئيسي فقط لكل عنصر في لوحة التحكم
+   ========================================================= */
+.inline-admin-panel > .panel-headline,
+.ai-alerts-panel > .ai-alerts-head,
+.report-builder-panel > .report-builder-head,
+.project-picker-panel > .project-picker-title {
+  display: none !important;
+}
+
+.inline-admin-panel,
+.ai-alerts-panel,
+.report-builder-panel,
+.project-picker-panel {
+  padding-top: 24px !important;
+}
+
+.project-picker-panel.projects-modern-panel {
+  padding-top: 24px !important;
+}
+
+/* توضيح نصوص القائمة الجانبية قبل التحديد */
+.design1-sidebar-nav button:not(.active) {
   color: #073b31 !important;
-  background: rgba(255,250,240,.55) !important;
-  border-color: rgba(216,180,92,.25) !important;
+  background: rgba(255, 250, 240, .58) !important;
+  border-color: rgba(216, 180, 92, .28) !important;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, .45) !important;
+}
+
+.design1-sidebar-nav button:not(.active):hover {
+  background: rgba(255, 250, 240, .74) !important;
+  border-color: rgba(216, 180, 92, .46) !important;
 }
