@@ -351,6 +351,8 @@ export default function AdminHome() {
     | "signatures"
     | "password"
   >("overview");
+  const [projectSearch, setProjectSearch] = useState("");
+  const [projectFilter, setProjectFilter] = useState("all");
 
   useEffect(() => {
     const saved = localStorage.getItem("adminUser");
@@ -2145,56 +2147,44 @@ body {
         </header>
 
         {activeView === "overview" && (
-        <section className="admin-overview design1-overview overview-ui-v2">
-          <div className="overview-card overview-total">
+        <section className="admin-overview design1-overview">
+          <div>
             <em>◌</em>
             <span>إجمالي الحدائق</span>
             <strong>{totals.totalGardens}</strong>
-            <small>إجمالي عدد الحدائق المسجلة</small>
           </div>
-          <div className="overview-card overview-watered">
+          <div>
             <em>♢</em>
             <span>تم ريها</span>
             <strong>{totals.watered}</strong>
-            <small>تم الري اليوم في هذه المواقع</small>
           </div>
-          <div className="overview-card overview-not-watered">
+          <div>
             <em>⌁</em>
             <span>لم يتم ريها</span>
             <strong>{totals.notWatered}</strong>
-            <small>لم يتم الري في هذه المواقع</small>
           </div>
-          <div className="overview-card overview-insufficient">
+          <div>
             <em>−</em>
             <span>عدم كفاية ري</span>
             <strong>{totals.insufficient}</strong>
-            <small>مواقع تحتاج زيادة ري</small>
           </div>
-          <div className="overview-card overview-sidewalk">
+          <div>
             <em>↪</em>
             <span>خروج الري للرصيف</span>
             <strong>{totals.sidewalk}</strong>
-            <small>حالات خروج الري للرصيف</small>
           </div>
-          <div className="overview-card overview-ai ai-overview-card">
+          <div className="ai-overview-card">
             <em>⚠</em>
             <span>تنبيهات التحقق الذكي</span>
             <strong>{aiAlertReports.length}</strong>
-            <small>تنبيهات تحتاج مراجعة</small>
           </div>
         </section>
         )}
 
       {activeView === "overview" && isFridayDate(selectedDate) && (
-        <section className="friday-off-notice friday-off-notice-v2">
-          <div>
-            <em>ⓘ</em>
-            <span>لا يتم احتساب الحدائق التي لم يتم ريها في هذا اليوم.</span>
-          </div>
-          <div>
-            <em>▣</em>
-            <strong>يوم الجمعة إجازة</strong>
-          </div>
+        <section className="friday-off-notice">
+          <strong>يوم الجمعة إجازة</strong>
+          <span>لا يتم احتساب الحدائق كـ "لم يتم الري" في هذا اليوم.</span>
         </section>
       )}
 
@@ -2567,36 +2557,135 @@ const duplicatePhoto =
       {activeView === "projects" && (loading ? (
         <div className="loading">جاري تحميل البيانات...</div>
       ) : (
-        <section className="projects-workspace">
-          <div className="project-picker-panel">
-            <div className="project-picker-title">
-              <span>قائمة المشاريع</span>
-              <h2>اختر مشروعًا لعرض تفاصيله</h2>
+        <section className="projects-workspace projects-showcase">
+          <div className="projects-showcase-panel">
+            <div className="project-picker-title projects-showcase-title">
+              <div>
+                <span>قائمة المشاريع</span>
+                <h2>عرض المشاريع ونسب الإنجاز</h2>
+              </div>
+              <button
+                type="button"
+                className="projects-add-button"
+                onClick={() => setActiveView("gardens")}
+              >
+                + إدارة المواقع
+              </button>
             </div>
 
-            <div className="project-tabs-row">
-              {projects.map((project) => (
-                <button
-                  key={project.id}
-                  className={openProjectId === project.id ? "project-tab active" : "project-tab"}
-                  onClick={() => {
-                    setOpenProjectId(project.id);
-                    setOpenSection(null);
-                  }}
+            <div className="projects-showcase-controls">
+              <label className="projects-search-box">
+                <span>بحث عن مشروع</span>
+                <input
+                  value={projectSearch}
+                  onChange={(e) => setProjectSearch(e.target.value)}
+                  placeholder="ابحث باسم المشروع أو النطاق..."
+                />
+              </label>
+
+              <label>
+                <span>تصفية حسب الحالة</span>
+                <select
+                  value={projectFilter}
+                  onChange={(e) => setProjectFilter(e.target.value)}
                 >
-                  <strong>{project.name}</strong>
-                  <span>{project.district || "بدون نطاق"}</span>
-                </button>
-              ))}
+                  <option value="all">الكل</option>
+                  <option value="active">نشط</option>
+                </select>
+              </label>
+            </div>
+
+            <div className="projects-cards-grid">
+              {projects
+                .filter((project) => {
+                  const searchValue = `${project.name} ${project.district || ""}`.toLowerCase();
+                  const matchesSearch = searchValue.includes(projectSearch.trim().toLowerCase());
+                  const matchesFilter = projectFilter === "all" || projectFilter === "active";
+                  return matchesSearch && matchesFilter;
+                })
+                .map((project, projectIndex) => {
+                  const projectGardens = gardens.filter((garden) => garden.project_id === project.id);
+                  const scheduledGardens = projectGardens.filter((garden) => {
+                    const schedule = wateringSchedules.find((item) => String(item.garden_id) === String(garden.id));
+
+                    if (!schedule) return false;
+                    if (schedule.daily_watering) return !isFridayDate(selectedDate);
+
+                    const day = parseLocalDate(selectedDate).getDay();
+
+                    if (day === 0) return schedule.sunday;
+                    if (day === 1) return schedule.monday;
+                    if (day === 2) return schedule.tuesday;
+                    if (day === 3) return schedule.wednesday;
+                    if (day === 4) return schedule.thursday;
+                    if (day === 5) return schedule.friday;
+                    if (day === 6) return schedule.saturday;
+
+                    return false;
+                  });
+
+                  const friday = isFridayDate(selectedDate);
+                  const wateredGardens = friday ? [] : scheduledGardens.filter((garden) => wateredGardenIds.has(garden.id));
+                  const notWateredGardens = friday ? [] : scheduledGardens.filter((garden) => !wateredGardenIds.has(garden.id));
+                  const insufficientGardens = wateredGardens.filter((garden) => getReportStatus(reportByGardenId.get(garden.id)) === "insufficient");
+                  const sidewalkGardens = wateredGardens.filter((garden) => getReportStatus(reportByGardenId.get(garden.id)) === "sidewalk_runoff");
+                  const projectCompletionRate = scheduledGardens.length ? Math.round((wateredGardens.length / scheduledGardens.length) * 100) : 0;
+
+                  return (
+                    <article
+                      key={project.id}
+                      role="button"
+                      tabIndex={0}
+                      className={`project-showcase-card project-cover-${(projectIndex % 4) + 1} ${openProjectId === project.id ? "active" : ""}`}
+                      onClick={() => {
+                        setOpenProjectId(project.id);
+                        setOpenSection(null);
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          setOpenProjectId(project.id);
+                          setOpenSection(null);
+                        }
+                      }}
+                    >
+                      <div className="project-showcase-cover">
+                        <span className="project-status-badge">نشط</span>
+                        <span className="project-district-badge">{project.district || "بدون نطاق"}</span>
+                      </div>
+
+                      <div className="project-showcase-body">
+                        <h3>{project.name}</h3>
+
+                        <div className="project-showcase-metrics">
+                          <div><span>إجمالي الحدائق</span><strong>{projectGardens.length}</strong></div>
+                          <div><span>تم الري اليوم</span><strong>{wateredGardens.length}</strong></div>
+                          <div><span>لم يتم الري</span><strong className="danger-text">{notWateredGardens.length}</strong></div>
+                          <div><span>عدم كفاية ري</span><strong className="warning-text">{insufficientGardens.length}</strong></div>
+                          <div><span>خروج الرصيف</span><strong className="blue-text">{sidewalkGardens.length}</strong></div>
+                        </div>
+
+                        <div className="project-progress-row">
+                          <span>نسبة الإنجاز</span>
+                          <div className="project-progress-track"><i style={{ width: `${projectCompletionRate}%` }} /></div>
+                          <strong>{projectCompletionRate}%</strong>
+                        </div>
+
+                        <div className="project-showcase-footer">
+                          <button type="button">عرض التفاصيل</button>
+                          <small>آخر تحديث: اليوم، {new Date().toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" })}</small>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
             </div>
           </div>
 
           {!openProjectId && (
-            <section className="project-empty-state">
-              <div className="project-empty-icon">▣</div>
-              <h2>اختر مشروعًا لعرض تفاصيله</h2>
-              <p>سيتم عرض بيانات المشروع المختار هنا مع مؤشرات الري والحدائق والتفاصيل التشغيلية.</p>
-              <span>☘</span>
+            <section className="project-detail-empty projects-hint-card">
+              <div>▣</div>
+              <h3>اختر مشروعًا من البطاقات لعرض تفاصيله</h3>
+              <p>اضغط على أي مشروع لعرض مؤشرات الري والحدائق والسجلات التشغيلية الخاصة به.</p>
             </section>
           )}
 
@@ -2608,7 +2697,7 @@ const duplicatePhoto =
               if (!schedule) return false;
               if (schedule.daily_watering) return !isFridayDate(selectedDate);
 
-              const day = new Date(selectedDate).getUTCDay();
+              const day = parseLocalDate(selectedDate).getDay();
 
               if (day === 0) return schedule.sunday;
               if (day === 1) return schedule.monday;
@@ -2640,7 +2729,7 @@ const duplicatePhoto =
                       : [];
 
             return (
-              <section key={project.id} className="project-detail-shell">
+              <section key={project.id} className="project-detail-shell project-detail-showcase">
                 <div className="project-detail-hero">
                   <div>
                     <span className="project-detail-kicker">المشروع المحدد</span>
@@ -2656,17 +2745,17 @@ const duplicatePhoto =
 
                 <div className="project-detail-stats">
                   <button className={openSection === "watered" ? "active" : ""} onClick={() => setOpenSection(openSection === "watered" ? null : "watered")}>
-                    <em>♢</em>
+                    <em>✓</em>
                     <span>تم ريها</span>
                     <strong>{wateredGardens.length}</strong>
                   </button>
                   <button className={openSection === "not_watered" ? "active danger" : "danger"} onClick={() => setOpenSection(openSection === "not_watered" ? null : "not_watered")}>
-                    <em>⌁</em>
+                    <em>✕</em>
                     <span>لم يتم ريها</span>
                     <strong>{notWateredGardens.length}</strong>
                   </button>
                   <button className={openSection === "insufficient" ? "active warning" : "warning"} onClick={() => setOpenSection(openSection === "insufficient" ? null : "insufficient")}>
-                    <em>−</em>
+                    <em>◖</em>
                     <span>عدم كفاية ري</span>
                     <strong>{insufficientGardens.length}</strong>
                   </button>
@@ -2745,6 +2834,11 @@ const duplicatePhoto =
               </section>
             );
           })}
+
+          <div className="friday-off-notice projects-friday-note">
+            <span>يوم الجمعة إجازة</span>
+            <strong>لا يتم احتساب الحدائق التي لم يتم ريها في مؤشرات هذا اليوم.</strong>
+          </div>
         </section>
       ))}
 
