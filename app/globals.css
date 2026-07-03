@@ -1890,3 +1890,65 @@ button.blue {
 .project-detail-rate strong {
   font-size: 30px !important;
 }
+/* المرحلة 2 - إصلاحات شاشة المشاريع */
+
+/* منع قص أسماء المشاريع */
+.project-tab {
+  min-height: 105px !important;
+  padding: 18px 16px !important;
+}
+
+.project-tab strong {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  line-height: 1.45 !important;
+}
+
+/* تصغير بطاقات مؤشرات المشروع */
+.project-detail-stats {
+  gap: 14px !important;
+}
+
+.project-detail-stats button,
+.project-detail-stats > div {
+  min-height: 165px !important;
+  padding: 14px !important;
+}
+
+.project-detail-stats em {
+  width: 44px !important;
+  height: 44px !important;
+  margin-bottom: 8px !important;
+}
+
+.project-detail-stats span {
+  font-size: 17px !important;
+}
+
+.project-detail-stats strong {
+  font-size: 48px !important;
+  margin-top: 4px !important;
+}
+
+/* تصغير مساحة اختر مؤشراً */
+.project-detail-empty {
+  min-height: 180px !important;
+  padding: 24px !important;
+}
+
+.project-detail-empty span,
+.project-detail-empty .project-empty-icon {
+  font-size: 40px !important;
+  margin-bottom: 8px !important;
+}
+
+.project-detail-empty h3 {
+  font-size: 22px !important;
+  margin: 8px 0 !important;
+}
+
+.project-detail-empty p {
+  font-size: 15px !important;
+  margin-top: 6px !important;
+}
