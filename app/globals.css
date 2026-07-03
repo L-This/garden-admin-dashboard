@@ -1658,3 +1658,71 @@ button.blue {
     grid-template-columns: 1fr !important;
   }
 }
+/* =========================================
+   المرحلة 2 - المؤشرات العامة
+========================================= */
+
+/* تصغير البطاقات قليلاً */
+.design1-overview > div,
+.design1-overview .ai-overview-card {
+  min-height: 165px !important;
+  padding: 18px !important;
+}
+
+/* تصغير الأيقونة */
+.design1-overview em {
+  width: 42px !important;
+  height: 42px !important;
+  margin-bottom: 10px !important;
+  font-size: 18px !important;
+}
+
+/* تكبير الرقم */
+.design1-overview strong {
+  font-size: 64px !important;
+  line-height: 1 !important;
+  margin-top: 6px !important;
+}
+
+/* تحسين العنوان */
+.design1-overview span {
+  font-size: 20px !important;
+  font-weight: 900 !important;
+  color: #0b3f36 !important;
+}
+
+/* ألوان مخصصة لكل بطاقة */
+.design1-overview > div:nth-child(1) strong {
+  color: #dc2626 !important;
+}
+
+.design1-overview > div:nth-child(2) strong {
+  color: #059669 !important;
+}
+
+.design1-overview > div:nth-child(3) strong {
+  color: #047857 !important;
+}
+
+.design1-overview > div:nth-child(4) strong {
+  color: #7c3aed !important;
+}
+
+.design1-overview > div:nth-child(5) strong {
+  color: #2563eb !important;
+}
+
+.design1-overview > div:nth-child(6) strong {
+  color: #d97706 !important;
+}
+
+/* شريط الجمعة */
+.friday-off-notice {
+  min-height: 60px !important;
+  padding: 14px 22px !important;
+  border-radius: 18px !important;
+  background: rgba(255,250,240,.95) !important;
+  border: 1px solid rgba(216,180,92,.30) !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+}
