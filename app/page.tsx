@@ -2103,7 +2103,7 @@ body {
 
         <nav className="design1-sidebar-nav">
           <button className={activeView === "overview" ? "active" : ""} onClick={() => setActiveView("overview")}>⌂ المؤشرات العامة</button>
-          <button className={activeView === "projects" ? "active" : ""} onClick={() => setActiveView("projects")}>▦ المشاريع</button>
+          <button className={activeView === "projects" ? "active" : ""} onClick={() => { setActiveView("projects"); setOpenProjectId(null); setOpenSection(null); }}>▦ المشاريع</button>
           <button className={activeView === "ai" ? "active" : ""} onClick={() => setActiveView("ai")}>⚠ التحقق الذكي</button>
           <button onClick={loadData}>↻ تحديث البيانات</button>
           <button className={activeView === "report" ? "active" : ""} onClick={() => setActiveView("report")}>▣ إعداد تقرير</button>
@@ -2651,14 +2651,10 @@ const duplicatePhoto =
                       role="button"
                       tabIndex={0}
                       className={`project-showcase-card project-cover-${(projectIndex % 4) + 1} ${openProjectId === project.id ? "active" : ""}`}
-                      onClick={() => {
-                        setOpenProjectId(project.id);
-                        setOpenSection(null);
-                      }}
+                      onClick={() => openProject(project.id)}
                       onKeyDown={(event) => {
                         if (event.key === "Enter") {
-                          setOpenProjectId(project.id);
-                          setOpenSection(null);
+                          openProject(project.id);
                         }
                       }}
                     >
@@ -2685,7 +2681,7 @@ const duplicatePhoto =
                         </div>
 
                         <div className="project-showcase-footer">
-                          <button type="button">عرض التفاصيل</button>
+                          <button type="button" onClick={(event) => { event.stopPropagation(); openProject(project.id); }}>عرض التفاصيل</button>
                           <small>آخر تحديث: اليوم، {new Date().toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" })}</small>
                         </div>
                       </div>
@@ -2745,6 +2741,17 @@ const duplicatePhoto =
             return (
               <section key={project.id} ref={selectedProjectDetailsRef} className="project-detail-shell project-detail-showcase">
                 <div className="project-detail-hero">
+                  <button
+                    type="button"
+                    className="project-close-btn"
+                    onClick={() => {
+                      setOpenProjectId(null);
+                      setOpenSection(null);
+                    }}
+                  >
+                    × إغلاق التفاصيل
+                  </button>
+
                   <div>
                     <span className="project-detail-kicker">المشروع المحدد</span>
                     <h2>{project.name}</h2>
