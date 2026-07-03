@@ -156,7 +156,18 @@ type ExecutiveProjectRow = {
 };
 
 function today() {
-  return new Date().toISOString().slice(0, 10);
+  return formatLocalDate(new Date());
+}
+
+function formatLocalDate(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function parseLocalDate(dateValue: string) {
+  return new Date(`${dateValue}T12:00:00`);
 }
 
 function formatDateTime(value?: string | null) {
@@ -180,8 +191,8 @@ function statusLabel(status?: ReportStatus | null) {
 }
 
 function workingDaysBetweenInclusive(from: string, to: string) {
-  const start = new Date(`${from}T00:00:00`);
-  const end = new Date(`${to}T00:00:00`);
+  const start = parseLocalDate(from);
+  const end = parseLocalDate(to);
 
   if (
     Number.isNaN(start.getTime()) ||
@@ -203,12 +214,12 @@ function workingDaysBetweenInclusive(from: string, to: string) {
 }
 
 function isFridayDate(dateValue: string) {
-  return new Date(`${dateValue}T00:00:00`).getDay() === 5;
+  return parseLocalDate(dateValue).getDay() === 5;
 }
 
 function listWorkingDatesBetweenInclusive(from: string, to: string) {
-  const start = new Date(`${from}T00:00:00`);
-  const end = new Date(`${to}T00:00:00`);
+  const start = parseLocalDate(from);
+  const end = parseLocalDate(to);
 
   if (
     Number.isNaN(start.getTime()) ||
@@ -222,7 +233,7 @@ function listWorkingDatesBetweenInclusive(from: string, to: string) {
   const current = new Date(start);
 
   while (current <= end) {
-    const dateValue = current.toISOString().slice(0, 10);
+    const dateValue = formatLocalDate(current);
     if (!isFridayDate(dateValue)) dates.push(dateValue);
     current.setDate(current.getDate() + 1);
   }
@@ -232,7 +243,7 @@ function listWorkingDatesBetweenInclusive(from: string, to: string) {
 
 function formatReportDate(value: string) {
   if (!value) return "-";
-  return new Date(`${value}T00:00:00`).toLocaleDateString("ar-SA");
+  return parseLocalDate(value).toLocaleDateString("ar-SA");
 }
 
 function joinReportDates(dates: string[]) {
@@ -704,7 +715,7 @@ export default function AdminHome() {
 
   if (schedule.daily_watering) return !isFridayDate(dateValue);
 
-  const day = new Date(`${dateValue}T00:00:00`).getDay();
+  const day = parseLocalDate(dateValue).getDay();
 
   if (day === 0) return schedule.sunday;
   if (day === 1) return schedule.monday;
@@ -721,34 +732,49 @@ export default function AdminHome() {
       const gardenReports = reportsInPeriod.filter(
         (report) => report.garden_id === garden.id,
       );
-      const reportedDates = new Set(
-        gardenReports.map((report) => report.report_date),
-      );
+
+      const reportByDate = new Map<string, Pick<
+        Report,
+        | "id"
+        | "garden_id"
+        | "report_date"
+        | "status"
+        | "insufficient_watering"
+        | "sidewalk_runoff"
+      >>();
+
+      gardenReports.forEach((report) => {
+        const reportDate = String(report.report_date).slice(0, 10);
+        if (!reportByDate.has(reportDate)) {
+          reportByDate.set(reportDate, report);
+        }
+      });
 
       let watered = 0;
       const notWateredDates: string[] = [];
       const insufficientDates: string[] = [];
       const sidewalkDates: string[] = [];
 
-      gardenReports.forEach((report) => {
+      const requiredDatesForGarden = workingDates.filter((dateValue) =>
+        isScheduledForDate(garden.id, dateValue),
+      );
+
+      requiredDatesForGarden.forEach((dateValue) => {
+        const report = reportByDate.get(dateValue);
+
+        if (!report) {
+          notWateredDates.push(dateValue);
+          return;
+        }
+
         const status = getReportStatus(report as Report);
-        if (status === "not_watered") notWateredDates.push(report.report_date);
-        else if (status === "insufficient") insufficientDates.push(report.report_date);
-        else if (status === "sidewalk_runoff") sidewalkDates.push(report.report_date);
+        if (status === "not_watered") notWateredDates.push(dateValue);
+        else if (status === "insufficient") insufficientDates.push(dateValue);
+        else if (status === "sidewalk_runoff") sidewalkDates.push(dateValue);
         else watered += 1;
       });
 
-      const requiredDatesForGarden = workingDates.filter((dateValue) =>
-  isScheduledForDate(garden.id, dateValue),
-);
-
-const missingDates = requiredDatesForGarden.filter(
-  (dateValue) => !reportedDates.has(dateValue),
-);
-
-      const uniqueNotWateredDates = Array.from(
-        new Set([...notWateredDates, ...missingDates]),
-      ).sort();
+      const uniqueNotWateredDates = Array.from(new Set(notWateredDates)).sort();
       const uniqueInsufficientDates = Array.from(new Set(insufficientDates)).sort();
       const uniqueSidewalkDates = Array.from(new Set(sidewalkDates)).sort();
 
@@ -897,7 +923,7 @@ let sidewalk = 0;
   if (!schedule) return false;
   if (schedule.daily_watering) return !isFridayDate(dateValue);
 
-  const day = new Date(`${dateValue}T00:00:00`).getDay();
+  const day = parseLocalDate(dateValue).getDay();
 
   if (day === 0) return schedule.sunday;
   if (day === 1) return schedule.monday;
@@ -985,9 +1011,10 @@ const violations = notWatered + insufficient + sidewalk;
 
     const workingDays = workingDaysBetweenInclusive(reportFromDate, reportToDate);
     const requiredWateringTotal = reportRows.reduce(
-  (sum, row) => sum + row.watered + row.notWatered,
-  0,
-);
+      (sum, row) =>
+        sum + row.watered + row.notWatered + row.insufficient + row.sidewalk,
+      0,
+    );
     const totalWatered = reportRows.reduce((sum, row) => sum + row.watered, 0);
     const totalNotWatered = reportRows.reduce((sum, row) => sum + row.notWatered, 0);
     const totalInsufficient = reportRows.reduce((sum, row) => sum + row.insufficient, 0);
