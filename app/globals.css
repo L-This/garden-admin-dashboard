@@ -1268,3 +1268,48 @@ textarea:focus {
     grid-template-columns: 1fr !important;
   }
 }
+/* تحسين المؤشرات التنفيذية */
+.executive-grid-inline {
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)) !important;
+  gap: 22px !important;
+}
+
+.executive-grid-inline article {
+  min-height: 230px;
+  padding: 26px !important;
+  border-radius: 28px !important;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.94), rgba(255,250,240,.86)),
+    url("/backgrounds/metric-card.png") center/cover no-repeat !important;
+  border: 1px solid rgba(216,180,92,.42) !important;
+}
+
+.executive-grid-inline article h3 {
+  margin: 0 0 14px;
+  font-size: 24px;
+  color: var(--green-950);
+}
+
+.executive-grid-inline article strong {
+  font-size: 54px !important;
+  color: var(--green-700);
+}
+
+.executive-grid-inline article p {
+  margin: 10px 0;
+  font-size: 17px;
+  font-weight: 900;
+  color: var(--green-950);
+}
+
+.executive-grid-inline article span {
+  display: block;
+  margin-top: 8px;
+  font-size: 15px;
+  color: #6b4e13;
+}
+
+.executive-grid-inline article:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 60px rgba(6,43,36,.16);
+}
