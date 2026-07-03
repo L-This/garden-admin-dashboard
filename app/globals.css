@@ -1185,3 +1185,85 @@ textarea:focus {
     height: 112px;
   }
 }
+
+/* =========================================================
+   BANNER HEADERS — image titles without duplicate live text
+   Required files in public/backgrounds/:
+   overview-banner.png
+   projects-active-banner.png
+   projects-banner.png
+========================================================= */
+.banner-header {
+  min-height: 172px !important;
+  padding: 0 !important;
+  position: relative !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  box-shadow: 0 20px 52px rgba(6, 43, 36, .12) !important;
+  background-size: contain !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-color: transparent !important;
+}
+
+.banner-header > div,
+.banner-header > p {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+}
+
+.overview-banner-header {
+  background-image: url('/backgrounds/overview-banner.png') !important;
+}
+
+.projects-banner-header {
+  background-image: url('/backgrounds/projects-active-banner.png') !important;
+}
+
+/* Make the project selector panel cleaner because the title now lives in the image banner */
+.projects-workspace {
+  gap: 16px !important;
+}
+
+.project-picker-panel {
+  padding: 18px 22px !important;
+  background:
+    linear-gradient(rgba(255,250,240,.10), rgba(255,250,240,.10)),
+    url('/backgrounds/projects-bg.png') center/cover no-repeat !important;
+}
+
+.project-picker-title {
+  margin-bottom: 12px !important;
+}
+
+.project-picker-title h2 {
+  font-size: 22px !important;
+}
+
+.project-picker-title span {
+  font-size: 13px !important;
+}
+
+.project-detail-hero {
+  min-height: 230px !important;
+  background:
+    linear-gradient(90deg, rgba(6,43,36,.58), rgba(6,43,36,.36)),
+    url('/backgrounds/projects-banner.png') center/cover no-repeat !important;
+}
+
+.project-detail-hero h2,
+.project-detail-hero p,
+.project-detail-kicker {
+  text-shadow: 0 4px 14px rgba(0,0,0,.32) !important;
+}
+
+@media (max-width: 900px) {
+  .banner-header {
+    min-height: 120px !important;
+  }
+}
