@@ -2636,3 +2636,44 @@ button.blue {
   padding: 14px 18px !important;
   border-radius: 16px !important;
 }
+/* تحسين نهائي للمؤشرات التنفيذية */
+.inline-admin-panel:has(.executive-grid-inline) .panel-headline {
+  background: rgba(255, 250, 240, .82) !important;
+  border: 1px solid rgba(216,180,92,.28) !important;
+  border-radius: 22px !important;
+  padding: 18px 22px !important;
+  margin-bottom: 20px !important;
+}
+
+.inline-admin-panel:has(.executive-grid-inline) .panel-headline h2,
+.inline-admin-panel:has(.executive-grid-inline) .panel-headline span {
+  color: #073b31 !important;
+  opacity: 1 !important;
+}
+
+.executive-grid-inline {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 20px !important;
+  align-items: stretch !important;
+}
+
+.executive-grid-inline article {
+  min-height: 230px !important;
+  display: grid !important;
+  align-content: center !important;
+}
+
+.executive-grid-inline article h3 {
+  font-size: 21px !important;
+  margin-bottom: 10px !important;
+}
+
+.executive-grid-inline article strong {
+  font-size: 56px !important;
+}
+
+@media (min-width: 1500px) {
+  .executive-grid-inline {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
