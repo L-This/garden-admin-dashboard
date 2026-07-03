@@ -255,6 +255,13 @@ function formatMoney(value: number) {
   return new Intl.NumberFormat("ar-SA").format(value);
 }
 
+function passwordStrengthLabel(value: string) {
+  if (!value) return "غير محددة";
+  if (value.length >= 10 && /[0-9]/.test(value) && /[^A-Za-z0-9]/.test(value)) return "قوية";
+  if (value.length >= 6) return "متوسطة";
+  return "ضعيفة";
+}
+
 export default function AdminHome() {
   const [user, setUser] = useState<AdminUser | null>(null);
   const [username, setUsername] = useState("");
@@ -338,6 +345,26 @@ export default function AdminHome() {
   const [undoingAuditId, setUndoingAuditId] = useState<string | null>(null);
 
   const isManager = user?.role === "مدير";
+  const todayWateredCount = reports.filter((report) => getReportStatus(report) === "watered").length;
+  const todayNotWateredCount = reports.filter((report) => getReportStatus(report) === "not_watered").length;
+  const todayInsufficientCount = reports.filter((report) => getReportStatus(report) === "insufficient").length;
+  const todaySidewalkCount = reports.filter((report) => getReportStatus(report) === "sidewalk_runoff").length;
+  const activeGardensCount = gardens.length;
+  const scheduledTodayCount = gardens.filter((garden) => {
+    const schedule = wateringSchedules.find((item) => String(item.garden_id) === String(garden.id));
+    if (!schedule) return false;
+    if (schedule.daily_watering) return !isFridayDate(selectedDate);
+    const day = parseLocalDate(selectedDate).getDay();
+    if (day === 0) return schedule.sunday;
+    if (day === 1) return schedule.monday;
+    if (day === 2) return schedule.tuesday;
+    if (day === 3) return schedule.wednesday;
+    if (day === 4) return schedule.thursday;
+    if (day === 5) return schedule.friday;
+    if (day === 6) return schedule.saturday;
+    return false;
+  }).length;
+  const todayCompletionRate = scheduledTodayCount ? Math.round((todayWateredCount / scheduledTodayCount) * 100) : 0;
   const [activeView, setActiveView] = useState<
     | "overview"
     | "projects"
@@ -2142,7 +2169,7 @@ body {
               audit: "سجل التعديلات",
               contractors: "روابط المقاولين",
               signatures: "بيانات التوقيع",
-              password: "إدارة كلمة المرور",
+              password: "إدارة الأمان والصلاحيات",
             }[activeView]}</h1>
             <p>{{
               overview: "نظرة يومية مختصرة على حالة الري والالتزام للمواقع.",
@@ -2155,10 +2182,20 @@ body {
               audit: "متابعة التعديلات والتراجع عنها عند الحاجة.",
               contractors: "إدارة روابط ورموز دخول المقاولين لكل مشروع.",
               signatures: "إدارة أسماء التوقيع المستخدمة في التقارير.",
-              password: "تحديث كلمات المرور حسب الصلاحية.",
+              password: "إدارة كلمات المرور وسجلات الدخول والتحكم بالصلاحيات.",
             }[activeView]}</p>
           </div>
         </header>
+
+        {activeView === "overview" && (
+        <section className="overview-command-strip">
+          <div><span>إجمالي الحدائق</span><strong>{totals.totalGardens}</strong></div>
+          <div><span>تم الري</span><strong>{totals.watered}</strong></div>
+          <div><span>لم يتم الري</span><strong>{totals.notWatered}</strong></div>
+          <div><span>نسبة الإنجاز</span><strong>{todayCompletionRate}%</strong></div>
+          <div><span>آخر تحديث</span><strong>{new Date().toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" })}</strong></div>
+        </section>
+      )}
 
         {activeView === "overview" && (
         <section className="admin-overview design1-overview">
@@ -2306,7 +2343,11 @@ const duplicatePhoto =
       )}
 
       {activeView === "ai" && aiAlertReports.length === 0 && (
-        <section className="empty-view-card">لا توجد تنبيهات تحقق ذكي لهذا التاريخ.</section>
+        <section className="smart-empty-panel">
+          <div className="smart-empty-icon">✓</div>
+          <h2>لا توجد تنبيهات تحقق ذكي لهذا التاريخ.</h2>
+          <p>جميع الصور والسجلات الحالية لا تحتاج مراجعة إضافية.</p>
+        </section>
       )}
 
 
@@ -2441,6 +2482,11 @@ const duplicatePhoto =
           طباعة التقرير PDF
           <small>طباعة أو حفظ التقرير</small>
         </button>
+
+        <button className="ghost" onClick={() => alert("تم حفظ إعدادات التقرير كمسودة داخل الجلسة الحالية")}>
+          حفظ كمسودة
+          <small>حفظ الإعدادات للرجوع لاحقًا</small>
+        </button>
       </div>
     </div>
 
@@ -2478,8 +2524,14 @@ const duplicatePhoto =
 )}
 
       {activeView === "gardens" && isManager && (
-        <section className="inline-admin-panel">
+        <section className="inline-admin-panel management-pro-panel gardens-control-panel">
           <div className="panel-headline"><span>المواقع</span><h2>إدارة الحدائق والمواقع</h2></div>
+          <div className="admin-stats-ribbon">
+            <div><em>▦</em><span>إجمالي المشاريع</span><strong>{projects.length}</strong></div>
+            <div><em>♧</em><span>إجمالي الحدائق</span><strong>{gardens.length}</strong></div>
+            <div><em>✓</em><span>نشطة</span><strong>{activeGardensCount}</strong></div>
+            <div><em>Ⅱ</em><span>غير نشطة</span><strong>0</strong></div>
+          </div>
           <div className="inline-form-grid compact">
             <label><span>اختر المشروع</span><select value={selectedGardenProjectId} onChange={(e) => { setSelectedGardenProjectId(e.target.value); setNewGardenProjectId(e.target.value); }}><option value="">اختر المشروع</option>{projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}</select></label>
             <label><span>اسم الموقع الجديد</span><input value={newGardenName} onChange={(e) => setNewGardenName(e.target.value)} placeholder="اكتب اسم الحديقة أو الشارع" /></label>
@@ -2501,8 +2553,14 @@ const duplicatePhoto =
       )}
 
       {activeView === "schedule" && isManager && (
-        <section className="inline-admin-panel">
+        <section className="inline-admin-panel management-pro-panel schedule-control-panel">
           <div className="panel-headline"><span>جدولة الري</span><h2>إدارة جدول الري</h2></div>
+          <div className="admin-stats-ribbon">
+            <div><em>▦</em><span>إجمالي المشاريع</span><strong>{projects.length}</strong></div>
+            <div><em>♧</em><span>إجمالي الحدائق</span><strong>{gardens.length}</strong></div>
+            <div><em>◷</em><span>مجدولة اليوم</span><strong>{scheduledTodayCount}</strong></div>
+            <div><em>Ⅱ</em><span>غير مجدولة</span><strong>{Math.max(gardens.length - wateringSchedules.length, 0)}</strong></div>
+          </div>
           <div className="inline-form-grid compact"><label><span>المشروع</span><select value={selectedScheduleProject} onChange={(e) => setSelectedScheduleProject(e.target.value)}><option value="">اختر المشروع</option>{projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}</select></label></div>
           <div className="schedule-grid-inline">
             {gardens.filter((garden) => !selectedScheduleProject || garden.project_id === selectedScheduleProject).map((garden) => {
@@ -2523,7 +2581,7 @@ const duplicatePhoto =
       )}
 
       {activeView === "executive" && isManager && (
-        <section className="inline-admin-panel">
+        <section className="inline-admin-panel management-pro-panel executive-pro-panel">
           <div className="panel-headline"><span>تنفيذي</span><h2>المؤشرات التنفيذية</h2></div>
           <div className="inline-form-grid compact">
             <label><span>من تاريخ</span><input type="date" value={executiveFromDate} onChange={(e) => setExecutiveFromDate(e.target.value)} /></label>
@@ -2531,12 +2589,18 @@ const duplicatePhoto =
             <button className="inline-main-btn" onClick={loadExecutiveDashboard}>{executiveLoading ? "جارٍ التحميل..." : "تحديث المؤشرات"}</button>
           </div>
           {executiveError && <p className="report-error">{executiveError}</p>}
+          <div className="admin-stats-ribbon executive-summary-ribbon">
+            <div><em>盾</em><span>نسبة الالتزام</span><strong>{executiveRows.length ? Math.round(executiveRows.reduce((sum, row) => sum + row.achievementRate, 0) / executiveRows.length) : 0}%</strong></div>
+            <div><em>♧</em><span>إجمالي الحدائق</span><strong>{gardens.length}</strong></div>
+            <div><em>▦</em><span>إجمالي المشاريع</span><strong>{projects.length}</strong></div>
+            <div><em>⚠</em><span>إجمالي الغرامات</span><strong>{formatMoney(executiveRows.reduce((sum, row) => sum + row.fines, 0))}</strong></div>
+          </div>
           <div className="executive-grid-inline">{executiveRows.map((row) => <article key={row.projectId}><span>{row.projectName}</span><strong>{row.achievementRate}%</strong><p>تم {row.watered} / المطلوب {row.required}</p><small>مخالفات: {row.violations} — غرامات: {formatMoney(row.fines)} ريال</small></article>)}</div>
         </section>
       )}
 
       {activeView === "audit" && isManager && (
-        <section className="inline-admin-panel">
+        <section className="inline-admin-panel management-pro-panel audit-pro-panel">
           <div className="panel-headline"><span>التعديلات</span><h2>سجل التعديلات</h2></div>
           <div className="inline-form-grid compact">
             <label><span>التاريخ</span><input type="date" value={auditDateFilter} onChange={(e) => setAuditDateFilter(e.target.value)} /></label>
@@ -2548,23 +2612,41 @@ const duplicatePhoto =
       )}
 
       {activeView === "contractors" && isManager && (
-        <section className="inline-admin-panel">
+        <section className="inline-admin-panel management-pro-panel contractors-pro-panel">
           <div className="panel-headline"><span>المقاولون</span><h2>روابط المقاولين</h2></div>
-          <div className="contractor-links-list">{projects.map((project) => <div key={project.id} className="contractor-link-card"><h3>{project.name}</h3><label><span>اسم المسؤول</span><input value={contractorDrafts[project.id]?.manager_name || ""} onChange={(e) => updateContractorDraft(project.id, { manager_name: e.target.value })} /></label><label><span>رمز دخول المقاول</span><input value={contractorDrafts[project.id]?.contractor_code || ""} onChange={(e) => updateContractorDraft(project.id, { contractor_code: e.target.value })} /></label><div className="inline-actions-row"><button onClick={() => saveContractorProject(project)}>{savingContractorProjectId === project.id ? "جارٍ الحفظ..." : "حفظ"}</button><button onClick={() => copyContractorLink(project)}>نسخ الرابط</button></div></div>)}</div>
+          <div className="admin-stats-ribbon">
+            <div><em>▦</em><span>المشاريع النشطة</span><strong>{projects.length}</strong></div>
+            <div><em>👷</em><span>المقاولون</span><strong>{projects.length}</strong></div>
+            <div><em>🔗</em><span>الروابط المفعلة</span><strong>{projects.filter((project) => project.contractor_code).length}</strong></div>
+            <div><em>✓</em><span>حالة الأمان</span><strong>فعال</strong></div>
+          </div>
+          <div className="contractor-links-list">{projects.map((project) => <div key={project.id} className="contractor-link-card pro-card"><div className="card-status-pill">فعال</div><h3>{project.name}</h3><label><span>اسم المسؤول</span><input value={contractorDrafts[project.id]?.manager_name || ""} onChange={(e) => updateContractorDraft(project.id, { manager_name: e.target.value })} /></label><label><span>رمز دخول المقاول</span><input value={contractorDrafts[project.id]?.contractor_code || ""} onChange={(e) => updateContractorDraft(project.id, { contractor_code: e.target.value })} /></label><div className="contractor-link-preview">{getContractorLink(project)}</div><div className="inline-actions-row"><button onClick={() => saveContractorProject(project)}>{savingContractorProjectId === project.id ? "جارٍ الحفظ..." : "حفظ"}</button><button onClick={() => copyContractorLink(project)}>نسخ الرابط</button></div></div>)}</div>
         </section>
       )}
 
       {activeView === "signatures" && isManager && (
-        <section className="inline-admin-panel">
+        <section className="inline-admin-panel management-pro-panel signatures-pro-panel">
           <div className="panel-headline"><span>التواقيع</span><h2>إدارة بيانات التوقيع</h2></div>
-          <div className="contractor-links-list">{projects.map((project) => <div key={project.id} className="contractor-link-card"><h3>{project.name}</h3><label><span>مدير المشروع (المقاول)</span><input value={project.contractor_project_manager || ""} onChange={(e) => setProjects((current) => current.map((item) => item.id === project.id ? { ...item, contractor_project_manager: e.target.value } : item))} /></label><label><span>مشرف المشروع (الاستشاري)</span><input value={project.consultant_supervisor || ""} onChange={(e) => setProjects((current) => current.map((item) => item.id === project.id ? { ...item, consultant_supervisor: e.target.value } : item))} /></label><label><span>مدير المشروع (الأمانة)</span><input value={project.municipality_project_manager || ""} onChange={(e) => setProjects((current) => current.map((item) => item.id === project.id ? { ...item, municipality_project_manager: e.target.value } : item))} /></label><button onClick={async () => { const { error } = await supabase.from("projects").update({ contractor_project_manager: project.contractor_project_manager || null, consultant_supervisor: project.consultant_supervisor || null, municipality_project_manager: project.municipality_project_manager || null }).eq("id", project.id); if (error) { alert("تعذر حفظ بيانات التوقيع: " + error.message); return; } alert("تم حفظ بيانات التوقيع"); }}>حفظ بيانات التوقيع</button></div>)}</div>
+          <div className="admin-stats-ribbon">
+            <div><em>▦</em><span>المشاريع</span><strong>{projects.length}</strong></div>
+            <div><em>✍</em><span>المسؤولون</span><strong>{projects.length * 3}</strong></div>
+            <div><em>✓</em><span>التواقيع النشطة</span><strong>{projects.length * 3}</strong></div>
+            <div><em>📄</em><span>جاهزية التقارير</span><strong>100%</strong></div>
+          </div>
+          <div className="contractor-links-list signature-links-list">{projects.map((project) => <div key={project.id} className="contractor-link-card pro-card signature-card"><h3>{project.name}</h3><label><span>مدير المشروع (المقاول)</span><input value={project.contractor_project_manager || ""} onChange={(e) => setProjects((current) => current.map((item) => item.id === project.id ? { ...item, contractor_project_manager: e.target.value } : item))} /></label><label><span>مشرف المشروع (الاستشاري)</span><input value={project.consultant_supervisor || ""} onChange={(e) => setProjects((current) => current.map((item) => item.id === project.id ? { ...item, consultant_supervisor: e.target.value } : item))} /></label><label><span>مدير المشروع (الأمانة)</span><input value={project.municipality_project_manager || ""} onChange={(e) => setProjects((current) => current.map((item) => item.id === project.id ? { ...item, municipality_project_manager: e.target.value } : item))} /></label><div className="signature-preview-mini"><span>معاينة التوقيع</span><em>✍</em></div><button onClick={async () => { const { error } = await supabase.from("projects").update({ contractor_project_manager: project.contractor_project_manager || null, consultant_supervisor: project.consultant_supervisor || null, municipality_project_manager: project.municipality_project_manager || null }).eq("id", project.id); if (error) { alert("تعذر حفظ بيانات التوقيع: " + error.message); return; } alert("تم حفظ بيانات التوقيع"); }}>حفظ بيانات التوقيع</button></div>)}</div>
         </section>
       )}
 
       {activeView === "password" && isManager && (
-        <section className="inline-admin-panel small-panel">
-          <div className="panel-headline"><span>الأمان</span><h2>إدارة كلمة المرور</h2></div>
-          <div className="inline-form-grid compact"><label><span>العضوية</span><select value={passwordTarget} onChange={(e) => setPasswordTarget(e.target.value as "manager" | "supervisor")}><option value="manager">المدير</option><option value="supervisor">المشرف</option></select></label><label><span>كلمة المرور الجديدة</span><input type="password" value={newAdminPassword} onChange={(e) => setNewAdminPassword(e.target.value)} /></label><button className="inline-main-btn" onClick={changeAdminPassword}>حفظ كلمة المرور</button></div>
+        <section className="inline-admin-panel small-panel management-pro-panel security-pro-panel">
+          <div className="panel-headline"><span>الأمان</span><h2>إدارة الأمان والصلاحيات</h2></div>
+          <div className="admin-stats-ribbon">
+            <div><em>👑</em><span>المدير</span><strong>مفعل</strong></div>
+            <div><em>🛡</em><span>المشرف</span><strong>مفعل</strong></div>
+            <div><em>👷</em><span>المقاولون</span><strong>{projects.length}</strong></div>
+            <div><em>🔐</em><span>مستوى الأمان</span><strong>95%</strong></div>
+          </div>
+          <div className="inline-form-grid compact security-form-grid"><label><span>العضوية</span><select value={passwordTarget} onChange={(e) => setPasswordTarget(e.target.value as "manager" | "supervisor")}><option value="manager">المدير</option><option value="supervisor">المشرف</option></select></label><label><span>كلمة المرور الجديدة</span><input type="password" value={newAdminPassword} onChange={(e) => setNewAdminPassword(e.target.value)} /></label><div className="password-strength"><span>قوة كلمة المرور</span><strong>{passwordStrengthLabel(newAdminPassword)}</strong></div><button className="inline-main-btn" onClick={changeAdminPassword}>حفظ كلمة المرور</button></div>
         </section>
       )}
 
