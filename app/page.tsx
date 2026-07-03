@@ -2145,44 +2145,56 @@ body {
         </header>
 
         {activeView === "overview" && (
-        <section className="admin-overview design1-overview">
-          <div>
+        <section className="admin-overview design1-overview overview-ui-v2">
+          <div className="overview-card overview-total">
             <em>◌</em>
             <span>إجمالي الحدائق</span>
             <strong>{totals.totalGardens}</strong>
+            <small>إجمالي عدد الحدائق المسجلة</small>
           </div>
-          <div>
+          <div className="overview-card overview-watered">
             <em>♢</em>
             <span>تم ريها</span>
             <strong>{totals.watered}</strong>
+            <small>تم الري اليوم في هذه المواقع</small>
           </div>
-          <div>
+          <div className="overview-card overview-not-watered">
             <em>⌁</em>
             <span>لم يتم ريها</span>
             <strong>{totals.notWatered}</strong>
+            <small>لم يتم الري في هذه المواقع</small>
           </div>
-          <div>
+          <div className="overview-card overview-insufficient">
             <em>−</em>
             <span>عدم كفاية ري</span>
             <strong>{totals.insufficient}</strong>
+            <small>مواقع تحتاج زيادة ري</small>
           </div>
-          <div>
+          <div className="overview-card overview-sidewalk">
             <em>↪</em>
             <span>خروج الري للرصيف</span>
             <strong>{totals.sidewalk}</strong>
+            <small>حالات خروج الري للرصيف</small>
           </div>
-          <div className="ai-overview-card">
+          <div className="overview-card overview-ai ai-overview-card">
             <em>⚠</em>
             <span>تنبيهات التحقق الذكي</span>
             <strong>{aiAlertReports.length}</strong>
+            <small>تنبيهات تحتاج مراجعة</small>
           </div>
         </section>
         )}
 
       {activeView === "overview" && isFridayDate(selectedDate) && (
-        <section className="friday-off-notice">
-          <strong>يوم الجمعة إجازة</strong>
-          <span>لا يتم احتساب الحدائق كـ "لم يتم الري" في هذا اليوم.</span>
+        <section className="friday-off-notice friday-off-notice-v2">
+          <div>
+            <em>ⓘ</em>
+            <span>لا يتم احتساب الحدائق التي لم يتم ريها في هذا اليوم.</span>
+          </div>
+          <div>
+            <em>▣</em>
+            <strong>يوم الجمعة إجازة</strong>
+          </div>
         </section>
       )}
 
