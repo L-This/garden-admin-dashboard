@@ -2293,3 +2293,175 @@ button.blue {
   border-radius: 999px !important;
   font-weight: 950 !important;
 }
+
+
+/* =========================================================
+   المرحلة 2 - إدارة الحدائق والمواقع
+   ترتيب نموذج الإضافة + تحسين كروت المواقع
+   ========================================================= */
+
+/* لوحة إدارة المواقع بدون فراغات أو تمرير داخلي مزعج */
+.inline-admin-panel:has(.management-list) {
+  min-height: auto !important;
+  padding: 30px !important;
+  overflow: visible !important;
+}
+
+.inline-admin-panel:has(.management-list) .panel-headline {
+  margin-bottom: 22px !important;
+}
+
+.inline-admin-panel:has(.management-list) .panel-headline h2 {
+  font-size: 32px !important;
+  line-height: 1.25 !important;
+}
+
+/* نموذج الإضافة يصبح شريطًا عمليًا أنحف */
+.inline-admin-panel:has(.management-list) .inline-form-grid,
+.inline-admin-panel:has(.management-list) .inline-form-grid.compact {
+  display: grid !important;
+  grid-template-columns: 1.05fr 1.25fr .9fr !important;
+  gap: 16px !important;
+  align-items: end !important;
+  margin-bottom: 24px !important;
+}
+
+.inline-admin-panel:has(.management-list) .inline-form-grid label {
+  gap: 8px !important;
+  text-align: right !important;
+}
+
+.inline-admin-panel:has(.management-list) .inline-form-grid label > span {
+  color: #047857 !important;
+  font-size: 17px !important;
+  font-weight: 950 !important;
+}
+
+.inline-admin-panel:has(.management-list) .inline-form-grid input,
+.inline-admin-panel:has(.management-list) .inline-form-grid select {
+  min-height: 58px !important;
+  border-radius: 16px !important;
+  font-size: 16px !important;
+  background: rgba(255,255,255,.94) !important;
+}
+
+.inline-admin-panel:has(.management-list) .inline-main-btn,
+.inline-admin-panel:has(.management-list) .inline-actions-row button {
+  min-height: 58px !important;
+  border-radius: 16px !important;
+  font-size: 17px !important;
+  font-weight: 950 !important;
+  align-self: end !important;
+}
+
+/* شبكة المواقع */
+.management-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+  align-items: start !important;
+  align-content: start !important;
+}
+
+/* بطاقة الموقع */
+.management-row {
+  position: relative !important;
+  min-height: 170px !important;
+  padding: 24px 20px 20px !important;
+  border-radius: 24px !important;
+  text-align: center !important;
+  overflow: hidden !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,250,240,.84)),
+    url('/backgrounds/metric-card.png') center/cover no-repeat !important;
+  border: 1px solid rgba(216,180,92,.34) !important;
+  box-shadow: 0 14px 32px rgba(6,43,36,.08) !important;
+}
+
+.management-row::before {
+  content: "موقع";
+  position: absolute;
+  top: 14px;
+  inset-inline-start: 16px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(236,253,245,.9);
+  color: #047857;
+  border: 1px solid rgba(11,143,99,.12);
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.management-row strong {
+  margin-top: 12px !important;
+  color: #7b5a16 !important;
+  font-size: 24px !important;
+  line-height: 1.35 !important;
+  font-weight: 950 !important;
+}
+
+.management-row span,
+.management-row p {
+  color: #58736b !important;
+  font-size: 17px !important;
+  line-height: 1.6 !important;
+  font-weight: 900 !important;
+}
+
+.management-row div {
+  justify-content: center !important;
+  gap: 10px !important;
+  margin-top: 6px !important;
+}
+
+.management-row button {
+  min-width: 110px !important;
+  min-height: 46px !important;
+  padding: 10px 18px !important;
+  border-radius: 14px !important;
+  font-size: 15px !important;
+}
+
+/* تمييز أزرار البطاقة */
+.management-row button:nth-child(1) {
+  background: linear-gradient(135deg, #07543f, #0b8f63) !important;
+}
+
+.management-row button:nth-child(2) {
+  background: linear-gradient(135deg, #9a7118, #c18b18) !important;
+}
+
+/* عند فتح تعديل الاسم داخل نفس البطاقة */
+.management-row input {
+  min-height: 48px !important;
+  text-align: center !important;
+  border-radius: 14px !important;
+}
+
+/* تحسين مساحة الشاشة عند كثرة المواقع */
+.inline-admin-panel:has(.management-list) .empty-list {
+  min-height: 220px !important;
+  display: grid !important;
+  place-items: center !important;
+  text-align: center !important;
+  border-radius: 22px !important;
+  background: rgba(255,255,255,.74) !important;
+  border: 1px dashed rgba(216,180,92,.38) !important;
+}
+
+@media (max-width: 1400px) {
+  .management-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .inline-admin-panel:has(.management-list) .inline-form-grid,
+  .inline-admin-panel:has(.management-list) .inline-form-grid.compact,
+  .management-list {
+    grid-template-columns: 1fr !important;
+  }
+
+  .inline-admin-panel:has(.management-list) {
+    padding: 20px !important;
+  }
+}
