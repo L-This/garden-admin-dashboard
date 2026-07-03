@@ -394,8 +394,8 @@ textarea:focus {
 }
 
 .project-picker-panel {
-  padding: 24px;
-  border-radius: 26px;
+  padding: 18px;
+  border-radius: 24px;
   background: url("/backgrounds/projects-bg.png") center/cover no-repeat;
   border: 1px solid rgba(216,180,92,.34);
   box-shadow: var(--soft-shadow);
@@ -430,19 +430,9 @@ textarea:focus {
 }
 
 .project-tab {
-  min-width: 195px;
-  min-height: 74px;
-  flex-shrink: 0;
-  display: grid;
-  align-content: center;
-  gap: 6px;
-  padding: 13px 16px;
-  border-radius: 17px;
-  border: 1px solid rgba(216,180,92,.22);
-  background: rgba(255,255,255,.88);
-  color: var(--green-950);
-  text-align: right;
-  box-shadow: 0 12px 26px rgba(6,43,36,.06);
+  min-width: 180px;
+  min-height: 62px;
+  padding: 10px 14px;
 }
 
 .project-tab strong {
@@ -513,18 +503,21 @@ textarea:focus {
 }
 
 .project-detail-hero {
-  min-height: 178px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 28px 34px;
-  border-radius: 26px;
+  min-height: 155px;
+  padding: 24px 28px;
+  border-radius: 28px;
+
   background:
-    linear-gradient(90deg, rgba(6,43,36,.92), rgba(6,43,36,.78)),
-    url("/backgrounds/project-card.png") center/cover no-repeat;
+    linear-gradient(
+      90deg,
+      rgba(6,43,36,.92),
+      rgba(6,43,36,.78)
+    ),
+    url("/backgrounds/project-card.png")
+    center/cover no-repeat;
+
   border: 1px solid rgba(216,180,92,.42);
-  box-shadow: 0 18px 40px rgba(6,43,36,.16);
+  box-shadow: 0 22px 50px rgba(6,43,36,.18);
 }
 
 .project-detail-kicker {
@@ -552,16 +545,14 @@ textarea:focus {
 }
 
 .project-detail-rate {
-  width: 132px;
-  height: 132px;
-  display: grid;
-  place-items: center;
-  text-align: center;
-  border-radius: 50%;
-  border: 8px solid rgba(203, 241, 223, .70);
-  background: linear-gradient(135deg, rgba(11,143,99,.95), rgba(6,43,36,.95));
-  color: #fff7d6;
-  box-shadow: 0 18px 42px rgba(0,0,0,.22), 0 0 0 7px rgba(20,184,122,.18);
+  width: 118px;
+  height: 118px;
+
+  border: 7px solid rgba(203,241,223,.70);
+
+  box-shadow:
+    0 18px 42px rgba(0,0,0,.22),
+    0 0 0 8px rgba(20,184,122,.12);
 }
 
 .project-detail-rate strong {
@@ -586,12 +577,12 @@ textarea:focus {
 
 .project-detail-stats button,
 .project-detail-stats > div {
-  min-height: 138px;
+  min-height: 118px;
   display: grid;
   align-content: center;
   justify-items: center;
   text-align: center;
-  padding: 16px;
+  padding: 14px;
   border-radius: 22px;
   border: 1px solid rgba(216,180,92,.30);
   background: url("/backgrounds/metric-card.png") center/cover no-repeat;
@@ -3066,4 +3057,32 @@ button.blue {
     align-items: stretch !important;
     flex-direction: column !important;
   }
+}
+.project-detail-shell {
+  gap: 14px !important;
+}
+
+.project-detail-stats {
+  gap: 12px !important;
+}
+
+.project-detail-stats strong {
+  font-size: 30px !important;
+}
+
+.project-detail-list {
+  border-radius: 22px !important;
+}
+
+.project-detail-list-head h3 {
+  font-size: 22px !important;
+}
+
+.project-garden-item {
+  transition: .25s;
+}
+
+.project-garden-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 38px rgba(6,43,36,.12);
 }
