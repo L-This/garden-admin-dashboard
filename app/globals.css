@@ -2562,3 +2562,53 @@ button.blue {
   overflow: auto !important;
   padding-bottom: 34px !important;
 }
+/* المرحلة 2 - شاشة المؤشرات التنفيذية */
+
+.inline-admin-panel:has(.executive-grid-inline),
+.inline-admin-panel:has(.executive-error) {
+  min-height: calc(100vh - 260px) !important;
+}
+
+.audit-filters-grid {
+  align-items: end !important;
+}
+
+.executive-error,
+.inline-admin-panel p[style*="red"] {
+  margin: 18px 0 0 !important;
+  padding: 16px 20px !important;
+  border-radius: 18px !important;
+  background: rgba(254, 242, 242, .95) !important;
+  border: 1px solid rgba(220, 38, 38, .22) !important;
+  color: #dc2626 !important;
+  font-size: 16px !important;
+  font-weight: 950 !important;
+  text-align: center !important;
+}
+
+.executive-grid-inline:empty::before {
+  content: "حدد فترة صحيحة ثم اضغط تحديث المؤشرات لعرض أداء المشاريع والغرامات.";
+  min-height: 260px;
+  display: grid;
+  place-items: center;
+  padding: 34px;
+  border-radius: 24px;
+  background: rgba(255,255,255,.72);
+  border: 1px dashed rgba(216,180,92,.42);
+  color: #58736b;
+  font-size: 20px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.executive-grid-inline article {
+  border-radius: 24px !important;
+}
+
+.executive-grid-inline article h3 {
+  color: #7b5a16 !important;
+}
+
+.executive-grid-inline article strong {
+  color: #047857 !important;
+}
