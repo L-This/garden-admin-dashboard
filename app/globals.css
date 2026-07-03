@@ -1813,3 +1813,80 @@ button.blue {
   color: #58736b !important;
   line-height: 1.8 !important;
 }
+/* المرحلة 2 - شاشة المشاريع */
+.project-tab.active strong,
+.project-tab.active span {
+  color: #fff7d6 !important;
+}
+
+.project-tabs-row {
+  overflow-x: hidden !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+.project-tab {
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+.project-detail-stats button,
+.project-detail-stats > div {
+  background: url("/backgrounds/metric-card.png") center/cover no-repeat !important;
+  color: #073b31 !important;
+}
+
+.project-detail-stats .danger,
+.project-detail-stats .warning,
+.project-detail-stats .blue {
+  background: url("/backgrounds/metric-card.png") center/cover no-repeat !important;
+}
+
+.project-detail-stats .danger strong {
+  color: #dc2626 !important;
+}
+
+.project-detail-stats .warning strong {
+  color: #d97706 !important;
+}
+
+.project-detail-stats .blue strong {
+  color: #2563eb !important;
+}
+
+.project-detail-stats span {
+  color: #073b31 !important;
+}
+
+.project-detail-empty {
+  min-height: 240px !important;
+  padding: 34px !important;
+}
+
+.project-detail-empty span,
+.project-empty-icon {
+  font-size: 42px !important;
+}
+
+.project-detail-empty h3 {
+  font-size: 24px !important;
+  color: #42645c !important;
+}
+
+.project-detail-empty p {
+  font-size: 17px !important;
+  color: #58736b !important;
+}
+
+.project-detail-hero {
+  min-height: 150px !important;
+}
+
+.project-detail-rate {
+  width: 118px !important;
+  height: 118px !important;
+}
+
+.project-detail-rate strong {
+  font-size: 30px !important;
+}
