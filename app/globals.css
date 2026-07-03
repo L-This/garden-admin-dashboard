@@ -3471,3 +3471,8 @@ button.blue {
     justify-self: center !important;
   }
 }
+.design1-sidebar-nav button {
+  color: #073b31 !important;
+  background: rgba(255,250,240,.55) !important;
+  border-color: rgba(216,180,92,.25) !important;
+}
