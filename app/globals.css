@@ -2215,3 +2215,81 @@ button.blue {
     width: 100%;
   }
 }
+/* المرحلة 2 - شاشة التحقق الذكي */
+
+.ai-alerts-panel,
+.empty-view-card {
+  min-height: calc(100vh - 260px) !important;
+  display: grid !important;
+  place-items: center !important;
+  text-align: center !important;
+  padding: 60px 30px !important;
+  border-radius: 30px !important;
+}
+
+.empty-view-card {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.empty-view-card::before {
+  content: "✓";
+  width: 82px;
+  height: 82px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 22px;
+  border-radius: 50%;
+  background: rgba(236,253,245,.92);
+  border: 1px solid rgba(216,180,92,.34);
+  color: #047857;
+  font-size: 42px;
+  font-weight: 950;
+  box-shadow: 0 16px 34px rgba(6,43,36,.10);
+}
+
+.empty-view-card h2,
+.empty-view-card h3 {
+  margin: 0 0 12px !important;
+  color: #073b31 !important;
+  font-size: 32px !important;
+  font-weight: 950 !important;
+}
+
+.empty-view-card p,
+.empty-view-card {
+  color: #58736b !important;
+  font-size: 19px !important;
+  font-weight: 850 !important;
+  line-height: 1.8 !important;
+}
+
+/* عند وجود تنبيهات */
+.ai-alerts-head {
+  width: 100% !important;
+  align-items: center !important;
+}
+
+.ai-alerts-grid {
+  width: 100% !important;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)) !important;
+  gap: 18px !important;
+}
+
+.ai-alert-card {
+  border-radius: 24px !important;
+  overflow: hidden !important;
+}
+
+.ai-alert-title-row h3 {
+  color: #073b31 !important;
+}
+
+.ai-alert-title-row span {
+  background: rgba(220,38,38,.08) !important;
+  color: #dc2626 !important;
+  border: 1px solid rgba(220,38,38,.18) !important;
+  padding: 6px 12px !important;
+  border-radius: 999px !important;
+  font-weight: 950 !important;
+}
