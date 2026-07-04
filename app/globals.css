@@ -3763,3 +3763,10 @@ button.blue {
   bottom: 40px !important;
   z-index: 6 !important;
 }
+.design1-shell {
+  background: #f7f7f3 !important;
+}
+
+.design1-content {
+  background: #fffdf7 !important;
+}
