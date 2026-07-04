@@ -2770,24 +2770,14 @@ const duplicatePhoto =
                         className="project-showcase-cover project-portal-cover"
                         style={{ backgroundImage: `linear-gradient(90deg, rgba(3, 42, 33, .86) 0%, rgba(3, 42, 33, .58) 42%, rgba(3, 42, 33, .10) 100%), url(${getProjectCover(project)})` }}
                       >
-                        <span className="project-status-badge">نشط</span>
-                        <span className="project-district-badge">{project.district || "بدون نطاق"}</span>
 
                         <div className="project-portal-copy">
                           <span>مشروع</span>
                           <h3>{project.name}</h3>
                           <p>{getProjectTagline(project)}</p>
                         </div>
-
-                        <div className="project-portal-meta">
-                          <div><em>⌖</em><span>النطاق</span><strong>{project.district || "بدون نطاق"}</strong></div>
-                          <div><em>♧</em><span>عدد المواقع</span><strong>{projectGardens.length} موقع</strong></div>
-                          <div><em>✓</em><span>الحالة</span><strong>نشط</strong></div>
-                        </div>
-
                         <button type="button" onClick={(event) => { event.stopPropagation(); openProject(project.id); }}>دخول المشروع</button>
 
-                        <small>آخر تحديث: {latestReport ? formatDateTime(latestReport.created_at) : "لا يوجد تحديث اليوم"}</small>
                       </div>
                     </article>
                   );
