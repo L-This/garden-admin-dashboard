@@ -2838,18 +2838,7 @@ const duplicatePhoto =
                   <span>المشاريع / {project.name}</span>
                 </div>
 
-                <div className="project-detail-hero">
-                  <button
-                    type="button"
-                    className="project-back-btn"
-                    onClick={() => {
-                      setOpenProjectId(null);
-                      setOpenSection(null);
-                    }}
-                  >
-                    ← العودة إلى المشاريع
-                  </button>
-
+                  <div className="project-detail-hero">
                   <div className="project-detail-info">
                     <span className="project-detail-kicker">المشروع المحدد</span>
                     <h2>{project.name}</h2>
