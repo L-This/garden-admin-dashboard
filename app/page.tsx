@@ -2093,10 +2093,6 @@ body {
     return "/projects/project-forest-east.jpg";
   }
 
-  function getProjectTagline(project: Project) {
-  return "دخول إلى تفاصيل المشروع";
-  }
-
   if (!user) {
     return (
       <main className="login-page" dir="rtl">
@@ -2769,9 +2765,8 @@ const duplicatePhoto =
                       >
 
                         <div className="project-portal-copy">
-  <h3>{project.name}</h3>
-  <p>{getProjectTagline(project)}</p>
-</div>
+                           <h3>{project.name}</h3>
+                        </div>
                         <button type="button" onClick={(event) => { event.stopPropagation(); openProject(project.id); }}>دخول المشروع</button>
 
                       </div>
