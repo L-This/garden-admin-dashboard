@@ -2054,21 +2054,49 @@ body {
   );
 
   const totals = useMemo(() => {
-    const friday = isFridayDate(selectedDate);
-    const totalGardens = gardens.length;
-    const watered = friday
-      ? 0
-      : gardens.filter((garden) => wateredGardenIds.has(garden.id)).length;
-    const notWatered = friday ? 0 : totalGardens - watered;
-    const insufficient = friday
-      ? 0
-      : reports.filter((r) => getReportStatus(r) === "insufficient").length;
-    const sidewalk = friday
-      ? 0
-      : reports.filter((r) => getReportStatus(r) === "sidewalk_runoff").length;
+  const friday = isFridayDate(selectedDate);
 
-    return { totalGardens, watered, notWatered, insufficient, sidewalk };
-  }, [gardens, wateredGardenIds, reports, selectedDate]);
+  const scheduledGardens = gardens.filter((garden) => {
+    const schedule = wateringSchedules.find(
+      (item) => String(item.garden_id) === String(garden.id)
+    );
+
+    if (!schedule) return false;
+    if (schedule.daily_watering) return !friday;
+
+    const day = parseLocalDate(selectedDate).getDay();
+
+    if (day === 0) return schedule.sunday;
+    if (day === 1) return schedule.monday;
+    if (day === 2) return schedule.tuesday;
+    if (day === 3) return schedule.wednesday;
+    if (day === 4) return schedule.thursday;
+    if (day === 5) return schedule.friday;
+    if (day === 6) return schedule.saturday;
+
+    return false;
+  });
+
+  const totalGardens = gardens.length;
+
+  const watered = friday
+    ? 0
+    : scheduledGardens.filter((garden) => wateredGardenIds.has(garden.id)).length;
+
+  const notWatered = friday
+    ? 0
+    : scheduledGardens.length - watered;
+
+  const insufficient = friday
+    ? 0
+    : reports.filter((r) => getReportStatus(r) === "insufficient").length;
+
+  const sidewalk = friday
+    ? 0
+    : reports.filter((r) => getReportStatus(r) === "sidewalk_runoff").length;
+
+  return { totalGardens, watered, notWatered, insufficient, sidewalk };
+}, [gardens, wateringSchedules, wateredGardenIds, reports, selectedDate]);
 
   function getProjectCover(project: Project) {
     const name = project.name || "";
