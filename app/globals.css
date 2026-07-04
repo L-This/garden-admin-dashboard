@@ -3723,8 +3723,8 @@ button.blue {
 
 .project-portal-copy {
   position: absolute !important;
-  right: 34px !important;
-  bottom: 42px !important;
+  right: 38px !important;
+  bottom: 72px !important;
   left: auto !important;
   top: auto !important;
 
@@ -3763,6 +3763,6 @@ button.blue {
 .project-portal-cover > button {
   position: absolute !important;
   left: 28px !important;
-  bottom: 32px !important;
+  bottom: 40px !important;
   z-index: 6 !important;
 }
