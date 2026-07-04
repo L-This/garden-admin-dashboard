@@ -3710,3 +3710,53 @@ button.blue {
     width: 100%;
   }
 }
+/* ===== Final Projects Portal Fix ===== */
+
+.project-portal-cover {
+  position: relative !important;
+  min-height: 310px !important;
+  height: 310px !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+.project-portal-copy {
+  position: absolute !important;
+  right: 28px !important;
+  bottom: 34px !important;
+  left: auto !important;
+  top: auto !important;
+  width: 52% !important;
+  max-width: 52% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  backdrop-filter: none !important;
+  text-align: right !important;
+  z-index: 5 !important;
+}
+
+.project-portal-copy h3 {
+  margin: 0 !important;
+  padding: 0 !important;
+  color: #fffaf0 !important;
+  font-size: 34px !important;
+  line-height: 1.15 !important;
+  font-weight: 950 !important;
+  text-shadow: 0 5px 20px rgba(0, 0, 0, .85) !important;
+}
+
+.project-portal-copy span,
+.project-portal-copy p {
+  display: none !important;
+}
+
+.project-portal-cover > button {
+  position: absolute !important;
+  left: 28px !important;
+  bottom: 32px !important;
+  z-index: 6 !important;
+}
