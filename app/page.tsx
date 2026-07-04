@@ -2801,14 +2801,32 @@ const duplicatePhoto =
             });
 
             const friday = isFridayDate(selectedDate);
-            const wateredGardens = friday ? [] : scheduledGardens.filter((garden) => wateredGardenIds.has(garden.id));
-            const notWateredGardens = friday ? [] : scheduledGardens.filter((garden) => !wateredGardenIds.has(garden.id));
-            const insufficientGardens = wateredGardens.filter((garden) => getReportStatus(reportByGardenId.get(garden.id)) === "insufficient");
-            const sidewalkGardens = wateredGardens.filter((garden) => getReportStatus(reportByGardenId.get(garden.id)) === "sidewalk_runoff");
-            const projectRequiredCount = Math.max(scheduledGardens.length, projectGardens.length);
 
-const projectCompletionRate = projectRequiredCount
-  ? Math.round((wateredGardens.length / projectRequiredCount) * 100)
+const requiredGardens =
+  friday
+    ? []
+    : projectGardens.filter((garden) => isScheduledForDate(garden.id, selectedDate));
+
+const wateredGardens =
+  friday
+    ? []
+    : requiredGardens.filter((garden) => wateredGardenIds.has(garden.id));
+
+const notWateredGardens =
+  friday
+    ? []
+    : requiredGardens.filter((garden) => !wateredGardenIds.has(garden.id));
+
+const insufficientGardens = wateredGardens.filter(
+  (garden) => getReportStatus(reportByGardenId.get(garden.id)) === "insufficient"
+);
+
+const sidewalkGardens = wateredGardens.filter(
+  (garden) => getReportStatus(reportByGardenId.get(garden.id)) === "sidewalk_runoff"
+);
+
+const projectCompletionRate = requiredGardens.length
+  ? Math.round((wateredGardens.length / requiredGardens.length) * 100)
   : 0;
 
             const currentList =
