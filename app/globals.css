@@ -2876,10 +2876,10 @@ button.blue {
 .project-showcase-cover {
   position: relative !important;
   min-height: 118px !important;
-  background:
-    linear-gradient(90deg, rgba(6,43,36,.18), rgba(6,43,36,.03)),
-    url("/backgrounds/project-card.png") center/cover no-repeat !important;
   border-bottom: 1px solid rgba(216,180,92,.20) !important;
+  background-position: center !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
 }
 
 .project-showcase-cover::before {
