@@ -2768,7 +2768,9 @@ const duplicatePhoto =
                     >
                       <div
                         className="project-showcase-cover project-portal-cover"
-                        style={{ backgroundImage: `linear-gradient(90deg, rgba(3, 42, 33, .86) 0%, rgba(3, 42, 33, .58) 42%, rgba(3, 42, 33, .10) 100%), url(${getProjectCover(project)})` }}
+                        style={{
+                          backgroundImage: `url(${getProjectCover(project)})`
+                        }}
                       >
 
                         <div className="project-portal-copy">
