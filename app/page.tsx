@@ -2070,6 +2070,38 @@ body {
     return { totalGardens, watered, notWatered, insufficient, sidewalk };
   }, [gardens, wateredGardenIds, reports, selectedDate]);
 
+  function getProjectCover(project: Project) {
+    const name = project.name || "";
+    const slug = project.slug || "";
+
+    if (name.includes("الغابة") || slug.includes("forest")) {
+      return "/projects/project-forest-east.jpg";
+    }
+
+    if (name.includes("بريمان") || name.includes("طيبة") || slug.includes("buraiman") || slug.includes("taibah")) {
+      return "/projects/project-buraiman-taibah.jpg";
+    }
+
+    if (name.includes("المخططات") || name.includes("الخاصة") || slug.includes("private")) {
+      return "/projects/project-private-plans.jpg";
+    }
+
+    if (name.includes("السلام") || name.includes("السلم") || name.includes("أبرق") || name.includes("ابرق") || name.includes("الرغامة") || slug.includes("salam") || slug.includes("arwaq")) {
+      return "/projects/project-salam-arwaq.jpg";
+    }
+
+    return "/projects/project-forest-east.jpg";
+  }
+
+  function getProjectTagline(project: Project) {
+    const name = project.name || "";
+    if (name.includes("الغابة")) return "نحو بيئة خضراء مستدامة";
+    if (name.includes("بريمان") || name.includes("طيبة")) return "تنمية مستدامة وجودة حياة";
+    if (name.includes("المخططات")) return "تخطيط متميز وجودة تنفيذ";
+    if (name.includes("السلام") || name.includes("السلم") || name.includes("أبرق") || name.includes("ابرق")) return "مجتمع متكامل وبيئة أجمل";
+    return "بوابة الدخول للتفاصيل التشغيلية";
+  }
+
   if (!user) {
     return (
       <main className="login-page" dir="rtl">
@@ -2139,7 +2171,7 @@ body {
             className={activeView === "projects" ? "active" : ""}
             onClick={() => {
               setActiveView("projects");
-              setOpenProjectId(projects[0]?.id || null);
+              setOpenProjectId(null);
               setOpenSection(null);
             }}
           >
@@ -2711,40 +2743,22 @@ const duplicatePhoto =
                   const matchesFilter = projectFilter === "all" || projectFilter === "active";
                   return matchesSearch && matchesFilter;
                 })
-                .map((project, projectIndex) => {
+                .map((project) => {
                   const projectGardens = gardens.filter((garden) => garden.project_id === project.id);
-                  const scheduledGardens = projectGardens.filter((garden) => {
-                    const schedule = wateringSchedules.find((item) => String(item.garden_id) === String(garden.id));
-
-                    if (!schedule) return false;
-                    if (schedule.daily_watering) return !isFridayDate(selectedDate);
-
-                    const day = parseLocalDate(selectedDate).getDay();
-
-                    if (day === 0) return schedule.sunday;
-                    if (day === 1) return schedule.monday;
-                    if (day === 2) return schedule.tuesday;
-                    if (day === 3) return schedule.wednesday;
-                    if (day === 4) return schedule.thursday;
-                    if (day === 5) return schedule.friday;
-                    if (day === 6) return schedule.saturday;
-
-                    return false;
-                  });
-
-                  const friday = isFridayDate(selectedDate);
-                  const wateredGardens = friday ? [] : scheduledGardens.filter((garden) => wateredGardenIds.has(garden.id));
-                  const notWateredGardens = friday ? [] : scheduledGardens.filter((garden) => !wateredGardenIds.has(garden.id));
-                  const insufficientGardens = wateredGardens.filter((garden) => getReportStatus(reportByGardenId.get(garden.id)) === "insufficient");
-                  const sidewalkGardens = wateredGardens.filter((garden) => getReportStatus(reportByGardenId.get(garden.id)) === "sidewalk_runoff");
-                  const projectCompletionRate = scheduledGardens.length ? Math.round((wateredGardens.length / scheduledGardens.length) * 100) : 0;
+                  const projectGardenIds = new Set(projectGardens.map((garden) => garden.id));
+                  const projectReports = reports.filter((report) => projectGardenIds.has(report.garden_id));
+                  const latestReport = [...projectReports].sort((a, b) => {
+                    const aTime = new Date(a.created_at || `${a.report_date}T00:00:00`).getTime();
+                    const bTime = new Date(b.created_at || `${b.report_date}T00:00:00`).getTime();
+                    return bTime - aTime;
+                  })[0];
 
                   return (
                     <article
                       key={project.id}
                       role="button"
                       tabIndex={0}
-                      className={`project-showcase-card project-cover-${(projectIndex % 4) + 1} ${openProjectId === project.id ? "active" : ""}`}
+                      className="project-showcase-card project-portal-card"
                       onClick={() => openProject(project.id)}
                       onKeyDown={(event) => {
                         if (event.key === "Enter") {
@@ -2752,32 +2766,28 @@ const duplicatePhoto =
                         }
                       }}
                     >
-                      <div className="project-showcase-cover">
+                      <div
+                        className="project-showcase-cover project-portal-cover"
+                        style={{ backgroundImage: `linear-gradient(90deg, rgba(3, 42, 33, .86) 0%, rgba(3, 42, 33, .58) 42%, rgba(3, 42, 33, .10) 100%), url(${getProjectCover(project)})` }}
+                      >
                         <span className="project-status-badge">نشط</span>
                         <span className="project-district-badge">{project.district || "بدون نطاق"}</span>
-                      </div>
 
-                      <div className="project-showcase-body">
-                        <h3>{project.name}</h3>
-
-                        <div className="project-showcase-metrics">
-                          <div><span>إجمالي الحدائق</span><strong>{projectGardens.length}</strong></div>
-                          <div><span>تم الري اليوم</span><strong>{wateredGardens.length}</strong></div>
-                          <div><span>لم يتم الري</span><strong className="danger-text">{notWateredGardens.length}</strong></div>
-                          <div><span>عدم كفاية ري</span><strong className="warning-text">{insufficientGardens.length}</strong></div>
-                          <div><span>خروج الرصيف</span><strong className="blue-text">{sidewalkGardens.length}</strong></div>
+                        <div className="project-portal-copy">
+                          <span>مشروع</span>
+                          <h3>{project.name}</h3>
+                          <p>{getProjectTagline(project)}</p>
                         </div>
 
-                        <div className="project-progress-row">
-                          <span>نسبة الإنجاز</span>
-                          <div className="project-progress-track"><i style={{ width: `${projectCompletionRate}%` }} /></div>
-                          <strong>{projectCompletionRate}%</strong>
+                        <div className="project-portal-meta">
+                          <div><em>⌖</em><span>النطاق</span><strong>{project.district || "بدون نطاق"}</strong></div>
+                          <div><em>♧</em><span>عدد المواقع</span><strong>{projectGardens.length} موقع</strong></div>
+                          <div><em>✓</em><span>الحالة</span><strong>نشط</strong></div>
                         </div>
 
-                        <div className="project-showcase-footer">
-                          <button type="button" onClick={(event) => { event.stopPropagation(); openProject(project.id); }}>دخول المشروع</button>
-                          <small>آخر تحديث: اليوم، {new Date().toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" })}</small>
-                        </div>
+                        <button type="button" onClick={(event) => { event.stopPropagation(); openProject(project.id); }}>دخول المشروع</button>
+
+                        <small>آخر تحديث: {latestReport ? formatDateTime(latestReport.created_at) : "لا يوجد تحديث اليوم"}</small>
                       </div>
                     </article>
                   );
