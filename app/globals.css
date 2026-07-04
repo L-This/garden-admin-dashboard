@@ -3755,9 +3755,18 @@ button.blue {
     0 0 20px rgba(0,0,0,.6) !important;
 }
 
-.project-portal-copy span,
-.project-portal-copy p {
+.project-portal-copy span {
   display: none !important;
+}
+
+.project-portal-copy p {
+  display: block !important;
+  margin: 8px 0 0 !important;
+  color: rgba(255,255,255,.92) !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  line-height: 1.4 !important;
+  text-shadow: 0 2px 8px rgba(0,0,0,.85) !important;
 }
 
 .project-portal-cover > button {
