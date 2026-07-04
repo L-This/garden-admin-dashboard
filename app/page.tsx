@@ -2769,7 +2769,7 @@ const duplicatePhoto =
                       >
 
                         <div className="project-portal-copy">
-                         <h3>{project.name}</h3>
+                         <h3 style={{ color: "#ffffff" }}>{project.name}</h3>
                         </div>
                         <button type="button" onClick={(event) => { event.stopPropagation(); openProject(project.id); }}>دخول المشروع</button>
 
