@@ -2805,7 +2805,11 @@ const duplicatePhoto =
             const notWateredGardens = friday ? [] : scheduledGardens.filter((garden) => !wateredGardenIds.has(garden.id));
             const insufficientGardens = wateredGardens.filter((garden) => getReportStatus(reportByGardenId.get(garden.id)) === "insufficient");
             const sidewalkGardens = wateredGardens.filter((garden) => getReportStatus(reportByGardenId.get(garden.id)) === "sidewalk_runoff");
-            const projectCompletionRate = scheduledGardens.length ? Math.round((wateredGardens.length / scheduledGardens.length) * 100) : 0;
+            const projectRequiredCount = Math.max(scheduledGardens.length, projectGardens.length);
+
+const projectCompletionRate = projectRequiredCount
+  ? Math.round((wateredGardens.length / projectRequiredCount) * 100)
+  : 0;
 
             const currentList =
               openSection === "watered"
