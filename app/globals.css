@@ -28,10 +28,7 @@ body {
   margin: 0;
   font-family: Arial, Tahoma, sans-serif;
   color: var(--green-950);
-  background:
-    radial-gradient(circle at 16% 8%, rgba(216, 180, 92, .13), transparent 28%),
-    radial-gradient(circle at 84% 0%, rgba(11, 143, 99, .16), transparent 32%),
-    linear-gradient(135deg, #f4fbf6 0%, #edf8f2 48%, #fffaf0 100%);
+  background: #f8f7f2;
 }
 
 button,
