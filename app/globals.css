@@ -3723,30 +3723,36 @@ button.blue {
 
 .project-portal-copy {
   position: absolute !important;
-  right: 28px !important;
-  bottom: 34px !important;
+  right: 34px !important;
+  bottom: 42px !important;
   left: auto !important;
   top: auto !important;
-  width: 52% !important;
-  max-width: 52% !important;
+
+  width: 42% !important;
+  max-width: 42% !important;
+
   padding: 0 !important;
   margin: 0 !important;
+
   background: transparent !important;
   border: 0 !important;
   border-radius: 0 !important;
-  backdrop-filter: none !important;
+
   text-align: right !important;
   z-index: 5 !important;
 }
 
 .project-portal-copy h3 {
   margin: 0 !important;
-  padding: 0 !important;
-  color: #fffaf0 !important;
-  font-size: 34px !important;
-  line-height: 1.15 !important;
+  color: #ffffff !important;
+
+  font-size: 24px !important;
+  line-height: 1.2 !important;
   font-weight: 950 !important;
-  text-shadow: 0 5px 20px rgba(0, 0, 0, .85) !important;
+
+  text-shadow:
+    0 3px 8px rgba(0,0,0,.9),
+    0 0 20px rgba(0,0,0,.6) !important;
 }
 
 .project-portal-copy span,
