@@ -3566,29 +3566,35 @@ button.blue {
 
 .project-portal-copy {
   position: absolute;
-  right: 24px;
-  left: 24px;
+  right: 20px;
   bottom: 28px;
+  width: 52%;
   z-index: 3;
-  max-width: none;
-  width: auto;
   text-align: right;
   color: #fff;
-  padding: 18px 20px;
-  border-radius: 20px;
-  background: linear-gradient(90deg, rgba(3, 30, 24, .78), rgba(3, 30, 24, .36), transparent);
-  border: 1px solid rgba(216, 180, 92, .28);
-  backdrop-filter: blur(4px);
+  padding: 0;
 }
 
 .project-portal-copy h3 {
   margin: 0;
-  max-width: 65%;
-  color: #fffaf0;
-  font-size: clamp(24px, 2.4vw, 38px);
-  line-height: 1.18;
+  color: #ffffff;
+  font-size: 34px;
+  line-height: 1.15;
   font-weight: 950;
-  text-shadow: 0 4px 16px rgba(0,0,0,.55);
+  text-shadow: 0 4px 18px rgba(0,0,0,.75);
+}
+
+.project-portal-copy span {
+  display: none;
+}
+
+.project-portal-copy p {
+  margin-top: 8px;
+  color: #e4c06b;
+  font-size: 15px;
+  font-weight: 800;
+  border: 0;
+  padding: 0;
 }
 
 .project-portal-cover > button {
