@@ -3506,3 +3506,186 @@ button.blue {
   background: rgba(255, 250, 240, .74) !important;
   border-color: rgba(216, 180, 92, .46) !important;
 }
+/* أضف هذا آخر app/globals.css لتنسيق بوابة المشاريع الجديدة */
+.projects-showcase .projects-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.project-portal-card {
+  min-height: 310px;
+  padding: 0 !important;
+  overflow: hidden;
+  border-radius: 26px;
+  border: 1px solid rgba(203, 161, 62, .55);
+  background: transparent !important;
+  box-shadow: 0 18px 38px rgba(4, 38, 31, .18);
+  cursor: pointer;
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+
+.project-portal-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 52px rgba(4, 38, 31, .26);
+  border-color: rgba(218, 181, 78, .95);
+}
+
+.project-portal-cover {
+  position: relative;
+  min-height: 310px;
+  height: 100%;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background-position: center;
+  background-size: cover;
+  overflow: hidden;
+}
+
+.project-portal-cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 82% 24%, rgba(224, 185, 82, .14), transparent 32%),
+    linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(2, 31, 25, .72) 100%);
+  pointer-events: none;
+}
+
+.project-portal-copy,
+.project-portal-meta,
+.project-portal-cover > button,
+.project-portal-cover > small,
+.project-portal-cover .project-status-badge,
+.project-portal-cover .project-district-badge {
+  position: relative;
+  z-index: 2;
+}
+
+.project-portal-copy {
+  max-width: 58%;
+  margin-inline-start: auto;
+  text-align: right;
+  color: #fff;
+}
+
+.project-portal-copy span {
+  display: inline-flex;
+  margin-bottom: 6px;
+  color: #d7ad4a;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.project-portal-copy h3 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(34px, 4vw, 58px);
+  line-height: 1.08;
+  font-weight: 950;
+  text-shadow: 0 5px 20px rgba(0,0,0,.35);
+}
+
+.project-portal-copy p {
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid rgba(218, 181, 78, .42);
+  color: #e4c06b;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.project-portal-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  width: min(520px, 58%);
+  margin-top: 22px;
+  margin-inline-start: auto;
+  color: #fff;
+}
+
+.project-portal-meta div {
+  min-width: 0;
+  padding-inline: 14px;
+  border-inline-start: 1px solid rgba(255,255,255,.22);
+  text-align: center;
+}
+
+.project-portal-meta em {
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.14);
+  color: #d7ad4a;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.project-portal-meta span {
+  display: block;
+  color: #d7ad4a;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.project-portal-meta strong {
+  display: block;
+  margin-top: 5px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.project-portal-cover > button {
+  align-self: flex-start;
+  margin-top: 20px;
+  min-width: 170px;
+  border: 0;
+  border-radius: 14px;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #d7ad4a, #9b711a);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 950;
+  box-shadow: 0 12px 26px rgba(0,0,0,.22);
+}
+
+.project-portal-cover > small {
+  margin-top: 12px;
+  color: rgba(255,255,255,.82);
+  font-weight: 800;
+}
+
+.project-portal-cover .project-status-badge {
+  position: absolute;
+  top: 22px;
+  left: 22px;
+  background: rgba(8, 108, 70, .92);
+  color: #fff;
+}
+
+.project-portal-cover .project-district-badge {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+  background: rgba(255, 255, 255, .88);
+  color: #073b31;
+}
+
+@media (max-width: 1100px) {
+  .projects-showcase .projects-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .project-portal-copy,
+  .project-portal-meta {
+    max-width: 100%;
+    width: 100%;
+  }
+}
