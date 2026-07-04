@@ -2802,10 +2802,7 @@ const duplicatePhoto =
 
             const friday = isFridayDate(selectedDate);
 
-const requiredGardens =
-  friday
-    ? []
-    : projectGardens.filter((garden) => isScheduledForDate(garden.id, selectedDate));
+const requiredGardens = friday ? [] : scheduledGardens;
 
 const wateredGardens =
   friday
