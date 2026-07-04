@@ -3565,37 +3565,51 @@ button.blue {
 }
 
 .project-portal-copy {
-  max-width: 75%;
-  margin-inline-start: auto;
+  position: absolute;
+  right: 24px;
+  left: 24px;
+  bottom: 28px;
+  z-index: 3;
+  max-width: none;
+  width: auto;
   text-align: right;
   color: #fff;
-  padding: 24px;
-}
-
-.project-portal-copy span {
-  display: inline-flex;
-  margin-bottom: 8px;
-  color: #e4c06b;
-  font-size: 14px;
-  font-weight: 800;
+  padding: 18px 20px;
+  border-radius: 20px;
+  background: linear-gradient(90deg, rgba(3, 30, 24, .78), rgba(3, 30, 24, .36), transparent);
+  border: 1px solid rgba(216, 180, 92, .28);
+  backdrop-filter: blur(4px);
 }
 
 .project-portal-copy h3 {
   margin: 0;
-  color: #ffffff;
-  font-size: clamp(24px, 2vw, 38px);
-  line-height: 1.2;
-  font-weight: 900;
-  text-shadow: 0 3px 12px rgba(0,0,0,.45);
+  max-width: 65%;
+  color: #fffaf0;
+  font-size: clamp(24px, 2.4vw, 38px);
+  line-height: 1.18;
+  font-weight: 950;
+  text-shadow: 0 4px 16px rgba(0,0,0,.55);
 }
 
-.project-portal-copy p {
-  margin: 10px 0 0;
-  padding-top: 10px;
-  border-top: 1px solid rgba(218,180,74,.45);
-  color: #f3d486;
-  font-size: 15px;
-  font-weight: 700;
+.project-portal-cover > button {
+  position: absolute;
+  left: 28px;
+  bottom: 42px;
+  z-index: 4;
+  min-width: 170px;
+  border: 0;
+  border-radius: 16px;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #d7ad4a, #9b711a);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 950;
+  box-shadow: 0 14px 28px rgba(0,0,0,.28);
+}
+
+.project-portal-cover > button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 34px rgba(0,0,0,.34);
 }
 
 .project-portal-meta {
