@@ -2093,6 +2093,10 @@ body {
     return "/projects/project-forest-east.jpg";
   }
 
+  function getProjectTagline(project: Project) {
+  return "دخول إلى تفاصيل المشروع";
+  }
+
   if (!user) {
     return (
       <main className="login-page" dir="rtl">
@@ -2765,8 +2769,9 @@ const duplicatePhoto =
                       >
 
                         <div className="project-portal-copy">
-                           <h3>{project.name}</h3>
-                        </div>
+  <h3>{project.name}</h3>
+  <p>{getProjectTagline(project)}</p>
+</div>
                         <button type="button" onClick={(event) => { event.stopPropagation(); openProject(project.id); }}>دخول المشروع</button>
 
                       </div>
@@ -2801,30 +2806,11 @@ const duplicatePhoto =
             });
 
             const friday = isFridayDate(selectedDate);
-
-const requiredGardens = friday ? [] : scheduledGardens;
-
-const wateredGardens =
-  friday
-    ? []
-    : requiredGardens.filter((garden) => wateredGardenIds.has(garden.id));
-
-const notWateredGardens =
-  friday
-    ? []
-    : requiredGardens.filter((garden) => !wateredGardenIds.has(garden.id));
-
-const insufficientGardens = wateredGardens.filter(
-  (garden) => getReportStatus(reportByGardenId.get(garden.id)) === "insufficient"
-);
-
-const sidewalkGardens = wateredGardens.filter(
-  (garden) => getReportStatus(reportByGardenId.get(garden.id)) === "sidewalk_runoff"
-);
-
-const projectCompletionRate = requiredGardens.length
-  ? Math.round((wateredGardens.length / requiredGardens.length) * 100)
-  : 0;
+            const wateredGardens = friday ? [] : scheduledGardens.filter((garden) => wateredGardenIds.has(garden.id));
+            const notWateredGardens = friday ? [] : scheduledGardens.filter((garden) => !wateredGardenIds.has(garden.id));
+            const insufficientGardens = wateredGardens.filter((garden) => getReportStatus(reportByGardenId.get(garden.id)) === "insufficient");
+            const sidewalkGardens = wateredGardens.filter((garden) => getReportStatus(reportByGardenId.get(garden.id)) === "sidewalk_runoff");
+            const projectCompletionRate = scheduledGardens.length ? Math.round((wateredGardens.length / scheduledGardens.length) * 100) : 0;
 
             const currentList =
               openSection === "watered"
