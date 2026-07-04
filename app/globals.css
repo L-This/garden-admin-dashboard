@@ -3565,36 +3565,37 @@ button.blue {
 }
 
 .project-portal-copy {
-  max-width: 58%;
+  max-width: 75%;
   margin-inline-start: auto;
   text-align: right;
   color: #fff;
+  padding: 24px;
 }
 
 .project-portal-copy span {
   display: inline-flex;
-  margin-bottom: 6px;
-  color: #d7ad4a;
-  font-size: 18px;
-  font-weight: 900;
+  margin-bottom: 8px;
+  color: #e4c06b;
+  font-size: 14px;
+  font-weight: 800;
 }
 
 .project-portal-copy h3 {
   margin: 0;
-  color: #fff;
-  font-size: clamp(34px, 4vw, 58px);
-  line-height: 1.08;
-  font-weight: 950;
-  text-shadow: 0 5px 20px rgba(0,0,0,.35);
+  color: #ffffff;
+  font-size: clamp(24px, 2vw, 38px);
+  line-height: 1.2;
+  font-weight: 900;
+  text-shadow: 0 3px 12px rgba(0,0,0,.45);
 }
 
 .project-portal-copy p {
-  margin: 14px 0 0;
-  padding-top: 12px;
-  border-top: 1px solid rgba(218, 181, 78, .42);
-  color: #e4c06b;
-  font-size: 18px;
-  font-weight: 800;
+  margin: 10px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid rgba(218,180,74,.45);
+  color: #f3d486;
+  font-size: 15px;
+  font-weight: 700;
 }
 
 .project-portal-meta {
