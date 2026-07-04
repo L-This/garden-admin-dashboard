@@ -2094,12 +2094,7 @@ body {
   }
 
   function getProjectTagline(project: Project) {
-    const name = project.name || "";
-    if (name.includes("الغابة")) return "نحو بيئة خضراء مستدامة";
-    if (name.includes("بريمان") || name.includes("طيبة")) return "تنمية مستدامة وجودة حياة";
-    if (name.includes("المخططات")) return "تخطيط متميز وجودة تنفيذ";
-    if (name.includes("السلام") || name.includes("السلم") || name.includes("أبرق") || name.includes("ابرق")) return "مجتمع متكامل وبيئة أجمل";
-    return "بوابة الدخول للتفاصيل التشغيلية";
+  return "دخول إلى تفاصيل المشروع";
   }
 
   if (!user) {
@@ -2774,9 +2769,7 @@ const duplicatePhoto =
                       >
 
                         <div className="project-portal-copy">
-                          <span>مشروع</span>
-                          <h3>{project.name}</h3>
-                          <p>{getProjectTagline(project)}</p>
+                         <h3>{project.name}</h3>
                         </div>
                         <button type="button" onClick={(event) => { event.stopPropagation(); openProject(project.id); }}>دخول المشروع</button>
 
