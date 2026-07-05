@@ -2355,8 +2355,7 @@ body {
     </div>
   )}
 </section>
-        )}
-
+      
       {activeView === "overview" && isFridayDate(selectedDate) && (
         <section className="friday-off-notice">
           <strong>يوم الجمعة إجازة</strong>
