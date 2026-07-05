@@ -2542,10 +2542,18 @@ const duplicatePhoto =
       </div>
 
       <div className="report-builder-actions">
-         <button className="primary" onClick={printReportOnly}>
-            طباعة التقرير PDF
-          <small>طباعة أو حفظ التقرير</small>
-        </button>
+         <button
+  className="primary"
+  onClick={async () => {
+    await generatePeriodReport();
+    setTimeout(() => {
+      printReportOnly();
+    }, 300);
+  }}
+>
+  طباعة التقرير PDF
+  <small>إنشاء التقرير ثم الطباعة</small>
+</button>
       </div>
     </div>
 
