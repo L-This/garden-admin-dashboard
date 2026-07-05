@@ -3959,3 +3959,14 @@ margin-right:auto;
   font-size: 20px;
   font-weight: 900;
 }
+.overview-alerts-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 360px));
+  justify-content: start;
+}
+
+.overview-alert-card {
+  min-height: 150px;
+}
+.overview-alert-card strong {
+  font-size: 44px;
+}
