@@ -397,30 +397,31 @@ export default function AdminHome() {
         (garden) => !todayWateredReportGardenIds.has(garden.id),
       );
 
-  const getProjectNamesFromGardens = (selectedGardens: Garden[]) =>
+  const uniqueProjectRefs = (projectList: Project[]) =>
     Array.from(
-      new Set(
-        selectedGardens
-          .map((garden) => {
-            const project = projects.find((item) => item.id === garden.project_id);
-            return project?.name;
-          })
-          .filter((name): name is string => Boolean(name)),
-      ),
+      new Map(
+        projectList
+          .filter((project): project is Project => Boolean(project))
+          .map((project) => [project.id, { id: project.id, name: project.name }]),
+      ).values(),
     );
 
-  const getProjectNamesFromReports = (status: ReportStatus) =>
-    Array.from(
-      new Set(
-        reports
-          .filter((report) => getReportStatus(report) === status)
-          .map((report) => {
-            const garden = gardens.find((item) => item.id === report.garden_id);
-            const project = projects.find((item) => item.id === garden?.project_id);
-            return project?.name;
-          })
-          .filter((name): name is string => Boolean(name)),
-      ),
+  const getProjectRefsFromGardens = (selectedGardens: Garden[]) =>
+    uniqueProjectRefs(
+      selectedGardens
+        .map((garden) => projects.find((item) => item.id === garden.project_id))
+        .filter((project): project is Project => Boolean(project)),
+    );
+
+  const getProjectRefsFromReports = (status: ReportStatus) =>
+    uniqueProjectRefs(
+      reports
+        .filter((report) => getReportStatus(report) === status)
+        .map((report) => {
+          const garden = gardens.find((item) => item.id === report.garden_id);
+          return projects.find((item) => item.id === garden?.project_id);
+        })
+        .filter((project): project is Project => Boolean(project)),
     );
 
   const todayCompletionRate = scheduledTodayCount
@@ -432,7 +433,7 @@ export default function AdminHome() {
       key: "not-watered",
       title: "لم يتم الري",
       value: notWateredViolationGardens.length,
-      projects: getProjectNamesFromGardens(notWateredViolationGardens),
+      projects: getProjectRefsFromGardens(notWateredViolationGardens),
       className: "danger",
       icon: "✕",
     },
@@ -440,7 +441,7 @@ export default function AdminHome() {
       key: "insufficient",
       title: "عدم كفاية ري",
       value: todayInsufficientCount,
-      projects: getProjectNamesFromReports("insufficient"),
+      projects: getProjectRefsFromReports("insufficient"),
       className: "warning",
       icon: "!",
     },
@@ -448,7 +449,7 @@ export default function AdminHome() {
       key: "sidewalk-runoff",
       title: "خروج الري للرصيف",
       value: todaySidewalkCount,
-      projects: getProjectNamesFromReports("sidewalk_runoff"),
+      projects: getProjectRefsFromReports("sidewalk_runoff"),
       className: "blue",
       icon: "↪",
     },
@@ -2384,7 +2385,21 @@ body {
               <div>
                 <span>{item.title}</span>
                 {item.projects.length > 0 && (
-                  <small>({item.projects.join("، ")})</small>
+                  <div className="overview-violation-projects">
+                    {item.projects.map((project) => (
+                      <button
+                        type="button"
+                        key={project.id}
+                        onClick={() => {
+                          setActiveView("projects");
+                          setOpenProjectId(project.id);
+                          setOpenSection(null);
+                        }}
+                      >
+                        {project.name}
+                      </button>
+                    ))}
+                  </div>
                 )}
               </div>
 
