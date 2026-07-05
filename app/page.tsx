@@ -2542,19 +2542,9 @@ const duplicatePhoto =
       </div>
 
       <div className="report-builder-actions">
-        <button className="primary" onClick={generatePeriodReport}>
-          {reportLoading ? "جارٍ الإنشاء..." : "إنشاء التقرير"}
-          <small>عرض التقرير على الشاشة</small>
-        </button>
-
-        <button className="secondary" onClick={printReportOnly}>
-          طباعة التقرير PDF
+         <button className="primary" onClick={printReportOnly}>
+            طباعة التقرير PDF
           <small>طباعة أو حفظ التقرير</small>
-        </button>
-
-        <button className="ghost" onClick={() => alert("تم حفظ إعدادات التقرير كمسودة داخل الجلسة الحالية")}>
-          حفظ كمسودة
-          <small>حفظ الإعدادات للرجوع لاحقًا</small>
         </button>
       </div>
     </div>
