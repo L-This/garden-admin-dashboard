@@ -4296,3 +4296,20 @@ margin-right:auto;
 .overview-main-card {
   width: 720px !important;
 }
+.admin-overview-modern {
+  gap: 18px !important;
+}
+
+.overview-alert-card {
+  width: 180px !important;
+  min-height: 180px !important;
+  flex-basis: 180px !important;
+}
+
+.overview-alert-card span {
+  font-size: 18px !important;
+}
+
+.overview-alert-card strong {
+  font-size: 56px !important;
+}
