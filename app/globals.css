@@ -3786,3 +3786,23 @@ button.blue {
 .report-builder-actions .primary {
   min-width: 260px !important;
 }
+/* ===== Report Panel Height Fix ===== */
+
+.report-builder-panel {
+  height: auto !important;
+  min-height: fit-content !important;
+  overflow: visible !important;
+  padding-bottom: 42px !important;
+}
+
+.report-preview-box {
+  position: relative !important;
+  margin-top: 28px !important;
+  margin-bottom: 0 !important;
+  border-radius: 28px !important;
+  background: rgba(255, 255, 255, .82) !important;
+  border: 1px dashed rgba(216, 180, 92, .46) !important;
+  padding: 26px !important;
+  box-shadow: var(--soft-shadow) !important;
+  backdrop-filter: blur(4px) !important;
+}
