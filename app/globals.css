@@ -3783,7 +3783,11 @@ margin-right:auto;
 }
 
 .design1-content {
-  background: #145040 !important;
+  background: linear-gradient(
+    180deg,
+    #1d7059 0%,
+    #145040 100%
+  ) !important;
 }
 .report-builder-actions {
   margin-top: 28px;
