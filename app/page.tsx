@@ -375,7 +375,7 @@ export default function AdminHome() {
     return false;
   }).length;
   const todayCompletionRate = scheduledTodayCount
-  ? Math.min(100, Math.round((todayWateredCount / scheduledTodayCount) * 100))
+  ? Math.min(100, Math.round((totals.watered / scheduledTodayCount) * 100))
   : 0;
   const summaryExceptionCards = [
   {
@@ -2289,15 +2289,6 @@ body {
           </div>
         </header>
 
-        {activeView === "overview" && (
-        <section className="overview-command-strip">
-          <div><span>إجمالي الحدائق</span><strong>{totals.totalGardens}</strong></div>
-          <div><span>تم الري</span><strong>{totals.watered}</strong></div>
-          <div><span>لم يتم الري</span><strong>{totals.notWatered}</strong></div>
-          <div><span>نسبة الإنجاز</span><strong>{todayCompletionRate}%</strong></div>
-          <div><span>آخر تحديث</span><strong>{new Date().toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" })}</strong></div>
-        </section>
-      )}
 
         {activeView === "overview" && (
         <section className="admin-overview-modern">
@@ -2312,7 +2303,7 @@ body {
       </strong>
 
       <p>
-        تم ري {todayWateredCount} من أصل {scheduledTodayCount} موقع مجدول
+        تم ري {totals.watered} من أصل {scheduledTodayCount} موقع مجدول
       </p>
     </div>
 
