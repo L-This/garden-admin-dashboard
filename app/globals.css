@@ -2098,10 +2098,13 @@ button.blue {
 }
 
 .report-preview-box {
-  padding: 26px;
-  border-radius: 26px;
-  background:rgba(255,255,255,.72);
-  border: 1px dashed rgba(216,180,92,.46);
+  margin-top: 28px;
+  padding: 34px;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, .82);
+  border: 1px solid rgba(216, 180, 92, .32);
+  box-shadow: var(--soft-shadow);
+  backdrop-filter: blur(4px);
 }
 
 .report-preview-box h3 {
@@ -3775,9 +3778,9 @@ button.blue {
   background: #145040 !important;
 }
 .report-builder-actions {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
+  margin-top: 28px;
+  display: flex;
+  justify-content: center;
 }
 
 .report-builder-actions .primary {
