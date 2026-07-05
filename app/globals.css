@@ -3984,7 +3984,7 @@ margin-right:auto;
 .overview-main-card {
   width: fit-content;
   min-width: 520px;
-  margin-right: auto;
+  margin-left: auto;
 
   padding: 32px 40px;
   border-radius: 28px;
