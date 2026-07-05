@@ -2382,8 +2382,12 @@ body {
             <div key={item.key} className={`overview-violation-row ${item.className}`}>
               <em>{item.icon}</em>
 
-              <div>
-                <span>{item.title}</span>
+              <div className="overview-violation-content">
+                <div className="overview-violation-titleline">
+                  <span>{item.title}</span>
+                  <strong>{item.value}</strong>
+                </div>
+
                 {item.projects.length > 0 && (
                   <div className="overview-violation-projects">
                     {item.projects.map((project) => (
@@ -2402,19 +2406,19 @@ body {
                   </div>
                 )}
               </div>
-
-              <strong>{item.value}</strong>
             </div>
           ))}
 
           {aiAlertReports.length > 0 && (
             <div className="overview-violation-row danger">
               <em>!</em>
-              <div>
-                <span>تنبيهات التحقق الذكي</span>
+              <div className="overview-violation-content">
+                <div className="overview-violation-titleline">
+                  <span>تنبيهات التحقق الذكي</span>
+                  <strong>{aiAlertReports.length}</strong>
+                </div>
                 <small>(تحتاج مراجعة)</small>
               </div>
-              <strong>{aiAlertReports.length}</strong>
             </div>
           )}
         </div>
