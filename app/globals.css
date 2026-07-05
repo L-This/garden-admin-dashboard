@@ -3341,12 +3341,11 @@ button.blue {
 .report-preview-grid em{width:52px;height:52px;border-radius:50%;background:#fffaf0;border:1px solid rgba(216,180,92,.35);display:grid;place-items:center;font-style:normal;font-size:24px}.report-preview-grid strong{font-size:42px!important;color:#087d5e!important;}
 .report-builder-actions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:16px!important;max-width:760px!important;margin:24px auto 0!important;}
 .report-builder-actions button{
-  min-height:78px!important;
-  border-radius:20px!important;
-  font-size:20px!important
-  margin-left: auto;
-  margin-right: auto;
-  display: block;
+min-height:78px!important;
+border-radius:20px!important;
+font-size:20px!important;
+margin-left:auto;
+margin-right:auto;
 }
 .report-builder-actions .ghost{background:rgba(255,255,255,.72)!important;color:#8a640d!important;border:1px solid rgba(184,137,34,.45)!important;}
 
