@@ -3823,26 +3823,20 @@ margin-right:auto;
   backdrop-filter: blur(4px) !important;
 }
 .admin-overview-modern {
-  display: grid;
-  gap: 20px;
-  margin-top: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 24px;
 }
 
 .overview-main-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
+  width: fit-content;
+  min-width: 520px;
+  margin-right: auto;
 
-  padding: 28px 34px;
+  padding: 32px 40px;
 
   border-radius: 28px;
-
-  background: rgba(255,255,245,.95);
-
-  border: 1px solid rgba(216,180,92,.35);
-
-  box-shadow: 0 15px 40px rgba(0,0,0,.12);
 }
 
 .overview-main-label {
@@ -3967,11 +3961,9 @@ margin-right:auto;
 
 .overview-alert-card {
   width: 260px;
+  min-height: 160px;
 }
 
-.overview-alert-card {
-  min-height: 150px;
-}
 .overview-alert-card strong {
   font-size: 44px;
 }
