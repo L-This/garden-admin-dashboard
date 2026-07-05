@@ -390,7 +390,11 @@ export default function AdminHome() {
               getReportStatus(report) === "not_watered" &&
               report.report_date === selectedDate
           )
-          .map((report) => report.project_name)
+          .map((report) => {
+  const garden = gardens.find((g) => g.id === report.garden_id);
+  const project = projects.find((p) => p.id === garden?.project_id);
+  return project?.name;
+})
           .filter(Boolean)
       ),
     ],
@@ -408,7 +412,11 @@ export default function AdminHome() {
               getReportStatus(report) === "insufficient" &&
               report.report_date === selectedDate
           )
-          .map((report) => report.project_name)
+          .map((report) => {
+  const garden = gardens.find((g) => g.id === report.garden_id);
+  const project = projects.find((p) => p.id === garden?.project_id);
+  return project?.name;
+})
           .filter(Boolean)
       ),
     ],
@@ -426,7 +434,11 @@ export default function AdminHome() {
               getReportStatus(report) === "sidewalk_runoff" &&
               report.report_date === selectedDate
           )
-          .map((report) => report.project_name)
+          .map((report) => {
+  const garden = gardens.find((g) => g.id === report.garden_id);
+  const project = projects.find((p) => p.id === garden?.project_id);
+  return project?.name;
+})
           .filter(Boolean)
       ),
     ],
