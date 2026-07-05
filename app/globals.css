@@ -1953,8 +1953,12 @@ button.blue {
 
 .report-builder-panel {
   min-height: calc(100vh - 180px);
+  height: auto;
+  overflow: visible;
+
   padding: 34px;
   border-radius: 30px;
+
   background: url("/backgrounds/projects-bg.png") center/cover no-repeat;
   border: 1px solid rgba(216,180,92,.34);
   box-shadow: var(--soft-shadow);
