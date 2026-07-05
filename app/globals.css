@@ -4172,3 +4172,115 @@ margin-right:auto;
     flex: 1 1 100% !important;
   }
 }
+
+/* =========================================================
+   FINAL FIX - Overview summary layout
+   ========================================================= */
+.admin-overview-modern {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: stretch !important;
+  gap: 24px !important;
+  margin-top: 24px !important;
+  flex-wrap: wrap !important;
+}
+
+.overview-main-card {
+  width: 760px !important;
+  min-height: 245px !important;
+  padding: 34px 42px !important;
+  border-radius: 28px !important;
+  background: rgba(255, 255, 245, .96) !important;
+  border: 1px solid rgba(216,180,92,.35) !important;
+  box-shadow: 0 16px 38px rgba(6,43,36,.12) !important;
+  display: grid !important;
+  place-items: center !important;
+  text-align: center !important;
+}
+
+.overview-main-card > div:first-child {
+  width: 100% !important;
+}
+
+.overview-main-label {
+  display: block !important;
+  margin-bottom: 8px !important;
+  color: #073b31 !important;
+  font-size: 22px !important;
+  font-weight: 950 !important;
+}
+
+.overview-main-value {
+  display: block !important;
+  margin: 0 !important;
+  color: #008060 !important;
+  font-size: 78px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+}
+
+.overview-main-card p {
+  margin: 10px 0 0 !important;
+  color: #173b34 !important;
+  font-size: 18px !important;
+  line-height: 1.6 !important;
+  font-weight: 900 !important;
+}
+
+.overview-total-gardens {
+  margin-top: 8px !important;
+  color: #365b53 !important;
+  font-size: 17px !important;
+  font-weight: 900 !important;
+}
+
+.overview-alerts-grid {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 16px !important;
+  align-items: stretch !important;
+}
+
+.overview-alert-card {
+  width: 230px !important;
+  min-height: 245px !important;
+  flex: 0 0 230px !important;
+  padding: 30px 22px !important;
+  border-radius: 24px !important;
+  background: rgba(255, 255, 245, .96) !important;
+  border: 1px solid rgba(216,180,92,.35) !important;
+  box-shadow: 0 16px 38px rgba(6,43,36,.12) !important;
+  display: grid !important;
+  align-content: center !important;
+  justify-items: center !important;
+  text-align: center !important;
+}
+
+.overview-alert-card span {
+  display: block !important;
+  margin-bottom: 14px !important;
+  color: #073b31 !important;
+  font-size: 22px !important;
+  font-weight: 950 !important;
+}
+
+.overview-alert-card strong {
+  display: block !important;
+  color: #dc2626 !important;
+  font-size: 64px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  width: auto !important;
+}
+
+@media (max-width: 1100px) {
+  .overview-main-card {
+    width: 100% !important;
+  }
+
+  .overview-alert-card {
+    width: 100% !important;
+    flex-basis: 100% !important;
+    min-height: 180px !important;
+  }
+}
