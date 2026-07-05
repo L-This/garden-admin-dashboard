@@ -3781,6 +3781,7 @@ button.blue {
   margin-top: 28px;
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
 .report-builder-actions .primary {
