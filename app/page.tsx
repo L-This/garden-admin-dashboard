@@ -2346,10 +2346,6 @@ body {
     )}
   </div>
 ) : (
-  <div className="overview-success-card">
-    جميع المواقع المجدولة اليوم تم التعامل معها بنجاح
-  </div>
-)} : (
     <div className="overview-success-card">
       جميع المواقع المجدولة اليوم تم التعامل معها بنجاح
     </div>
