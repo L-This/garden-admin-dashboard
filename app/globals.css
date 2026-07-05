@@ -4313,3 +4313,11 @@ margin-right:auto;
 .overview-alert-card strong {
   font-size: 56px !important;
 }
+.overview-alert-projects {
+  display: block;
+  margin-top: 10px;
+  color: #087553;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.6;
+}
