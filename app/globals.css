@@ -3774,3 +3774,12 @@ button.blue {
 .design1-content {
   background: #145040 !important;
 }
+.report-builder-actions {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.report-builder-actions .primary {
+  min-width: 260px !important;
+}
