@@ -3960,8 +3960,13 @@ margin-right:auto;
   font-weight: 900;
 }
 .overview-alerts-grid {
-  grid-template-columns: repeat(auto-fit, minmax(260px, 360px));
-  justify-content: start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.overview-alert-card {
+  width: 260px;
 }
 
 .overview-alert-card {
@@ -3969,4 +3974,10 @@ margin-right:auto;
 }
 .overview-alert-card strong {
   font-size: 44px;
+}
+.overview-total-gardens {
+  margin-top: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  opacity: .8;
 }
