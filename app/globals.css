@@ -4284,3 +4284,15 @@ margin-right:auto;
     min-height: 180px !important;
   }
 }
+.admin-overview-modern {
+  margin-top: 18px !important;
+}
+
+.overview-alert-card {
+  width: 200px !important;
+  flex-basis: 200px !important;
+}
+
+.overview-main-card {
+  width: 720px !important;
+}
