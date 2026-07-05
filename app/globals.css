@@ -4003,3 +4003,171 @@ margin-right:auto;
 .overview-total-gardens {
   opacity: 1 !important;
 }
+
+/* =========================================================
+   FINAL FIX - شاشة المؤشرات العامة
+   ترتيب بطاقة الملخص + بطاقات التنبيه بدون فراغات أو تعارضات
+   ========================================================= */
+
+.admin-overview-modern {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  gap: 22px !important;
+  width: 100% !important;
+  margin: 24px 0 0 !important;
+  padding: 0 4px !important;
+  direction: rtl !important;
+}
+
+.overview-main-card {
+  order: 1 !important;
+  width: 620px !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  min-height: 210px !important;
+  margin: 0 !important;
+  padding: 34px 42px !important;
+  display: grid !important;
+  place-items: center !important;
+  text-align: center !important;
+  border-radius: 28px !important;
+  background: rgba(255, 255, 245, 0.96) !important;
+  border: 1px solid rgba(216, 180, 92, 0.42) !important;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.14) !important;
+}
+
+.overview-main-card > div:first-child {
+  width: 100% !important;
+  opacity: 1 !important;
+}
+
+.overview-main-label {
+  display: block !important;
+  margin: 0 0 8px !important;
+  color: #073b31 !important;
+  font-size: 21px !important;
+  font-weight: 950 !important;
+  line-height: 1.35 !important;
+}
+
+.overview-main-value {
+  display: block !important;
+  margin: 0 !important;
+  color: #008060 !important;
+  font-size: 74px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+}
+
+.overview-main-card p {
+  margin: 10px 0 0 !important;
+  color: #24483f !important;
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  line-height: 1.6 !important;
+  opacity: 1 !important;
+}
+
+.overview-total-gardens {
+  margin-top: 8px !important;
+  color: #58736b !important;
+  font-size: 17px !important;
+  font-weight: 950 !important;
+  opacity: 1 !important;
+}
+
+.overview-main-total {
+  display: none !important;
+}
+
+.overview-alerts-grid {
+  order: 2 !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  gap: 16px !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+
+.overview-alert-card {
+  width: 280px !important;
+  flex: 0 0 280px !important;
+  min-height: 210px !important;
+  margin: 0 !important;
+  padding: 28px 22px !important;
+  display: grid !important;
+  align-content: center !important;
+  justify-items: center !important;
+  text-align: center !important;
+  border-radius: 26px !important;
+  background: rgba(255, 255, 245, 0.96) !important;
+  border: 1px solid rgba(216, 180, 92, 0.42) !important;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.14) !important;
+}
+
+.overview-alert-card span {
+  display: block !important;
+  margin: 0 0 12px !important;
+  color: #073b31 !important;
+  font-size: 22px !important;
+  font-weight: 950 !important;
+  line-height: 1.35 !important;
+}
+
+.overview-alert-card strong {
+  display: block !important;
+  width: auto !important;
+  flex: initial !important;
+  margin: 0 !important;
+  font-size: 64px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+}
+
+.overview-alert-card.danger strong {
+  color: #d71920 !important;
+}
+
+.overview-alert-card.warning strong {
+  color: #d77a00 !important;
+}
+
+.overview-alert-card.blue strong {
+  color: #2563eb !important;
+}
+
+.overview-success-card {
+  order: 2 !important;
+  width: 420px !important;
+  min-height: 210px !important;
+  display: grid !important;
+  place-items: center !important;
+  margin: 0 !important;
+  padding: 28px !important;
+  text-align: center !important;
+  border-radius: 26px !important;
+  background: rgba(230, 245, 238, 0.96) !important;
+  border: 1px solid rgba(0, 128, 96, 0.18) !important;
+  color: #006b50 !important;
+  font-size: 20px !important;
+  font-weight: 950 !important;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.12) !important;
+}
+
+@media (max-width: 1100px) {
+  .admin-overview-modern {
+    justify-content: center !important;
+  }
+
+  .overview-main-card,
+  .overview-alert-card,
+  .overview-success-card {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+}
