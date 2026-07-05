@@ -2291,66 +2291,70 @@ body {
 
 
         {activeView === "overview" && (
-        <section className="admin-overview-modern">
-  <div className="overview-main-card">
-    <div>
-      <span className="overview-main-label">
-        نسبة إنجاز المواقع المجدولة اليوم
-      </span>
+  <section className="admin-overview-modern">
+    <div className="overview-main-card">
+      <div>
+        <span className="overview-main-label">
+          نسبة إنجاز المواقع المجدولة اليوم
+        </span>
 
-      <strong className="overview-main-value">
-        {scheduledTodayCount
-  ? Math.min(100, Math.round((totals.watered / scheduledTodayCount) * 100))
-  : 0}%
-      </strong>
+        <strong className="overview-main-value">
+          {scheduledTodayCount
+            ? Math.min(100, Math.round((totals.watered / scheduledTodayCount) * 100))
+            : 0}%
+        </strong>
 
-      <p>
-        تم ري {totals.watered} من أصل {scheduledTodayCount} موقع مجدول
-      </p>
+        <p>
+          تم ري {totals.watered} من أصل {scheduledTodayCount} موقع مجدول
+        </p>
+      </div>
+
+      <div className="overview-main-total">
+        <span>إجمالي الحدائق</span>
+        <strong>{totals.totalGardens}</strong>
+      </div>
     </div>
 
-    <div className="overview-main-total">
-      <span>إجمالي الحدائق</span>
-      <strong>{totals.totalGardens}</strong>
-    </div>
-  </div>
+    {totals.notWatered > 0 ||
+    totals.insufficient > 0 ||
+    totals.sidewalk > 0 ||
+    aiAlertReports.length > 0 ? (
+      <div className="overview-alerts-grid">
+        {totals.notWatered > 0 && (
+          <div className="overview-alert-card danger">
+            <span>لم يتم الري</span>
+            <strong>{totals.notWatered}</strong>
+          </div>
+        )}
 
-  {totals.notWatered > 0 || totals.insufficient > 0 || totals.sidewalk > 0 || aiAlertReports.length > 0 ? (
-  <div className="overview-alerts-grid">
-    {totals.notWatered > 0 && (
-      <div className="overview-alert-card danger">
-        <span>لم يتم الري</span>
-        <strong>{totals.notWatered}</strong>
+        {totals.insufficient > 0 && (
+          <div className="overview-alert-card warning">
+            <span>عدم كفاية ري</span>
+            <strong>{totals.insufficient}</strong>
+          </div>
+        )}
+
+        {totals.sidewalk > 0 && (
+          <div className="overview-alert-card blue">
+            <span>خروج الري للرصيف</span>
+            <strong>{totals.sidewalk}</strong>
+          </div>
+        )}
+
+        {aiAlertReports.length > 0 && (
+          <div className="overview-alert-card danger">
+            <span>تنبيهات التحقق الذكي</span>
+            <strong>{aiAlertReports.length}</strong>
+          </div>
+        )}
+      </div>
+    ) : (
+      <div className="overview-success-card">
+        جميع المواقع المجدولة اليوم تم التعامل معها بنجاح
       </div>
     )}
-
-    {totals.insufficient > 0 && (
-      <div className="overview-alert-card warning">
-        <span>عدم كفاية ري</span>
-        <strong>{totals.insufficient}</strong>
-      </div>
-    )}
-
-    {totals.sidewalk > 0 && (
-      <div className="overview-alert-card blue">
-        <span>خروج الري للرصيف</span>
-        <strong>{totals.sidewalk}</strong>
-      </div>
-    )}
-
-    {aiAlertReports.length > 0 && (
-      <div className="overview-alert-card danger">
-        <span>تنبيهات التحقق الذكي</span>
-        <strong>{aiAlertReports.length}</strong>
-      </div>
-    )}
-  </div>
-) : (
-    <div className="overview-success-card">
-      جميع المواقع المجدولة اليوم تم التعامل معها بنجاح
-    </div>
-  )}
-</section>
+  </section>
+)}
       
       {activeView === "overview" && isFridayDate(selectedDate) && (
         <section className="friday-off-notice">
