@@ -3966,6 +3966,8 @@ margin-right:auto;
 
 .overview-alert-card strong {
   font-size: 44px;
+  width: 280px;
+  flex: 0 0 280px;
 }
 .overview-total-gardens {
   margin-top: 12px;
@@ -3976,17 +3978,14 @@ margin-right:auto;
 
 .admin-overview-modern {
   display: flex;
-  flex-direction: row-reverse;
-  flex-wrap: wrap;
   align-items: flex-start;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 24px;
   margin-top: 24px;
 }
 
 .overview-main-card {
-  width: fit-content;
-  min-width: 520px;
+  width: 620px;
   padding: 32px 40px;
   border-radius: 28px;
   background: rgba(255, 255, 245, 0.96) !important;
