@@ -324,12 +324,22 @@ export default function AdminHome() {
   const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState("");
   const [reportRows, setReportRows] = useState<ReportSummaryRow[]>([]);
+  const [printAfterGenerate, setPrintAfterGenerate] = useState(false);
   const [fineRows, setFineRows] = useState<FineRow[]>([]);
   const [reportTitle, setReportTitle] = useState("");
   const [notWateredFine, setNotWateredFine] = useState(500);
   const [insufficientFine, setInsufficientFine] = useState(500);
   const [sidewalkFine, setSidewalkFine] = useState(500);
+  useEffect(() => {
+  if (!printAfterGenerate) return;
+  if (!reportRows.length) return;
 
+  setPrintAfterGenerate(false);
+
+  setTimeout(() => {
+    printReportOnly();
+  }, 100);
+  }, [printAfterGenerate, reportRows]);
   const [showExecutiveModal, setShowExecutiveModal] = useState(false);
   const [executiveFromDate, setExecutiveFromDate] = useState(today());
   const [executiveToDate, setExecutiveToDate] = useState(today());
@@ -2544,11 +2554,9 @@ const duplicatePhoto =
       <div className="report-builder-actions">
          <button
   className="primary"
-  onClick={async () => {
-    await generatePeriodReport();
-    setTimeout(() => {
-      printReportOnly();
-    }, 300);
+  onClick={() => {
+    setPrintAfterGenerate(true);
+    generatePeriodReport();
   }}
 >
   طباعة التقرير PDF
