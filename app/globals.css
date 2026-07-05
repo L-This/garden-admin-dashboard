@@ -2163,8 +2163,9 @@ button.blue {
 .report-builder-actions {
   display: flex;
   justify-content: center;
-  gap: 18px;
-  margin-top: 26px;
+  align-items: center;
+  width: 100%;
+  margin-top: 28px;
 }
 
 .report-builder-actions button {
