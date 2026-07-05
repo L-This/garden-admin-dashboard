@@ -2295,7 +2295,7 @@ body {
     <div className="overview-main-card">
       <div>
         <span className="overview-main-label">
-          نسبة إنجاز المواقع المجدولة اليوم
+          ملخص تنفيذ اليوم
         </span>
 
         <strong className="overview-main-value">
