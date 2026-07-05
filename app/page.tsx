@@ -2305,14 +2305,15 @@ body {
         </strong>
 
         <p>
-          تم ري {totals.watered} من أصل {scheduledTodayCount} موقع مجدول
-        </p>
+  تم ري {totals.watered} من أصل {scheduledTodayCount} موقع مجدول
+</p>
+
+<p className="overview-total-gardens">
+  إجمالي الحدائق: {totals.totalGardens}
+</p>
       </div>
 
-      <div className="overview-main-total">
-        <span>إجمالي الحدائق</span>
-        <strong>{totals.totalGardens}</strong>
-      </div>
+      
     </div>
 
     {totals.notWatered > 0 ||
