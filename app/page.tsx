@@ -382,18 +382,54 @@ export default function AdminHome() {
     key: "not-watered",
     title: "لم يتم الري",
     value: todayNotWateredCount,
+    projects: [
+      ...new Set(
+        reports
+          .filter(
+            (report) =>
+              getReportStatus(report) === "not_watered" &&
+              report.report_date === selectedDate
+          )
+          .map((report) => report.project_name)
+          .filter(Boolean)
+      ),
+    ],
     className: "danger",
   },
   {
     key: "insufficient",
     title: "عدم كفاية ري",
     value: todayInsufficientCount,
+    projects: [
+      ...new Set(
+        reports
+          .filter(
+            (report) =>
+              getReportStatus(report) === "insufficient" &&
+              report.report_date === selectedDate
+          )
+          .map((report) => report.project_name)
+          .filter(Boolean)
+      ),
+    ],
     className: "warning",
   },
   {
     key: "sidewalk-runoff",
     title: "خروج الري للرصيف",
     value: todaySidewalkCount,
+    projects: [
+      ...new Set(
+        reports
+          .filter(
+            (report) =>
+              getReportStatus(report) === "sidewalk_runoff" &&
+              report.report_date === selectedDate
+          )
+          .map((report) => report.project_name)
+          .filter(Boolean)
+      ),
+    ],
     className: "blue",
   },
 ].filter((item) => item.value > 0);
@@ -2316,40 +2352,29 @@ body {
       
     </div>
 
-    {totals.notWatered > 0 ||
-    totals.insufficient > 0 ||
-    totals.sidewalk > 0 ||
-    aiAlertReports.length > 0 ? (
-      <div className="overview-alerts-grid">
-        {totals.notWatered > 0 && (
-          <div className="overview-alert-card danger">
-            <span>لم يتم الري</span>
-            <strong>{totals.notWatered}</strong>
-          </div>
-        )}
+    {summaryExceptionCards.length > 0 || aiAlertReports.length > 0 ? (
+  <div className="overview-alerts-grid">
+    {summaryExceptionCards.map((item) => (
+      <div key={item.key} className={`overview-alert-card ${item.className}`}>
+        <span>{item.title}</span>
+        <strong>{item.value}</strong>
 
-        {totals.insufficient > 0 && (
-          <div className="overview-alert-card warning">
-            <span>عدم كفاية ري</span>
-            <strong>{totals.insufficient}</strong>
-          </div>
-        )}
-
-        {totals.sidewalk > 0 && (
-          <div className="overview-alert-card blue">
-            <span>خروج الري للرصيف</span>
-            <strong>{totals.sidewalk}</strong>
-          </div>
-        )}
-
-        {aiAlertReports.length > 0 && (
-          <div className="overview-alert-card danger">
-            <span>تنبيهات التحقق الذكي</span>
-            <strong>{aiAlertReports.length}</strong>
-          </div>
+        {item.projects?.length > 0 && (
+          <small className="overview-alert-projects">
+            ({item.projects.join(" - ")})
+          </small>
         )}
       </div>
-    ) : (
+    ))}
+
+    {aiAlertReports.length > 0 && (
+      <div className="overview-alert-card danger">
+        <span>تنبيهات التحقق الذكي</span>
+        <strong>{aiAlertReports.length}</strong>
+      </div>
+    )}
+  </div>
+) : (
       <div className="overview-success-card">
         جميع المواقع المجدولة اليوم تم التعامل معها بنجاح
       </div>
