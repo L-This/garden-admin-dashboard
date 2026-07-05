@@ -374,7 +374,30 @@ export default function AdminHome() {
     if (day === 6) return schedule.saturday;
     return false;
   }).length;
-  const todayCompletionRate = scheduledTodayCount ? Math.round((todayWateredCount / scheduledTodayCount) * 100) : 0;
+  const todayCompletionRate = scheduledTodayCount
+  ? Math.min(100, Math.round((todayWateredCount / scheduledTodayCount) * 100))
+  : 0;
+  const summaryExceptionCards = [
+  {
+    key: "not-watered",
+    title: "لم يتم الري",
+    value: todayNotWateredCount,
+    className: "danger",
+  },
+  {
+    key: "insufficient",
+    title: "عدم كفاية ري",
+    value: todayInsufficientCount,
+    className: "warning",
+  },
+  {
+    key: "sidewalk-runoff",
+    title: "خروج الري للرصيف",
+    value: todaySidewalkCount,
+    className: "blue",
+  },
+].filter((item) => item.value > 0);
+  
   const [activeView, setActiveView] = useState<
     | "overview"
     | "projects"
@@ -2277,38 +2300,46 @@ body {
       )}
 
         {activeView === "overview" && (
-        <section className="admin-overview design1-overview">
-          <div>
-            <em>◌</em>
-            <span>إجمالي الحدائق</span>
-            <strong>{totals.totalGardens}</strong>
-          </div>
-          <div>
-            <em>♢</em>
-            <span>تم ريها</span>
-            <strong>{totals.watered}</strong>
-          </div>
-          <div>
-            <em>⌁</em>
-            <span>لم يتم ريها</span>
-            <strong>{totals.notWatered}</strong>
-          </div>
-          <div>
-            <em>−</em>
-            <span>عدم كفاية ري</span>
-            <strong>{totals.insufficient}</strong>
-          </div>
-          <div>
-            <em>↪</em>
-            <span>خروج الري للرصيف</span>
-            <strong>{totals.sidewalk}</strong>
-          </div>
-          <div className="ai-overview-card">
-            <em>⚠</em>
-            <span>تنبيهات التحقق الذكي</span>
-            <strong>{aiAlertReports.length}</strong>
-          </div>
-        </section>
+        <section className="admin-overview-modern">
+  <div className="overview-main-card">
+    <div>
+      <span className="overview-main-label">
+        نسبة إنجاز المواقع المجدولة اليوم
+      </span>
+
+      <strong className="overview-main-value">
+        {todayCompletionRate}%
+      </strong>
+
+      <p>
+        تم ري {todayWateredCount} من أصل {scheduledTodayCount} موقع مجدول
+      </p>
+    </div>
+
+    <div className="overview-main-total">
+      <span>إجمالي الحدائق</span>
+      <strong>{totals.totalGardens}</strong>
+    </div>
+  </div>
+
+  {summaryExceptionCards.length > 0 ? (
+    <div className="overview-alerts-grid">
+      {summaryExceptionCards.map((item) => (
+        <div
+          key={item.key}
+          className={`overview-alert-card ${item.className}`}
+        >
+          <span>{item.title}</span>
+          <strong>{item.value}</strong>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <div className="overview-success-card">
+      جميع المواقع المجدولة اليوم تم التعامل معها بنجاح
+    </div>
+  )}
+</section>
         )}
 
       {activeView === "overview" && isFridayDate(selectedDate) && (
