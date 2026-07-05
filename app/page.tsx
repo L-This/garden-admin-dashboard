@@ -360,11 +360,17 @@ export default function AdminHome() {
   const todayInsufficientCount = reports.filter((report) => getReportStatus(report) === "insufficient").length;
   const todaySidewalkCount = reports.filter((report) => getReportStatus(report) === "sidewalk_runoff").length;
   const activeGardensCount = gardens.length;
-  const scheduledTodayCount = gardens.filter((garden) => {
-    const schedule = wateringSchedules.find((item) => String(item.garden_id) === String(garden.id));
+
+  function isGardenScheduledToday(garden: Garden) {
+    const schedule = wateringSchedules.find(
+      (item) => String(item.garden_id) === String(garden.id),
+    );
+
     if (!schedule) return false;
     if (schedule.daily_watering) return !isFridayDate(selectedDate);
+
     const day = parseLocalDate(selectedDate).getDay();
+
     if (day === 0) return schedule.sunday;
     if (day === 1) return schedule.monday;
     if (day === 2) return schedule.tuesday;
@@ -372,79 +378,81 @@ export default function AdminHome() {
     if (day === 4) return schedule.thursday;
     if (day === 5) return schedule.friday;
     if (day === 6) return schedule.saturday;
+
     return false;
-  }).length;
+  }
+
+  const scheduledTodayGardens = gardens.filter(isGardenScheduledToday);
+  const scheduledTodayCount = scheduledTodayGardens.length;
+
+  const todayWateredReportGardenIds = new Set(
+    reports
+      .filter((report) => getReportStatus(report) === "watered")
+      .map((report) => report.garden_id),
+  );
+
+  const notWateredViolationGardens = isFridayDate(selectedDate)
+    ? []
+    : scheduledTodayGardens.filter(
+        (garden) => !todayWateredReportGardenIds.has(garden.id),
+      );
+
+  const getProjectNamesFromGardens = (selectedGardens: Garden[]) =>
+    Array.from(
+      new Set(
+        selectedGardens
+          .map((garden) => {
+            const project = projects.find((item) => item.id === garden.project_id);
+            return project?.name;
+          })
+          .filter((name): name is string => Boolean(name)),
+      ),
+    );
+
+  const getProjectNamesFromReports = (status: ReportStatus) =>
+    Array.from(
+      new Set(
+        reports
+          .filter((report) => getReportStatus(report) === status)
+          .map((report) => {
+            const garden = gardens.find((item) => item.id === report.garden_id);
+            const project = projects.find((item) => item.id === garden?.project_id);
+            return project?.name;
+          })
+          .filter((name): name is string => Boolean(name)),
+      ),
+    );
+
   const todayCompletionRate = scheduledTodayCount
-  ? Math.min(100, Math.round((todayWateredCount / scheduledTodayCount) * 100))
-  : 0;
+    ? Math.min(100, Math.round((todayWateredCount / scheduledTodayCount) * 100))
+    : 0;
+
   const summaryExceptionCards = [
-  {
-    key: "not-watered",
-    title: "لم يتم الري",
-    value: todayNotWateredCount,
-    projects: [
-      ...new Set(
-        reports
-          .filter(
-            (report) =>
-              getReportStatus(report) === "not_watered" &&
-              report.report_date === selectedDate
-          )
-          .map((report) => {
-  const garden = gardens.find((g) => g.id === report.garden_id);
-  const project = projects.find((p) => p.id === garden?.project_id);
-  return project?.name;
-})
-          .filter(Boolean)
-      ),
-    ],
-    className: "danger",
-  },
-  {
-    key: "insufficient",
-    title: "عدم كفاية ري",
-    value: todayInsufficientCount,
-    projects: [
-      ...new Set(
-        reports
-          .filter(
-            (report) =>
-              getReportStatus(report) === "insufficient" &&
-              report.report_date === selectedDate
-          )
-          .map((report) => {
-  const garden = gardens.find((g) => g.id === report.garden_id);
-  const project = projects.find((p) => p.id === garden?.project_id);
-  return project?.name;
-})
-          .filter(Boolean)
-      ),
-    ],
-    className: "warning",
-  },
-  {
-    key: "sidewalk-runoff",
-    title: "خروج الري للرصيف",
-    value: todaySidewalkCount,
-    projects: [
-      ...new Set(
-        reports
-          .filter(
-            (report) =>
-              getReportStatus(report) === "sidewalk_runoff" &&
-              report.report_date === selectedDate
-          )
-          .map((report) => {
-  const garden = gardens.find((g) => g.id === report.garden_id);
-  const project = projects.find((p) => p.id === garden?.project_id);
-  return project?.name;
-})
-          .filter(Boolean)
-      ),
-    ],
-    className: "blue",
-  },
-].filter((item) => item.value > 0);
+    {
+      key: "not-watered",
+      title: "لم يتم الري",
+      value: notWateredViolationGardens.length,
+      projects: getProjectNamesFromGardens(notWateredViolationGardens),
+      className: "danger",
+      icon: "✕",
+    },
+    {
+      key: "insufficient",
+      title: "عدم كفاية ري",
+      value: todayInsufficientCount,
+      projects: getProjectNamesFromReports("insufficient"),
+      className: "warning",
+      icon: "!",
+    },
+    {
+      key: "sidewalk-runoff",
+      title: "خروج الري للرصيف",
+      value: todaySidewalkCount,
+      projects: getProjectNamesFromReports("sidewalk_runoff"),
+      className: "blue",
+      icon: "↪",
+    },
+  ].filter((item) => item.value > 0);
   
   const [activeView, setActiveView] = useState<
     | "overview"
@@ -2365,28 +2373,40 @@ body {
     </div>
 
     {summaryExceptionCards.length > 0 || aiAlertReports.length > 0 ? (
-  <div className="overview-alerts-grid">
-    {summaryExceptionCards.map((item) => (
-      <div key={item.key} className={`overview-alert-card ${item.className}`}>
-        <span>{item.title}</span>
-        <strong>{item.value}</strong>
+      <aside className="overview-violations-card">
+        <h3>المخالفات اليوم</h3>
 
-        {item.projects?.length > 0 && (
-          <small className="overview-alert-projects">
-            ({item.projects.join(" - ")})
-          </small>
-        )}
-      </div>
-    ))}
+        <div className="overview-violations-list">
+          {summaryExceptionCards.map((item) => (
+            <div key={item.key} className={`overview-violation-row ${item.className}`}>
+              <em>{item.icon}</em>
 
-    {aiAlertReports.length > 0 && (
-      <div className="overview-alert-card danger">
-        <span>تنبيهات التحقق الذكي</span>
-        <strong>{aiAlertReports.length}</strong>
-      </div>
-    )}
-  </div>
-) : (
+              <div>
+                <span>{item.title}</span>
+                {item.projects.length > 0 && (
+                  <small>({item.projects.join("، ")})</small>
+                )}
+              </div>
+
+              <strong>{item.value}</strong>
+            </div>
+          ))}
+
+          {aiAlertReports.length > 0 && (
+            <div className="overview-violation-row danger">
+              <em>!</em>
+              <div>
+                <span>تنبيهات التحقق الذكي</span>
+                <small>(تحتاج مراجعة)</small>
+              </div>
+              <strong>{aiAlertReports.length}</strong>
+            </div>
+          )}
+        </div>
+
+        <p className="overview-violations-note">يتم تحديث المخالفات بشكل تلقائي بناءً على تقارير اليوم.</p>
+      </aside>
+    ) : (
       <div className="overview-success-card">
         جميع المواقع المجدولة اليوم تم التعامل معها بنجاح
       </div>
