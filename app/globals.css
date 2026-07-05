@@ -4651,3 +4651,55 @@ margin-right:auto;
     width: 100% !important;
   }
 }
+
+/* =========================================================
+   FINAL FIX - Overview violations reading order
+   ========================================================= */
+.overview-violation-row {
+  grid-template-columns: 38px minmax(0, 1fr) !important;
+  gap: 12px !important;
+}
+
+.overview-violation-content {
+  min-width: 0 !important;
+}
+
+.overview-violation-titleline {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+}
+
+.overview-violation-titleline span {
+  color: #073b31 !important;
+  font-size: 18px !important;
+  line-height: 1.35 !important;
+  font-weight: 950 !important;
+}
+
+.overview-violation-titleline strong {
+  flex: 0 0 auto !important;
+  color: #dc2626 !important;
+  font-size: 42px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+}
+
+.overview-violation-row.warning .overview-violation-titleline strong {
+  color: #d97706 !important;
+}
+
+.overview-violation-row.blue .overview-violation-titleline strong {
+  color: #2563eb !important;
+}
+
+.overview-violation-projects {
+  justify-content: flex-start !important;
+  margin-top: 4px !important;
+}
+
+.overview-violation-projects button {
+  text-align: right !important;
+}
