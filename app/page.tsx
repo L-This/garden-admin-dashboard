@@ -2707,36 +2707,6 @@ const duplicatePhoto =
       </div>
     </div>
 
-    {reportRows.length > 0 && (
-      <div className="inline-results-card report-results-enhanced">
-        <h3>{reportTitle}</h3>
-
-        <div className="responsive-table">
-          <table>
-            <thead>
-              <tr>
-                <th>الموقع</th>
-                <th>تم الري</th>
-                <th>لم يتم الري</th>
-                <th>عدم كفاية</th>
-                <th>خروج الرصيف</th>
-              </tr>
-            </thead>
-            <tbody>
-              {reportRows.map((row) => (
-                <tr key={row.gardenId}>
-                  <td>{row.gardenName}</td>
-                  <td>{row.watered}</td>
-                  <td>{row.notWatered}</td>
-                  <td>{row.insufficient}</td>
-                  <td>{row.sidewalk}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    )}
   </section>
 )}
 
