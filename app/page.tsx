@@ -1440,7 +1440,27 @@ body {
   }
 
   .project-name-line {
-    color: #123047;
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+    padding: 3px 12px 4px;
+    color: #3d2c8d !important;
+    font-weight: 950 !important;
+    letter-spacing: .1px;
+    border-radius: 7px;
+    background:
+      linear-gradient(
+        180deg,
+        transparent 18%,
+        rgba(222, 255, 67, .72) 18%,
+        rgba(222, 255, 67, .72) 84%,
+        transparent 84%
+      );
+    text-shadow:
+      0 0 5px rgba(222, 255, 67, .95),
+      0 0 10px rgba(222, 255, 67, .55);
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   .project-period-line {
