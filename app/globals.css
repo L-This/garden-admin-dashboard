@@ -4703,3 +4703,93 @@ margin-right:auto;
 .overview-violation-projects button {
   text-align: right !important;
 }
+
+/* ===== Backfill reports management ===== */
+.backfill-admin-panel { display: grid; gap: 24px; }
+.backfill-stats { margin-bottom: 0; }
+.backfill-create-card,
+.backfill-history-card {
+  background: rgba(255,255,255,.84);
+  border: 1px solid rgba(14,120,91,.16);
+  border-radius: 26px;
+  padding: 24px;
+  box-shadow: 0 18px 45px rgba(12,82,65,.08);
+}
+.backfill-card-title,
+.backfill-history-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+.backfill-card-title span,
+.backfill-history-head span { color: #0c8b68; font-weight: 800; font-size: 13px; }
+.backfill-card-title h3,
+.backfill-history-head h3 { margin: 4px 0 0; color: #0a4f40; font-size: 24px; }
+.backfill-card-title p { max-width: 600px; margin: 0; color: #607c75; line-height: 1.8; }
+.backfill-form-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+.backfill-scope-options { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; margin: 22px 0; }
+.backfill-scope-options button {
+  border: 1px solid rgba(12,139,104,.2);
+  border-radius: 18px;
+  padding: 18px;
+  background: #f7fbfa;
+  color: #466b61;
+  text-align: right;
+  cursor: pointer;
+  transition: .2s ease;
+}
+.backfill-scope-options button strong { display:block; font-size:17px; margin-bottom:6px; }
+.backfill-scope-options button small { color:#789189; line-height:1.6; }
+.backfill-scope-options button.active {
+  background: linear-gradient(135deg,#087a5d,#0aa579);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 12px 26px rgba(8,122,93,.2);
+}
+.backfill-scope-options button.active small { color: rgba(255,255,255,.82); }
+.backfill-garden-picker {
+  border: 1px solid rgba(12,139,104,.18);
+  border-radius: 20px;
+  padding: 18px;
+  background: #f9fcfb;
+  margin-bottom: 20px;
+}
+.backfill-picker-toolbar { display:grid; grid-template-columns:1fr auto auto; gap:10px; }
+.backfill-picker-toolbar input { min-width:0; border:1px solid #d3e5df; border-radius:14px; padding:12px 14px; }
+.backfill-picker-toolbar button,
+.backfill-history-head button { border:1px solid #cce1da; background:white; color:#087a5d; border-radius:12px; padding:10px 14px; font-weight:800; cursor:pointer; }
+.backfill-selection-count { margin:14px 0; color:#56746b; }
+.backfill-selection-count strong { color:#087a5d; font-size:20px; }
+.backfill-garden-list { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; max-height:330px; overflow:auto; padding:3px; }
+.backfill-garden-list label { display:flex; align-items:center; gap:9px; border:1px solid #dcebe6; border-radius:13px; padding:11px 12px; background:white; cursor:pointer; }
+.backfill-garden-list label.selected { border-color:#11a477; background:#eafaf4; color:#076b52; font-weight:800; }
+.backfill-empty-picker,
+.backfill-empty-history { text-align:center; padding:28px; color:#789189; border:1px dashed #cfe2dc; border-radius:16px; }
+.backfill-note-field { display:grid; gap:8px; color:#385e54; font-weight:800; }
+.backfill-note-field textarea { min-height:90px; resize:vertical; border:1px solid #d3e5df; border-radius:15px; padding:13px; font:inherit; }
+.backfill-admin-message { margin:15px 0 0; background:#eef9f5; color:#086b51; border:1px solid #c7ebde; border-radius:13px; padding:12px 14px; font-weight:800; }
+.backfill-open-button { margin-top:16px; min-width:220px; }
+.backfill-history-list { display:grid; gap:12px; }
+.backfill-history-list article { display:grid; grid-template-columns:180px 1fr auto; gap:18px; align-items:center; border:1px solid #dfebe7; border-radius:18px; padding:17px; background:#fbfdfc; }
+.backfill-history-list article.active { border-color:#9fe2cc; background:#effbf7; }
+.backfill-history-status span { display:inline-block; border-radius:999px; padding:5px 10px; background:#e8eeec; color:#60766f; font-size:12px; font-weight:900; margin-bottom:8px; }
+.backfill-history-list article.active .backfill-history-status span { background:#c9f3e4; color:#087053; }
+.backfill-history-status strong { display:block; color:#104f41; }
+.backfill-history-details { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px 18px; color:#5c756e; }
+.backfill-history-details p { margin:0; }
+.backfill-history-note { grid-column:1/-1; color:#8a6936 !important; background:#fff8e9; border-radius:10px; padding:8px 10px; }
+.backfill-close-button { border:1px solid #e9b6b6; color:#a43b3b; background:white; border-radius:12px; padding:10px 14px; cursor:pointer; font-weight:800; }
+@media (max-width: 900px) {
+  .backfill-form-grid,
+  .backfill-garden-list { grid-template-columns:1fr 1fr; }
+  .backfill-history-list article { grid-template-columns:1fr; }
+  .backfill-history-details { grid-template-columns:1fr; }
+}
+@media (max-width: 620px) {
+  .backfill-create-card,.backfill-history-card { padding:16px; border-radius:20px; }
+  .backfill-card-title,.backfill-history-head { flex-direction:column; }
+  .backfill-form-grid,.backfill-scope-options,.backfill-garden-list,.backfill-picker-toolbar { grid-template-columns:1fr; }
+  .backfill-open-button { width:100%; }
+}

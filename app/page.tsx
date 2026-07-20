@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import BackfillAdminPanel from "./BackfillAdminPanel";
 
 type UserRole = "مشرف" | "مدير";
 
@@ -462,6 +463,7 @@ export default function AdminHome() {
     | "report"
     | "gardens"
     | "schedule"
+    | "backfill"
     | "executive"
     | "audit"
     | "contractors"
@@ -2315,6 +2317,7 @@ body {
           <button className={activeView === "report" ? "active" : ""} onClick={() => setActiveView("report")}>▣ إعداد تقرير</button>
           {isManager && <button className={activeView === "gardens" ? "active" : ""} onClick={() => setActiveView("gardens")}>☘ إدارة الحدائق والمواقع</button>}
           {isManager && <button className={activeView === "schedule" ? "active" : ""} onClick={() => setActiveView("schedule")}>▦ إدارة جدول الري</button>}
+          {isManager && <button className={activeView === "backfill" ? "active" : ""} onClick={() => setActiveView("backfill")}>◷ تقارير التعويض</button>}
           {isManager && (
             <button
               className={activeView === "executive" ? "active" : ""}
@@ -2344,6 +2347,7 @@ body {
               report: "إعداد التقرير",
               gardens: "إدارة الحدائق والمواقع",
               schedule: "إدارة جدول الري",
+              backfill: "تقارير التعويض",
               executive: "المؤشرات التنفيذية",
               audit: "سجل التعديلات",
               contractors: "روابط المقاولين",
@@ -2357,6 +2361,7 @@ body {
               report: "إنشاء تقرير الفترة وطباعته دون مغادرة الواجهة.",
               gardens: "إضافة وتعديل المواقع وربطها بالمشاريع مباشرة.",
               schedule: "ضبط أيام الري والزونات لكل موقع من نفس الصفحة.",
+              backfill: "فتح تقرير لتاريخ سابق لكامل المواقع أو لمواقع مختارة ومتابعة حالته.",
               executive: "قراءة شاملة للأداء والغرامات حسب الفترة.",
               audit: "متابعة التعديلات والتراجع عنها عند الحاجة.",
               contractors: "إدارة روابط ورموز دخول المقاولين لكل مشروع.",
@@ -2765,6 +2770,14 @@ const duplicatePhoto =
             })}
           </div>
         </section>
+      )}
+
+      {activeView === "backfill" && isManager && (
+        <BackfillAdminPanel
+          projects={projects.map((project) => ({ id: project.id, name: project.name }))}
+          gardens={gardens.map((garden) => ({ id: garden.id, project_id: garden.project_id, name: garden.name }))}
+          openedBy={user?.username || "مدير النظام"}
+        />
       )}
 
       {activeView === "executive" && isManager && (
