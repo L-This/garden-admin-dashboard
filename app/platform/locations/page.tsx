@@ -1,0 +1,11 @@
+'use client';
+import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import '../platform.css';
+export default function CentralLocationsPage(){
+ const [rows,setRows]=useState<any[]>([]); const [query,setQuery]=useState('');
+ useEffect(()=>{void supabase.from('locations').select('*, projects(name)').order('name').then(({data})=>setRows(data||[]));},[]);
+ const visible=useMemo(()=>{const q=query.trim().toLowerCase();return rows.filter(r=>!q||`${r.name} ${r.location_code||''} ${r.projects?.name||''}`.toLowerCase().includes(q));},[rows,query]);
+ return <main className="simple-platform-page" dir="rtl"><div className="breadcrumbs"><Link href="/platform">المنصة</Link><span>/</span><strong>سجل المواقع المركزي</strong></div><header className="simple-title"><div><span className="eyebrow">المصدر الموحد</span><h1>سجل المواقع المركزي</h1><p>سيكون المصدر الثابت لنظام الأعمال الميدانية ونظام أوامر العمل.</p></div><button className="primary-action" disabled>استيراد Excel — قريبًا</button></header><section className="platform-stats compact"><article><span>إجمالي المواقع</span><strong>{rows.length}</strong></article><article><span>النشطة</span><strong>{rows.filter(r=>r.active!==false).length}</strong></article><article><span>الموقوفة</span><strong>{rows.filter(r=>r.active===false).length}</strong></article><article><span>حالة الاستيراد</span><strong className="status-ready">بانتظار الملفات</strong></article></section><section className="platform-panel"><div className="panel-heading"><div><h2>المواقع</h2><p>بحث موحد بالاسم أو الكود أو المشروع.</p></div><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="بحث في السجل..."/></div><div className="data-list">{visible.map(row=><article key={row.id}><div><strong>{row.name}</strong><span>{row.projects?.name||'بدون مشروع'} · {row.location_code||'بدون كود'} · {row.location_type||'غير مصنف'}</span></div><span className={row.active===false?'pill off':'pill'}>{row.active===false?'موقوف':'نشط'}</span></article>)}{!visible.length&&<div className="platform-empty">لا توجد مواقع في السجل الجديد حتى الآن. بيانات الري القديمة ستُنقل بعد اعتماد ملفات Excel.</div>}</div></section></main>
+}

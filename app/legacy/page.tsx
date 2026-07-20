@@ -2301,7 +2301,6 @@ body {
         </div>
 
         <nav className="design1-sidebar-nav">
-          <a href="/platform" className="platform-launch-link">◈ منصة الأعمال الميدانية الجديدة</a>
           <button className={activeView === "overview" ? "active" : ""} onClick={() => setActiveView("overview")}>⌂ المؤشرات العامة</button>
           <button
             className={activeView === "projects" ? "active" : ""}

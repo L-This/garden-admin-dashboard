@@ -4793,3 +4793,4 @@ margin-right:auto;
   .backfill-form-grid,.backfill-scope-options,.backfill-garden-list,.backfill-picker-toolbar { grid-template-columns:1fr; }
   .backfill-open-button { width:100%; }
 }
+.platform-launch-link{display:block;text-decoration:none;padding:13px 14px;border-radius:14px;background:linear-gradient(135deg,#6347b6,#2470c8);color:#fff!important;font-weight:800;box-shadow:0 10px 25px rgba(62,49,142,.22);margin-bottom:8px}.platform-launch-link:hover{transform:translateY(-1px)}
