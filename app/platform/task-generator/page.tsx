@@ -41,7 +41,15 @@ type PreviewRow = {
   location_name: string;
   location_code: string | null;
   location_category: string | null;
-  generation_status: 'ready' | 'existing' | 'no_workflow';
+  generation_status:
+    | 'ready'
+    | 'existing'
+    | 'no_workflow'
+    | 'excluded_scope'
+    | 'excluded_project'
+    | 'excluded_category'
+    | 'excluded_location';
+  reason_text: string;
 };
 type Batch = {
   id: string;
@@ -293,14 +301,14 @@ export default function DailyTaskGeneratorPage() {
   async function previewTasks() {
     setMessage('');
     setSaving(true);
-    const { data, error } = await supabase.rpc('preview_daily_tasks', {
+    const { data, error } = await supabase.rpc('simulate_daily_tasks', {
       p_scheduled_date: generationDate,
       p_project_id: generationProjectId || null,
     });
     setSaving(false);
     if (error) return setMessage(error.message);
     setPreview((data || []) as PreviewRow[]);
-    if (!(data || []).length) setMessage('لا توجد مهام مستحقة حسب الجداول في التاريخ المحدد.');
+    if (!(data || []).length) setMessage('لا توجد جداول مستحقة أو مواقع نشطة في التاريخ المحدد.');
   }
 
   async function generateTasks() {
@@ -326,6 +334,9 @@ export default function DailyTaskGeneratorPage() {
     ready: preview.filter((item) => item.generation_status === 'ready').length,
     existing: preview.filter((item) => item.generation_status === 'existing').length,
     noWorkflow: preview.filter((item) => item.generation_status === 'no_workflow').length,
+    excluded: preview.filter((item) =>
+      ['excluded_scope', 'excluded_project', 'excluded_category', 'excluded_location'].includes(item.generation_status),
+    ).length,
   }), [preview]);
 
   const activeSchedules = schedules.filter((item) => item.active).length;
@@ -427,24 +438,46 @@ export default function DailyTaskGeneratorPage() {
 
         <section className="platform-panel generation-console">
           <div className="panel-heading">
-            <div><h2>معاينة وتوليد مهام اليوم</h2><p>المعاينة لا تحفظ شيئًا. التوليد الفعلي ينشئ مهام سير العمل الجاهزة فقط.</p></div>
+            <div><h2>محاكاة وتوليد مهام اليوم</h2><p>المحاكاة تعرض كل موقع وسبب إنشائه أو استبعاده، ولا تحفظ أي مهمة.</p></div>
           </div>
           <div className="generation-controls">
             <label><span>تاريخ المهام</span><input type="date" value={generationDate} onChange={(event) => setGenerationDate(event.target.value)} /></label>
             <label><span>المشروع</span><select value={generationProjectId} onChange={(event) => setGenerationProjectId(event.target.value)}><option value="">جميع المشاريع</option>{projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}</select></label>
-            <button className="secondary-action" onClick={previewTasks} disabled={saving}>معاينة المهام</button>
+            <button className="secondary-action" onClick={previewTasks} disabled={saving}>{saving ? 'جاري المحاكاة...' : 'محاكاة التوليد'}</button>
             <button className="primary-action" onClick={generateTasks} disabled={saving || !previewStats.ready}>توليد {previewStats.ready || ''} مهمة</button>
           </div>
 
-          <div className="generation-stats">
-            <article><span>إجمالي المعاينة</span><strong>{previewStats.total}</strong></article>
-            <article className="ready"><span>جاهزة</span><strong>{previewStats.ready}</strong></article>
+          <div className="generation-stats simulation-stats">
+            <article><span>إجمالي المواقع المفحوصة</span><strong>{previewStats.total}</strong></article>
+            <article className="ready"><span>ستُنشأ</span><strong>{previewStats.ready}</strong></article>
             <article><span>موجودة مسبقًا</span><strong>{previewStats.existing}</strong></article>
             <article className="warning"><span>بدون سير منشور</span><strong>{previewStats.noWorkflow}</strong></article>
+            <article className="excluded"><span>مستبعدة بالإعدادات</span><strong>{previewStats.excluded}</strong></article>
           </div>
 
           <div className="generation-preview-table">
-            {preview.length ? <table><thead><tr><th>المشروع</th><th>نوع العمل</th><th>الموقع</th><th>التصنيف</th><th>الحالة</th></tr></thead><tbody>{preview.map((row) => <tr key={`${row.schedule_id}-${row.location_id}`}><td>{row.project_name}</td><td>{row.work_type_name}<small>{row.schedule_name}</small></td><td><strong>{row.location_name}</strong><small>{row.location_code || 'بدون كود'}</small></td><td>{row.location_category || 'غير مصنف'}</td><td><span className={`task-preview-status ${row.generation_status}`}>{row.generation_status === 'ready' ? 'جاهزة' : row.generation_status === 'existing' ? 'موجودة' : 'لا يوجد سير منشور'}</span></td></tr>)}</tbody></table> : <div className="platform-empty">اضغط «معاينة المهام» لعرض ما سيولده المحرك.</div>}
+            {preview.length ? (
+              <table>
+                <thead><tr><th>المشروع</th><th>نوع العمل</th><th>الموقع</th><th>التصنيف</th><th>النتيجة</th><th>السبب</th></tr></thead>
+                <tbody>{preview.map((row) => {
+                  const statusLabel =
+                    row.generation_status === 'ready' ? 'ستُنشأ'
+                    : row.generation_status === 'existing' ? 'موجودة'
+                    : row.generation_status === 'no_workflow' ? 'بدون سير'
+                    : 'مستبعدة';
+                  return (
+                    <tr key={`${row.schedule_id}-${row.location_id}`}>
+                      <td>{row.project_name}</td>
+                      <td>{row.work_type_name}<small>{row.schedule_name}</small></td>
+                      <td><strong>{row.location_name}</strong><small>{row.location_code || 'بدون كود'}</small></td>
+                      <td>{row.location_category || 'غير مصنف'}</td>
+                      <td><span className={`task-preview-status ${row.generation_status}`}>{statusLabel}</span></td>
+                      <td className="simulation-reason">{row.reason_text}</td>
+                    </tr>
+                  );
+                })}</tbody>
+              </table>
+            ) : <div className="platform-empty">اضغط «محاكاة التوليد» لعرض المواقع والقرارات وأسباب الاستبعاد.</div>}
           </div>
         </section>
 
