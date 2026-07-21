@@ -166,7 +166,7 @@ export default function WorkflowsPage() {
       workflow_id: selectedWorkflowId,
       name: stepDraft.name.trim(),
       step_key: stepDraft.step_key.trim().toLowerCase().replace(/\s+/g, '_'),
-      description: stepDraft.description.trim() || null,
+      description: (stepDraft.description ?? '').trim() || null,
       sla_hours: stepDraft.sla_hours === null ? null : Number(stepDraft.sla_hours),
     };
     const result = selectedStepId
