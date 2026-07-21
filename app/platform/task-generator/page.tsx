@@ -323,8 +323,13 @@ export default function DailyTaskGeneratorPage() {
     });
     setSaving(false);
     if (error) return setMessage(error.message);
-    const result = data as { generated?: number; existing?: number; no_workflow?: number } | null;
-    setMessage(`تم التوليد: ${result?.generated || 0} مهمة جديدة، ${result?.existing || 0} موجودة مسبقًا، ${result?.no_workflow || 0} بدون سير منشور.`);
+    const result = data as { generated?: number; existing?: number; no_workflow?: number; excluded?: number } | null;
+    setMessage(`تم التوليد الفعلي: ${result?.generated || 0} مهمة جديدة، ${result?.existing || 0} موجودة مسبقًا، ${result?.no_workflow || 0} بدون سير منشور، ${result?.excluded || 0} مستبعدة.`);
+    if ((result?.generated || 0) > 0) {
+      window.setTimeout(() => {
+        window.location.href = `/platform/tasks?date=${generationDate}`;
+      }, 900);
+    }
     await loadAll(selectedScheduleId);
     await previewTasks();
   }
@@ -353,6 +358,7 @@ export default function DailyTaskGeneratorPage() {
           <Link href="/platform/work-types">أنواع الأعمال</Link>
           <Link href="/platform/workflows">سير الأعمال</Link>
           <Link className="active" href="/platform/task-generator">مولد المهام</Link>
+          <Link href="/platform/tasks">المهام التشغيلية</Link>
           <Link href="/">النظام السابق</Link>
         </nav>
       </aside>
@@ -360,11 +366,14 @@ export default function DailyTaskGeneratorPage() {
       <section className="platform-content">
         <header className="platform-header">
           <div>
-            <span className="eyebrow">المرحلة 6.1</span>
+            <span className="eyebrow">المرحلة 6.2</span>
             <h1>مولد المهام اليومية</h1>
             <p>أنشئ جداول تشغيل، عاين مهام اليوم، ثم ولّدها دون تكرار وباستخدام سير العمل المنشور.</p>
           </div>
-          <button className="primary-action" onClick={startNewSchedule}>+ جدول تشغيل جديد</button>
+          <div className="platform-header-actions">
+            <Link className="secondary-action" href="/platform/tasks">عرض المهام التشغيلية</Link>
+            <button className="primary-action" onClick={startNewSchedule}>+ جدول تشغيل جديد</button>
+          </div>
         </header>
 
         <section className="platform-stats">
