@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import '../platform.css';
 
@@ -55,10 +56,12 @@ function localDate() {
 }
 
 export default function OperationalTasksPage() {
+  const searchParams = useSearchParams();
+  const requestedDate = searchParams.get('date');
   const [projects, setProjects] = useState<Project[]>([]);
   const [tasks, setTasks] = useState<TaskRow[]>([]);
   const [selectedTask, setSelectedTask] = useState<TaskRow | null>(null);
-  const [date, setDate] = useState(localDate());
+  const [date, setDate] = useState(requestedDate || localDate());
   const [projectId, setProjectId] = useState('');
   const [status, setStatus] = useState('all');
   const [query, setQuery] = useState('');
@@ -66,6 +69,9 @@ export default function OperationalTasksPage() {
   const [message, setMessage] = useState('');
 
   useEffect(() => { void loadProjects(); }, []);
+  useEffect(() => {
+    if (requestedDate && requestedDate !== date) setDate(requestedDate);
+  }, [requestedDate]);
   useEffect(() => { void loadTasks(); }, [date, projectId]);
 
   async function loadProjects() {
