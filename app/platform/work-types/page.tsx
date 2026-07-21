@@ -276,6 +276,7 @@ export default function WorkTypesPage() {
           <Link href="/platform/locations">سجل المواقع المركزي</Link>
           <Link href="/platform/imports">استيراد المواقع</Link>
           <Link className="active" href="/platform/work-types">أنواع الأعمال</Link>
+          <Link href="/platform/workflows">سير الأعمال</Link>
           <Link href="/">النظام السابق</Link>
         </nav>
       </aside>
@@ -283,7 +284,7 @@ export default function WorkTypesPage() {
       <section className="platform-content">
         <header className="platform-header">
           <div><span className="eyebrow">المرحلة الرابعة</span><h1>محرك أنواع الأعمال</h1><p>أنشئ العمل، حدد متطلباته، واربطه بالمشاريع والتصنيفات والمواقع.</p></div>
-          <button className="primary-action" onClick={startNew}>+ نوع عمل جديد</button>
+          <div className="platform-header-actions"><Link className="secondary-action" href="/platform/workflows">محرك سير الأعمال</Link><button className="primary-action" onClick={startNew}>+ نوع عمل جديد</button></div>
         </header>
 
         <section className="platform-stats">
