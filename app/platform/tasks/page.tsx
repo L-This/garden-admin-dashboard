@@ -180,10 +180,10 @@ export default function OperationalTasksPage() {
           <div className="operational-tasks-layout">
             <div className="operational-task-list">
               {loading ? <div className="platform-empty">جاري تحميل المهام...</div> : filtered.length ? filtered.map((task) => (
-                <button
+                <Link
                   key={task.id}
-                  className={selectedTask?.id === task.id ? 'active' : ''}
-                  onClick={() => setSelectedTask(task)}
+                  className="operational-task-link"
+                  href={`/platform/tasks/${task.id}`}
                 >
                   <div className="task-list-icon">{task.work_type_icon || '◆'}</div>
                   <div className="task-list-main">
@@ -194,7 +194,7 @@ export default function OperationalTasksPage() {
                     <span>{task.work_type_name} · {task.project_name}</span>
                     <small>{task.task_number || 'بدون رقم'} · {task.location_code || 'بدون كود'}</small>
                   </div>
-                </button>
+                </Link>
               )) : <div className="platform-empty">لا توجد مهام مطابقة في التاريخ المحدد.</div>}
             </div>
 
@@ -228,7 +228,7 @@ export default function OperationalTasksPage() {
                     هذه الصفحة سجل إداري للمهام الفعلية. تنفيذ خطوة المقاول والمراجعة سيُربطان بها في المرحلة التالية.
                   </div>
                 </>
-              ) : <div className="platform-empty">اختر مهمة من القائمة لعرض تفاصيلها.</div>}
+              ) : <div className="platform-empty">اضغط على بطاقة المهمة لفتح ملف التشغيل الكامل.</div>}
             </div>
           </div>
         </section>

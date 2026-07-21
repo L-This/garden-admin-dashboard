@@ -75,3 +75,70 @@
 .task-readiness-note{margin-top:18px;padding:14px;border-radius:13px;background:#f1edff;color:#4c378e;font-size:13px;line-height:1.8}
 @media(max-width:1100px){.task-register-filters{grid-template-columns:1fr 1fr}.operational-tasks-layout{grid-template-columns:1fr}}
 @media(max-width:600px){.task-register-filters{grid-template-columns:1fr}.task-detail-head{flex-direction:column}}
+
+
+/* ==================================================
+   استكمال المرحلة 6.2 — بطاقة التشغيل الكاملة
+================================================== */
+.operational-task-link{width:100%;border:1px solid var(--p-line);background:#fff;border-radius:15px;padding:14px;display:flex;gap:12px;text-align:right;color:var(--p-ink);text-decoration:none}
+.operational-task-link:hover{border-color:#cbbcf3;background:#fbf9ff;box-shadow:0 8px 20px rgba(53,35,104,.06)}
+.task-operation-header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:24px}
+.task-operation-header h1{font-size:36px;margin:6px 0 8px}
+.task-operation-header p{margin:0;color:var(--p-muted)}
+.task-state.large{font-size:13px;padding:9px 14px}
+.task-operation-hero{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.task-operation-hero article{background:#fff;border:1px solid var(--p-line);border-radius:17px;padding:17px;display:flex;flex-direction:column;gap:8px}
+.task-operation-hero span,.task-operation-hero small{color:var(--p-muted);font-size:12px}
+.task-operation-hero strong{font-size:18px}
+.task-operation-progress{height:12px;background:#e9e5f3;border-radius:999px;margin:15px 0 22px;overflow:hidden}
+.task-operation-progress span{display:block;height:100%;background:linear-gradient(90deg,var(--p-purple),var(--p-blue));border-radius:inherit}
+.task-operation-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(310px,.5fr);gap:18px;align-items:start}
+.task-operation-main,.task-operation-side{display:flex;flex-direction:column;gap:16px}
+.current-operation-card{border-color:#d5c9f5}
+.step-status{padding:7px 11px;border-radius:999px;font-size:11px;font-weight:800;background:#eee9ff;color:var(--p-purple)}
+.step-status.in_progress{background:#eaf1ff;color:var(--p-blue)}
+.current-step-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.current-step-meta article{border:1px solid var(--p-line);background:#faf9fd;border-radius:13px;padding:13px}
+.current-step-meta span{display:block;color:var(--p-muted);font-size:11px;margin-bottom:6px}
+.requirements-checklist{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}
+.requirements-checklist>div{border:1px solid var(--p-line);border-radius:13px;padding:13px;background:#faf9fd;display:grid;grid-template-columns:auto 1fr;gap:4px 8px;align-items:center}
+.requirements-checklist>div.required{border-color:#cfc1f4;background:#fbf9ff}
+.requirements-checklist b{grid-row:1/3;color:var(--p-purple)}
+.requirements-checklist span{font-weight:800}
+.requirements-checklist small{color:var(--p-muted)}
+.operation-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.operation-form label{display:flex;flex-direction:column;gap:7px}
+.operation-form label span{font-size:12px;font-weight:800}
+.operation-form input,.operation-form textarea,.task-comment-form textarea{border:1px solid var(--p-line);border-radius:12px;background:#faf9fd;padding:12px;color:var(--p-ink)}
+.operation-form textarea{min-height:100px;resize:vertical}
+.task-operation-actions{display:flex;gap:10px;margin-top:17px}
+.danger-action{border:1px solid #efbdc7;background:#fff1f4;color:#a63c54;padding:12px 16px;border-radius:13px;font-weight:800;cursor:pointer}
+.upload-task-files{cursor:pointer}
+.upload-task-files input{display:none}
+.task-attachments-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.task-attachments-grid>a{border:1px solid var(--p-line);border-radius:13px;padding:13px;text-decoration:none;color:var(--p-ink);display:flex;flex-direction:column;gap:7px;min-width:0}
+.task-attachments-grid>a div{font-size:25px}
+.task-attachments-grid>a strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.task-attachments-grid>a span{font-size:11px;color:var(--p-muted)}
+.task-comment-form{display:grid;grid-template-columns:1fr auto;gap:10px;margin-bottom:14px}
+.task-comments-list{display:flex;flex-direction:column;gap:9px}
+.task-comments-list article{border:1px solid var(--p-line);border-radius:13px;padding:13px}
+.task-comments-list p{margin:8px 0;line-height:1.7}
+.task-comments-list span{font-size:11px;color:var(--p-muted)}
+.task-operation-side h2{margin-top:0}
+.task-step-timeline{display:flex;flex-direction:column;gap:9px}
+.task-step-timeline article{display:grid;grid-template-columns:38px 1fr auto;gap:10px;align-items:center;border:1px solid var(--p-line);border-radius:13px;padding:11px}
+.task-step-timeline article.current{border-color:#bdaaf0;background:#fbf9ff}
+.task-step-timeline article.completed{opacity:.78}
+.task-step-timeline b{width:34px;height:34px;border-radius:11px;background:var(--p-soft);color:var(--p-purple);display:grid;place-items:center}
+.task-step-timeline div{display:flex;flex-direction:column;gap:4px}
+.task-step-timeline div span,.task-step-timeline em{font-size:11px;color:var(--p-muted);font-style:normal}
+.task-event-timeline{display:flex;flex-direction:column;gap:0}
+.task-event-timeline article{display:grid;grid-template-columns:18px 1fr;gap:10px;position:relative;padding-bottom:16px}
+.task-event-timeline article:not(:last-child)::before{content:"";position:absolute;right:7px;top:13px;bottom:0;width:2px;background:#e1d9f2}
+.task-event-timeline i{width:15px;height:15px;border-radius:50%;background:var(--p-purple);margin-top:3px;z-index:1}
+.task-event-timeline p{margin:5px 0;color:var(--p-muted);line-height:1.6}
+.task-event-timeline span{font-size:11px;color:var(--p-muted)}
+.task-location-link{text-align:center}
+@media(max-width:1100px){.task-operation-grid{grid-template-columns:1fr}.task-operation-hero{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.task-operation-header{flex-direction:column}.task-operation-hero,.current-step-meta,.requirements-checklist,.operation-form,.task-attachments-grid{grid-template-columns:1fr}.task-comment-form{grid-template-columns:1fr}.task-operation-actions{flex-direction:column}}
