@@ -277,6 +277,7 @@ export default function WorkTypesPage() {
           <Link href="/platform/imports">استيراد المواقع</Link>
           <Link className="active" href="/platform/work-types">أنواع الأعمال</Link>
           <Link href="/platform/workflows">سير الأعمال</Link>
+          <Link href="/platform/task-generator">مولد المهام</Link>
           <Link href="/">النظام السابق</Link>
         </nav>
       </aside>
