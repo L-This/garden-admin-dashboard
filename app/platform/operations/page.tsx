@@ -110,7 +110,7 @@ export default function OperationsDashboardPage() {
       <div className="platform-brand-mark">م</div>
       <div><strong>منصة الأعمال الميدانية</strong><span>مركز متابعة العمليات المباشرة</span></div>
       <nav>
-        <Link href="/platform">المشاريع</Link><Link href="/platform/locations">سجل المواقع المركزي</Link><Link href="/platform/imports">استيراد المواقع</Link><Link href="/platform/work-types">أنواع الأعمال</Link><Link href="/platform/workflows">سير الأعمال</Link><Link href="/platform/task-generator">مولد المهام</Link><Link href="/platform/tasks">المهام التشغيلية</Link><Link className="active" href="/platform/operations">لوحة العمليات</Link><Link href="/">النظام السابق</Link>
+        <Link href="/platform">المشاريع</Link><Link href="/platform/locations">سجل المواقع المركزي</Link><Link href="/platform/imports">استيراد المواقع</Link><Link href="/platform/work-types">أنواع الأعمال</Link><Link href="/platform/workflows">سير الأعمال</Link><Link href="/platform/task-generator">مولد المهام</Link><Link href="/platform/tasks">المهام التشغيلية</Link><Link className="active" href="/platform/operations">لوحة العمليات</Link><Link href="/field/login">بوابات فرق العمل</Link><Link href="/">النظام السابق</Link>
       </nav>
     </aside>
 
