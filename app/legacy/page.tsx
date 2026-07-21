@@ -2333,6 +2333,7 @@ body {
           {isManager && <button className={activeView === "contractors" ? "active" : ""} onClick={() => setActiveView("contractors")}>🔗 روابط المقاولين</button>}
           {isManager && <button className={activeView === "signatures" ? "active" : ""} onClick={() => setActiveView("signatures")}>✍ إدارة بيانات التوقيع</button>}
           {isManager && <button className={activeView === "password" ? "active" : ""} onClick={() => setActiveView("password")}>⚿ إدارة كلمة المرور</button>}
+          <button onClick={() => window.location.href="/platform"}>🚀 منصة الأعمال الميدانية الجديدة</button>
           <button onClick={logout}>↩ تسجيل الخروج</button>
         </nav>
       </aside>
