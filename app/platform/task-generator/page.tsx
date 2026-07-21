@@ -359,6 +359,7 @@ export default function DailyTaskGeneratorPage() {
           <Link href="/platform/workflows">سير الأعمال</Link>
           <Link className="active" href="/platform/task-generator">مولد المهام</Link>
           <Link href="/platform/tasks">المهام التشغيلية</Link>
+          <Link href="/platform/operations">لوحة العمليات</Link>
           <Link href="/">النظام السابق</Link>
         </nav>
       </aside>
