@@ -55,6 +55,7 @@ export default function FieldOperationsPlatform() {
         <nav>
           <Link className="active" href="/platform">نظرة عامة</Link>
           <Link href="/platform/locations">سجل المواقع المركزي</Link>
+          <Link href="/platform/imports">استيراد المواقع</Link>
           <Link href="/platform/work-types">أنواع الأعمال</Link>
           <Link href="/legacy">النظام السابق</Link>
         </nav>
