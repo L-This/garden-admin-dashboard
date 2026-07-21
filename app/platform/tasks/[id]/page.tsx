@@ -249,8 +249,11 @@ export default function TaskOperationPage() {
     setMessage('');
 
     for (const file of Array.from(event.target.files)) {
-      const safeName = file.name.replace(/[^\p{L}\p{N}._-]+/gu, '-');
-      const storagePath = `${task.id}/${Date.now()}-${safeName}`;
+      const extension =
+  file.name.split(".").pop()?.toLowerCase() || "bin";
+
+const storagePath =
+  `${task.id}/${crypto.randomUUID()}.${extension}`;
       const { error: uploadError } = await supabase.storage
         .from('task-evidence')
         .upload(storagePath, file, { upsert: false });
