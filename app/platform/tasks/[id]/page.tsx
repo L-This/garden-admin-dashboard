@@ -256,9 +256,15 @@ export default function TaskOperationPage() {
         .upload(storagePath, file, { upsert: false });
 
       if (uploadError) {
-        setUploading(false);
-        return setMessage(uploadError.message);
-      }
+  console.log(uploadError);
+  console.error(uploadError);
+
+  setUploading(false);
+
+  return setMessage(
+    JSON.stringify(uploadError, null, 2)
+  );
+}
 
       const { data: publicData } = supabase.storage.from('task-evidence').getPublicUrl(storagePath);
       const { error: rowError } = await supabase.from('workflow_task_attachments').insert({
