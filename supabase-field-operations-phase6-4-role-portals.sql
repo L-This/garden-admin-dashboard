@@ -49,6 +49,11 @@ as $$
     and (
       profile.role = 'manager'
       or task.current_actor_role = profile.role
+      or exists (
+        select 1 from public.workflow_run_steps participated
+        where participated.run_id = task.id
+          and lower(trim(coalesce(participated.assigned_to, ''))) = lower(trim(profile.display_name))
+      )
       or task.status in ('completed','rejected')
     )
   order by
@@ -65,7 +70,16 @@ as $$
   join public.field_operator_profiles profile on profile.user_id = auth.uid() and profile.active
   where task.id = p_run_id
     and (cardinality(profile.project_ids) = 0 or task.project_id = any(profile.project_ids))
-    and (profile.role = 'manager' or task.current_actor_role = profile.role or task.status in ('completed','rejected'));
+    and (
+      profile.role = 'manager'
+      or task.current_actor_role = profile.role
+      or exists (
+        select 1 from public.workflow_run_steps participated
+        where participated.run_id = task.id
+          and lower(trim(coalesce(participated.assigned_to, ''))) = lower(trim(profile.display_name))
+      )
+      or task.status in ('completed','rejected')
+    );
 $$;
 
 create or replace function public.start_my_field_task(p_run_id uuid)

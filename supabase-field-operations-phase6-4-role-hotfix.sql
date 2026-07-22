@@ -1,6 +1,51 @@
 -- إصلاح تحقق صلاحية الدور في بوابات المرحلة 6.4
 -- يمكن تنفيذه بأمان بعد ملف المرحلة 6.4 الأساسي.
 
+create or replace function public.my_field_tasks(p_scheduled_date date default current_date)
+returns setof public.daily_tasks_overview
+language sql stable security definer set search_path = public
+as $$
+  select task.*
+  from public.daily_tasks_overview task
+  join public.field_operator_profiles profile on profile.user_id = auth.uid() and profile.active
+  where task.scheduled_date = p_scheduled_date
+    and (cardinality(profile.project_ids) = 0 or task.project_id = any(profile.project_ids))
+    and (
+      profile.role = 'manager'
+      or lower(trim(coalesce(task.current_actor_role, ''))) = lower(trim(profile.role))
+      or exists (
+        select 1 from public.workflow_run_steps participated
+        where participated.run_id = task.id
+          and lower(trim(coalesce(participated.assigned_to, ''))) = lower(trim(profile.display_name))
+      )
+      or task.status in ('completed','rejected')
+    )
+  order by
+    case task.status when 'rejected' then 0 when 'under_review' then 1 when 'in_progress' then 2 else 3 end,
+    task.created_at;
+$$;
+
+create or replace function public.my_field_task(p_run_id uuid)
+returns setof public.daily_tasks_overview
+language sql stable security definer set search_path = public
+as $$
+  select task.*
+  from public.daily_tasks_overview task
+  join public.field_operator_profiles profile on profile.user_id = auth.uid() and profile.active
+  where task.id = p_run_id
+    and (cardinality(profile.project_ids) = 0 or task.project_id = any(profile.project_ids))
+    and (
+      profile.role = 'manager'
+      or lower(trim(coalesce(task.current_actor_role, ''))) = lower(trim(profile.role))
+      or exists (
+        select 1 from public.workflow_run_steps participated
+        where participated.run_id = task.id
+          and lower(trim(coalesce(participated.assigned_to, ''))) = lower(trim(profile.display_name))
+      )
+      or task.status in ('completed','rejected')
+    );
+$$;
+
 create or replace function public.start_my_field_task(p_run_id uuid)
 returns jsonb
 language plpgsql security definer set search_path = public
@@ -69,5 +114,7 @@ end $$;
 
 grant execute on function public.start_my_field_task(uuid) to authenticated;
 grant execute on function public.complete_my_field_task_step(uuid,text,numeric,text,boolean) to authenticated;
+grant execute on function public.my_field_tasks(date) to authenticated;
+grant execute on function public.my_field_task(uuid) to authenticated;
 
 notify pgrst, 'reload schema';
